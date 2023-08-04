@@ -29,36 +29,15 @@ import java.util.function.Supplier;
  */
 public class HqlConsole {
 
-    private static final String WELCOME_MESSAGE = "                       -Q\n" +
-            "                      .QQ\n" +
-            "                      SQQ)\n" +
-            "                      QQQN\n" +
-            "                      RQQQ!\n" +
-            "                      TQQQQQQQQQQQQQQQQT,\n" +
-            "                      4QQQQQQQQQQQQQQQQQQQQ\n" +
-            "                      6QQQQQQQQQQQQQQQQQQQQQQ-\n" +
-            "                     ;QQQQQQQQQQQQQQQQQQQQQQQQE\n" +
-            "                    :QQQQQQQQQQQQQQQQQY     CQQQ\n" +
-            "                   1QQQQQQQQQQQQQQQQ5    GQQQM(QQ\n" +
-            "               ,! 6QQQQQQQQQQQQQQQQ6  (QO  .UMQQQQ-\n" +
-            "               QQ\"QQQQQQQQQQQQQQQQR 1Q         JQQQ\"\n" +
-            "              UQXQQQQQQQQQQQQQQQQQ M.           MR )ME\n" +
-            "              KMQQQQQQQQQQQQQQB666\"...         E !!.  Q!\n" +
-            "              ;WQQQQQQQQQQQQ0QQQQQQQQQ.       E  4H--- Q\n" +
-            "               QQQQQQQ, DQQFQQQQQQQQQ9        HU\"     5Q\n" +
-            "              NQQQQQM   QQ!QQQQQQQQQ.         7        \"\n" +
-            "             .QQQQQQ  &QQRQQQQQQQ3\n" +
-            "             &QQQQQQQQQ: VQ.          \n" +
-            "             SQQQQQQQQ(  M             \n" +
-            "             TQQQQQQB )E.             \n" +
-            "             (QQQQ4 R\"              \n" +
-            "              QQQ.E                           \n" +
-            "               YI                                    \n" +
-            "          __  ______    __                                  \n" +
-            "        / / / / __ \\  / /                                   \n" +
-            "       / /_/ / / / / / /                                    \n" +
-            "      / __  / /_/ / / /___    v3.0.1                        \n" +
-            "     /_/ /_/\\___\\_\\/_____/    Copyright © 2020 - 2023 leojie.    ";
+    private static final String WELCOME_MESSAGE = "\n" +
+            "██╗  ██╗██╗   ██╗██████╗ ██████╗  █████╗  ██████╗ ██╗     \n" +
+            "██║  ██║╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗██╔═══██╗██║     \n" +
+            "███████║ ╚████╔╝ ██║  ██║██████╔╝███████║██║   ██║██║     \n" +
+            "██╔══██║  ╚██╔╝  ██║  ██║██╔══██╗██╔══██║██║▄▄ ██║██║     \n" +
+            "██║  ██║   ██║   ██████╔╝██║  ██║██║  ██║╚██████╔╝███████╗\n" +
+            "╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝ ╚══════╝\n" +
+            "                                                          \n" +
+            "v1.0.0 Copyright © 2020 - 2023 leojie";
 
     public static void main(String[] args) {
 
