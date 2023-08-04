@@ -1,7 +1,7 @@
 grammar HBaseSQLV1;
 
 @header {
-package com.github.CCwexiao.hbase.sdk.dsl.antlr;
+package com.hydraql.dsl.antlr;
 }
 
 prog   : inserthqlc         # insertHqlCl

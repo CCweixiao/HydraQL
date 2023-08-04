@@ -1,0 +1,36 @@
+package com.hydraql.common.type.handler.ext;
+
+
+import com.hydraql.common.type.AbstractTypeHandler;
+import com.hydraql.common.util.BytesUtil;
+
+/**
+ * @author leojie 2020/11/28 7:58 下午
+ */
+public class HexBytesHandler extends AbstractTypeHandler<HexBytes> {
+    @Override
+    protected boolean matchConverterType(Class<?> type) {
+        return "HexBytes".equalsIgnoreCase(type.getSimpleName());
+    }
+
+    @Override
+    protected byte[] convertObjValToByteArr(Class<?> type, Object value) {
+        if (value == null) {
+            return null;
+        }
+        return BytesUtil.fromHex(value.toString());
+    }
+
+    @Override
+    protected Object convertByteArrToObjVal(Class<?> type, byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        return BytesUtil.toHex(bytes);
+    }
+
+    @Override
+    public String extractMatchTtypeValue(String value) {
+        return value;
+    }
+}

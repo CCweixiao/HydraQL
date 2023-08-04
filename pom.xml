@@ -4,14 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.CCweixiao</groupId>
-    <artifactId>hbase-sdk</artifactId>
+    <groupId>com.hydraql</groupId>
+    <artifactId>hydraql-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
-    <name>hbase-sdk</name>
-    <url>https://github.com/CCweixiao/hbase-sdk.git</url>
-    <description>hbase orm框架</description>
+    <name>hydraql</name>
+    <url>https://github.com/CCweixiao/HydraQL.git</url>
+    <description>
+        HydraQL is a SQL queryer designed based on HBase's client API, designed to simplify the use of HBase's client API.
+        Its name "Hydra" references the Hydra, which symbolizes flexibility, versatility when dealing with HBase data.
+
+        HydraQL aims to provide an intuitive and easy to use way to query and manipulate HBase databases.
+        By using SQL syntax, users can access and manipulate data in HBase through simple query statements
+        without in-depth understanding and writing of complex HBase API calls.
+    </description>
 
     <licenses>
         <!-- 开源协议 -->
@@ -23,8 +30,8 @@
 
     <scm>
         <!-- scm 信息 -->
-        <url>https://github.com/CCweixiao/hbase-sdk</url>
-        <connection>https://github.com/CCweixiao/hbase-sdk.git</connection>
+        <url>https://github.com/CCweixiao/HydraQL</url>
+        <connection>https://github.com/CCweixiao/HydraQL.git</connection>
     </scm>
 
     <developers>
@@ -44,16 +51,15 @@
 
     <modules>
         <!-- 项目模块名称 -->
-        <module>hbase-sdk-build-tools</module>
-        <module>hbase-sdk-common</module>
-        <module>hbase-sdk-dsl</module>
-        <module>hbase-sdk-adapter</module>
-        <module>hbase-sdk-thrift</module>
-        <module>hbase-sdk-template</module>
-        <module>hbase-sdk-shell</module>
-        <module>spring-boot-starter-hbase</module>
-        <module>hbase-sdk-examples</module>
-        <module>hbase-sdk-console</module>
+        <module>hydraql-common</module>
+        <module>hydraql-dsl</module>
+        <module>hydraql-adapter</module>
+        <module>hydraql-thrift</module>
+        <module>hydraql-template</module>
+        <module>hydraql-shell</module>
+        <module>spring-boot-starter-hydraql</module>
+        <module>hydraql-examples</module>
+        <module>hydraql-console</module>
     </modules>
 
     <properties>
@@ -61,6 +67,7 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <build.path>build</build.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot-2.version>2.1.7.RELEASE</spring-boot-2.version>
         <hbase1.2.version>1.2.0</hbase1.2.version>
@@ -86,8 +93,8 @@
         <jline.version>3.23.0</jline.version>
         <slf4j.version>1.7.30</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
-        <hbase.sdk.adapter.default.version>1.2</hbase.sdk.adapter.default.version>
-        <hbase.sdk.adapter.version>${hbase.sdk.adapter.default.version}</hbase.sdk.adapter.version>
+        <hydraql.hbase.adapter.default.version>1.2</hydraql.hbase.adapter.default.version>
+        <hydraql.hbase.adapter.version>${hydraql.hbase.adapter.default.version}</hydraql.hbase.adapter.version>
     </properties>
 
     <repositories>
@@ -157,33 +164,33 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>hbase-sdk-common</artifactId>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>hbase-sdk-dsl</artifactId>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-dsl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>hbase-sdk-thrift</artifactId>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-thrift</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>hbase-sdk-template_${hbase.sdk.adapter.version}</artifactId>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-template_${hydraql.hbase.adapter.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>hbase-sdk-shell_${hbase.sdk.adapter.version}</artifactId>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-shell_${hydraql.hbase.adapter.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.CCweixiao</groupId>
-                <artifactId>spring-boot-starter-hbase_${hbase.sdk.adapter.version}</artifactId>
+                <groupId>com.hydraql</groupId>
+                <artifactId>spring-boot-starter-hydraql_${hydraql.hbase.adapter.version}</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
@@ -199,7 +206,7 @@
             </activation>
             <properties>
                 <profiles.active>hbase-1.2</profiles.active>
-                <hbase.sdk.adapter.version>1.2</hbase.sdk.adapter.version>
+                <hydraql.hbase.adapter.version>1.2</hydraql.hbase.adapter.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -222,7 +229,7 @@
             </activation>
             <properties>
                 <profiles.active>hbase-1.4</profiles.active>
-                <hbase.sdk.adapter.version>1.4</hbase.sdk.adapter.version>
+                <hydraql.hbase.adapter.version>1.4</hydraql.hbase.adapter.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -245,7 +252,7 @@
             </activation>
             <properties>
                 <profiles.active>hbase-2.2</profiles.active>
-                <hbase.sdk.adapter.version>2.2</hbase.sdk.adapter.version>
+                <hydraql.hbase.adapter.version>2.2</hydraql.hbase.adapter.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -360,7 +367,7 @@
                     <configuration>
                         <effort>Low</effort>
                         <threshold>Medium</threshold>
-                        <excludeFilterFile>hbase-sdk-build-tools/src/main/resources/hbase-sdk/findbugs-exclude.xml</excludeFilterFile>
+                        <excludeFilterFile>${build.path}/findbugs/findbugs-exclude.xml</excludeFilterFile>
                         <findbugsXmlOutput>true</findbugsXmlOutput>
                         <xmlOutput>true</xmlOutput>
                         <findbugsXmlOutputDirectory>target/findbugs</findbugsXmlOutputDirectory>
@@ -374,13 +381,6 @@
                             </goals>
                         </execution>
                     </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.github.CCweixiao</groupId>
-                            <artifactId>hbase-sdk-build-tools</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
 
                 <plugin>
@@ -392,19 +392,14 @@
                     <version>${maven.checkstyle.version}</version>
                     <dependencies>
                         <dependency>
-                            <groupId>com.github.CCweixiao</groupId>
-                            <artifactId>hbase-sdk-build-tools</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                        <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
                             <version>${checkstyle.version}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
-                        <configLocation>hbase-sdk-build-tools/src/main/resources/hbase-sdk/checkstyle.xml</configLocation>
-                        <suppressionsLocation>hbase-sdk-build-tools/src/main/resources/hbase-sdk/checkstyle-suppressions.xml</suppressionsLocation>
+                        <configLocation>${build.path}/checkstyle/checkstyle.xml</configLocation>
+                        <suppressionsLocation>${build.path}/checkstyle/suppressions.xml</suppressionsLocation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                         <consoleOutput>true</consoleOutput>
                     </configuration>
@@ -452,7 +447,7 @@
                 <configuration>
                     <aggregate>true</aggregate>
                     <reportOutputDirectory>${project.basedir}/doc</reportOutputDirectory>
-                    <destDir>hbase-sdk</destDir>
+                    <destDir>hydraql</destDir>
                 </configuration>
             </plugin>
             <plugin>

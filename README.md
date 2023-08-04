@@ -114,7 +114,7 @@ mvn clean package -Dmaven.test.skip=true -Dfindbugs.skip -Dcheckstyle.skip -Dmav
 
 ```xml
 <dependency>
-    <groupId>com.github.CCweixiao</groupId>
+    <groupId>com.hydraql</groupId>
     <artifactId>hbase-sdk-template_1.2</artifactId>
     <version>3.0.0-SNAPSHOT</version>
 </dependency>
@@ -124,7 +124,7 @@ mvn clean package -Dmaven.test.skip=true -Dfindbugs.skip -Dcheckstyle.skip -Dmav
 
 ```xml
 <dependency>
-    <groupId>com.github.CCweixiao</groupId>
+    <groupId>com.hydraql</groupId>
     <artifactId>hbase-sdk-template_1.4</artifactId>
     <version>3.0.0-SNAPSHOT</version>
 </dependency>
@@ -134,14 +134,14 @@ mvn clean package -Dmaven.test.skip=true -Dfindbugs.skip -Dcheckstyle.skip -Dmav
 
 ```xml
 <dependency>
-    <groupId>com.github.CCweixiao</groupId>
+    <groupId>com.hydraql</groupId>
     <artifactId>hbase-sdk-template_2.2</artifactId>
     <version>3.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
 `hbase-sdk`目前最新的版本是`3.0.0-SNAPSHOT`。你可以在maven中央仓库中搜索CCweixiao来获取hbase-sdk相关jar包的最新版本。
-https://mvnrepository.com/artifact/com.github.CCweixiao
+https://mvnrepository.com/artifact/com.hydraql
 
 或者在git仓库中查看最新的release版本。
 
@@ -157,7 +157,7 @@ https://mvnrepository.com/artifact/com.github.CCweixiao
 
 ```xml
 <dependency>
-    <groupId>com.github.CCweixiao</groupId>
+    <groupId>com.hydraql</groupId>
     <artifactId>spring-boot-starter-hbase_1.2</artifactId>
     <version>3.0.0-SNAPSHOT</version>
 </dependency>
@@ -167,7 +167,7 @@ https://mvnrepository.com/artifact/com.github.CCweixiao
 
 ```xml
 <dependency>
-    <groupId>com.github.CCweixiao</groupId>
+    <groupId>com.hydraql</groupId>
     <artifactId>spring-boot-starter-hbase_1.4</artifactId>
     <version>3.0.0-SNAPSHOT</version>
 </dependency>
@@ -177,7 +177,7 @@ https://mvnrepository.com/artifact/com.github.CCweixiao
 
 ```xml
 <dependency>
-    <groupId>com.github.CCweixiao</groupId>
+    <groupId>com.hydraql</groupId>
     <artifactId>spring-boot-starter-hbase_2.2</artifactId>
     <version>3.0.0-SNAPSHOT</version>
 </dependency>

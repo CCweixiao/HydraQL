@@ -2,7 +2,7 @@
 version=$1
 
 if [[ -n "$version" ]];then
-  echo "Start building hbase-sdk $version ......"
+  echo "Start building HydraQL $version ......"
 else
   echo "Please enter the HBase profile version you want to build."
   exit 1
