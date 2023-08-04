@@ -11,6 +11,10 @@
     <packaging>jar</packaging>
     <artifactId>hydraql-console_${hydraql.hbase.adapter.version}</artifactId>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.jline</groupId>

@@ -60,6 +60,7 @@
         <module>spring-boot-starter-hydraql</module>
         <module>hydraql-examples</module>
         <module>hydraql-console</module>
+        <module>hydraql-tests</module>
     </modules>
 
     <properties>

@@ -7,7 +7,9 @@ import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.IHBaseFilter;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.service.model.CityModel;
+import com.hydraql.template.model.CityModel;
+import com.hydraql.template.model.CityModelUtil;
+import com.hydraql.tests.common.HydraQlBaseTestTemplate;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -20,9 +22,11 @@ import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.ValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,39 +34,45 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * @author leojie 2023/7/3 11:00
+ * @author leojie 2023/8/4 22:53
  */
-public class TestHBaseTableTemplate extends BaseTestTemplate {
+public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
+    private HBaseTableTemplate tableTemplate;
+
+    @Before
+    public void setup() throws Exception {
+        startMiniCluster();
+        tableTemplate = HBaseTableTemplate.of(getConfiguration());
+        createTestTable();
+    }
 
     @Test
     public void testSaveMap() {
         Map<String, Object> data = new HashMap<>(2);
-        data.put("info:name", "leo");
-        data.put("info:age", 18);
+        data.put("f1:name", "leo");
+        data.put("f1:age", 18);
         tableTemplate.save(TEST_TABLE, "1001", data);
-        GetRowParam getRowParam = GetRowParam.of("1001").build();
-        HBaseRowData result = tableTemplate.getRow(TEST_TABLE, getRowParam);
-        Assert.assertEquals(2, result.getColDataContainer().size());
+        HBaseRowData rowData = tableTemplate.getRow(TEST_TABLE, GetRowParam.of("1001").build());
+        Assert.assertEquals(2, rowData.getColDataContainer().size());
     }
 
     @Test
-    public void testSave() {
-        CityModel cityModel = createDefaultCityModel();
-        tableTemplate.save(cityModel);
-        GetRowParam getRowParam = GetRowParam.of(cityModel.getCityId()).build();
-        Optional<CityModel> cityModelRes = tableTemplate.getRow(getRowParam, CityModel.class);
-        Assert.assertNotNull(cityModelRes);
+    public void testDelete() {
+        testSaveMap();
+        tableTemplate.delete(TEST_TABLE, "1001", F1, "name", "age");
+        HBaseRowData row = tableTemplate.getRow(TEST_TABLE, GetRowParam.of("1001").build());
+        Assert.assertTrue(row.getColDataContainer().isEmpty());
     }
 
     @Test
     public void testSaveBatchMap() {
         Map<String, Object> data1 = new HashMap<>();
-        data1.put("info:name", "leo1");
-        data1.put("info:age", 17);
+        data1.put("f1:name", "leo1");
+        data1.put("f1:age", 17);
 
         Map<String, Object> data2 = new HashMap<>();
-        data2.put("info:name", "leo2");
-        data2.put("info:age", 18);
+        data2.put("f1:name", "leo2");
+        data2.put("f1:age", 18);
 
         Map<String, Map<String, Object>> data = new HashMap<>(2);
         data.put("1001", data1);
@@ -76,8 +86,27 @@ public class TestHBaseTableTemplate extends BaseTestTemplate {
     }
 
     @Test
+    public void testDeleteBatch() {
+        testSaveBatchMap();
+        tableTemplate.deleteBatch(TEST_TABLE, Arrays.asList("1001", "1002"));
+        GetRowsParam getRowsParam = GetRowsParam.of().appendRowKey("1001")
+                .appendRowKey("1002").build();
+        List<HBaseRowData> rowDataList = tableTemplate.getRows(TEST_TABLE, getRowsParam);
+        Assert.assertEquals(0, rowDataList.size());
+    }
+
+    @Test
+    public void testSave() {
+        CityModel cityModel = CityModelUtil.createDefaultCityModel();
+        tableTemplate.save(cityModel);
+        GetRowParam getRowParam = GetRowParam.of(cityModel.getCityId()).build();
+        Optional<CityModel> cityModelRes = tableTemplate.getRow(getRowParam, CityModel.class);
+        Assert.assertNotNull(cityModelRes);
+    }
+
+    @Test
     public void testSaveBatch() {
-        List<CityModel> cityModelList = createDefaultCityModelList();
+        List<CityModel> cityModelList = CityModelUtil.createDefaultCityModelList();
         tableTemplate.saveBatch(cityModelList);
         List<String> rowKeys = cityModelList.stream().map(CityModel::getCityId)
                 .collect(Collectors.toList());
@@ -89,7 +118,8 @@ public class TestHBaseTableTemplate extends BaseTestTemplate {
 
     @Test
     public void testGetByRowMapper() {
-        GetRowParam getRowParam = GetRowParam.of("1001").build();
+        testSave();
+        GetRowParam getRowParam = GetRowParam.of("a10001").build();
         Map<String, String> data = tableTemplate.getRow(TEST_TABLE, getRowParam, new RowMapper<Map<String, String>>() {
             @Override
             public <R> Map<String, String> mapRow(R r, int rowNum) throws Exception {
@@ -100,17 +130,19 @@ public class TestHBaseTableTemplate extends BaseTestTemplate {
                 Map<String, String> data = new HashMap<>(2);
                 for (Cell cell : result.listCells()) {
                     data.put(Bytes.toString(CellUtil.cloneFamily(cell)) + ":" +
-                            Bytes.toString(CellUtil.cloneQualifier(cell)),
+                                    Bytes.toString(CellUtil.cloneQualifier(cell)),
                             Bytes.toString(CellUtil.cloneValue(cell)));
                 }
                 return data;
             }
         }).orElse(new HashMap<>(0));
-        Assert.assertEquals(2, data.size());
+        Assert.assertEquals(5, data.size());
     }
+
 
     @Test
     public void testScanWithCustomFilter() {
+        testSaveBatch();
         ScanParams scanParams = ScanParams.of()
                 .filter(new IHBaseFilter<Filter>() {
                     @Override
@@ -139,10 +171,11 @@ public class TestHBaseTableTemplate extends BaseTestTemplate {
         Assert.assertEquals(1, cityModels.size());
     }
 
+
     @Test
     public void testGetRowToList() {
         tableTemplate.delete(TEST_TABLE, "a1000112");
-        List<CityModel> defaultCityModelList = createDefaultMultiVersionsCityModelList();
+        List<CityModel> defaultCityModelList = CityModelUtil.createDefaultMultiVersionsCityModelList();
         for (CityModel cityModel : defaultCityModelList) {
             tableTemplate.save(cityModel);
         }
@@ -215,8 +248,4 @@ public class TestHBaseTableTemplate extends BaseTestTemplate {
         Assert.assertEquals(1, hBaseRowDataWithMultiVersions.size());
     }
 
-    @Test
-    public void testDelete() {
-        tableTemplate.delete("t1", "r1", "f", "version");
-    }
 }
