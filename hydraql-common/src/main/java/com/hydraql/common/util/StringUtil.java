@@ -185,8 +185,44 @@ public class StringUtil {
         }
     }
 
+    public static boolean isCreateVirtualTableCommand(String command) {
+        if (StringUtil.isBlank(command)) {
+            return false;
+        }
+        command = command.toLowerCase().trim();
+        return command.matches("(?i).*create\\s+virtual\\s+table.*") && !command.startsWith("show");
+    }
+
+    public static boolean isShowVirtualTablesCommand(String command) {
+        if (StringUtil.isBlank(command)) {
+            return false;
+        }
+        command = command.toLowerCase().trim();
+        return command.matches("(?i).*show\\s+virtual\\s+tables.*");
+    }
+
+    public static boolean isShowCreateVirtualTableCommand(String command) {
+        if (StringUtil.isBlank(command)) {
+            return false;
+        }
+        command = command.toLowerCase().trim();
+        return command.matches("(?i).*show\\s+create\\s+virtual\\s+table.*");
+    }
+
     public static void main(String[] args) {
-        System.out.println(isBlank("a dbc"));
-        System.out.println(parsePropertyToMapFromStr("test=12=239;key=23;"));
+        String sql = "create virtual table test:test_sql (\n" +
+                " row_key string isrowkey,\n" +
+                " f1:id string nullable,\n" +
+                " f1:name string nullable,\n" +
+                " f1:age int nullable,\n" +
+                " f1:job string nullable,\n" +
+                " f1:pay double nullable,\n" +
+                " f2:address string nullable,\n" +
+                " f2:commuter string nullable\n" +
+                " );";
+        System.out.println(isCreateVirtualTableCommand(sql.replaceAll("\n", "")));
+
+        System.out.println(isShowVirtualTablesCommand("show virtual tables;"));
+        System.out.println(isShowCreateVirtualTableCommand("show create virtual table test"));
     }
 }

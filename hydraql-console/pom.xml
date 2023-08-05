@@ -72,7 +72,7 @@
                         <addMavenDescriptor>true</addMavenDescriptor>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
+                            <classpathPrefix>./</classpathPrefix>
                             <mainClass>com.hydraql.console.HqlConsole</mainClass>
                         </manifest>
                     </archive>

@@ -3,8 +3,11 @@ package com.hydraql.dsl.context;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.dsl.model.HBaseTableSchema;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 
 /**
@@ -52,6 +55,13 @@ public class HBaseSqlContext {
             throw new IllegalArgumentException("The schemaUniqueKey is not empty.");
         }
         return tableSchemaMap.get(schemaUniqueKey);
+    }
+
+    public List<String> getAllRegisteredVirtualTables() {
+        if (tableSchemaMap.isEmpty()) {
+            return new ArrayList<>(0);
+        }
+        return tableSchemaMap.values().stream().map(HBaseTableSchema::getTableName).collect(Collectors.toList());
     }
 
 

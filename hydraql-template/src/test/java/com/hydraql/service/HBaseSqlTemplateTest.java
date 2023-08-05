@@ -42,7 +42,21 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
     }
 
     @Test
-    public void testSelectRow() {
+    public void testShowTables() {
+        String hql = "show virtual tables";
+        List<String> virtualTables = sqlTemplate.showVirtualTables(hql);
+        System.out.println(virtualTables);
+    }
+
+    @Test
+    public void testShowCreateTable() {
+        String hql = "show create virtual table test:test_sql;";
+        String s = sqlTemplate.showCreateVirtualTable(hql);
+        System.out.println(s);
+    }
+
+    @Test
+    public void testCreateVirtualTable() {
         String hql1 = "create virtual table test:test_sql (\n" +
                 " row_key string isrowkey,\n" +
                 " f1:id string nullable,\n" +

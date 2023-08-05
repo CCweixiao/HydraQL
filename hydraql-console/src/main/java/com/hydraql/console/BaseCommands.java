@@ -25,7 +25,7 @@ public abstract class BaseCommands extends JlineCommandRegistry {
         } else {
             Map<String, Object> options = new HashMap<>();
             options.put(Printer.STRUCT_ON_TABLE, true);
-            options.put(Printer.VALUE_STYLE, "classpath:/hbase/sdk/console/gron.nanorc");
+            options.put(Printer.VALUE_STYLE, "classpath:/hydraql/console/gron.nanorc");
             printer.println(options, message);
         }
     }

@@ -23,6 +23,8 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author leojie 2023/7/29 20:18
@@ -105,11 +107,29 @@ public class HqlConsole {
                             command = "ruby_exec " + line;
                         } else if (allShellCommands.contains(command)) {
                             command = line;
+                        } else if (line.trim().equalsIgnoreCase("help")) {
+                            command = "help";
+                        } else if (command.trim().equalsIgnoreCase("help")) {
+                            command = line;
+                        } else if (line.trim().equalsIgnoreCase("exit")) {
+                            command = "exit";
                         } else {
                             command = "ruby_exec " + line;
                         }
                     }
                     command = command.replaceAll("\n", "");
+                    if (StringUtil.isCreateVirtualTableCommand(command)) {
+                        command = command.replaceAll("ruby_exec ", "");
+                        command = "createVirtualTable " + command;
+                    }
+                    if (StringUtil.isShowVirtualTablesCommand(command)) {
+                        command = command.replaceAll("ruby_exec ", "");
+                        command = "showVirtualTables " + command;
+                    }
+                    if (StringUtil.isShowCreateVirtualTableCommand(command)) {
+                        command = command.replaceAll("ruby_exec ", "");
+                        command = "showCreateVirtualTable " + command;
+                    }
                     systemRegistry.execute(command);
                 } catch (UserInterruptException e) {
                     // Ignore
@@ -126,9 +146,6 @@ public class HqlConsole {
         }
     }
 
-    public static String help() {
-        return "help >>>";
-    }
 
     private static File getHistoryCommandsFile() throws IOException {
         return getHistoryCommandsFile("");

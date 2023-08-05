@@ -31,6 +31,18 @@ public interface HBaseSQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDropTableStatement(HBaseSQLParser.DropTableStatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link HBaseSQLParser#showTableStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShowTableStatement(HBaseSQLParser.ShowTableStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link HBaseSQLParser#showCreateTableStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShowCreateTableStatement(HBaseSQLParser.ShowCreateTableStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link HBaseSQLParser#tableName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

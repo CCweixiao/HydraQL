@@ -3,12 +3,12 @@
     <formats>
         <format>tar.gz</format><!--打包格式-->
     </formats>
-    <baseDirectory>hydraql-console-${project.version}</baseDirectory>
+    <baseDirectory>hydraql-console_${hydraql.hbase.adapter.version}-${project.version}</baseDirectory>
     <!--如果为false，不会额外产生根目录，否则，在tar.gz包中会产生以pom.xml中artifactId和version命名的根目录-->
     <includeBaseDirectory>true</includeBaseDirectory>
     <!--是对依赖包的设置-->
     <dependencySets>
-        <!--assembly中dependencySets的意思就是，将scope为runtime的依赖包，放到AlarmReport/lib目录下-->
+        <!--assembly中dependencySets的意思就是，将scope为runtime的依赖包，放到/lib目录下-->
         <dependencySet>
             <!--定义了是否解压依赖包，如果为true，会解压出依赖包中的class文件，反之，则不进行解压-->
             <unpack>false</unpack>
@@ -47,15 +47,23 @@
             <includes>
                 <include>*.xml</include>
                 <include>*.properties</include>
-                <include>hbase/**</include>
+                <include>hydraql/**</include>
             </includes>
         </fileSet>
 
+        <!-- 把项目的配置文件，打包进zip文件的config目录 -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
 
         <!-- 把项目自己编译出来的jar文件，打包进zip文件的根目录 -->
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>*.jar</include>
             </includes>

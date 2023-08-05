@@ -17,12 +17,15 @@ import java.util.stream.Collectors;
 public class HBaseTableSchema {
     private final String tableName;
     private final String defaultFamily;
+
     /**
      * qualifier -> family -> HBaseColumnSchema
      */
     private final Map<String, HBaseColumn> columnSchemaMap;
 
     private TableQueryProperties tableQueryProperties;
+
+    private String createSql;
 
     public HBaseTableSchema(Builder builder) {
         this.tableName = builder.tableName;
@@ -411,7 +414,12 @@ public class HBaseTableSchema {
         if (StringUtil.isBlank(tableSchemaJson)) {
             return null;
         }
-        TableSchema tableSchema = JSONObject.parseObject(tableSchemaJson, TableSchema.class);
+        TableSchema tableSchema;
+        try {
+            tableSchema = JSONObject.parseObject(tableSchemaJson, TableSchema.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Unable to parse table schema JSON metadata "+ tableSchemaJson);
+        }
         return tableSchema.convertFor();
     }
 
@@ -423,7 +431,7 @@ public class HBaseTableSchema {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("---------------table--------------------------\n");
+        sb.append("---------------------------------------------------\n");
         sb.append("tableName = ");
         sb.append(this.getTableName());
         sb.append(", ");
@@ -447,11 +455,19 @@ public class HBaseTableSchema {
             sb.append(column.generateSchema());
             sb.append("\n");
         }
-        sb.append("---------------table--------------------------\n");
+        sb.append("---------------------------------------------------\n");
         return sb.toString();
     }
 
     public void printSchema() {
         System.out.println(this);
+    }
+
+    public String getCreateSql() {
+        return createSql;
+    }
+
+    public void setCreateSql(String createSql) {
+        this.createSql = createSql;
     }
 }

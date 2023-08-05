@@ -4,6 +4,7 @@ import com.hydraql.common.model.HQLType;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,9 +12,12 @@ import java.util.Map;
  */
 public interface IHBaseSqlAdapter {
 
-    void dropVirtualTable(String hql);
+    String showCreateVirtualTable(String hql);
+    List<String> showVirtualTables(String hql);
 
     void createVirtualTable(String hql);
+
+    void dropVirtualTable(String hql);
 
     HBaseDataSet select(String hql);
 

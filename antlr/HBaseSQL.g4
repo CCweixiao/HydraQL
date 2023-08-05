@@ -38,8 +38,10 @@ STARTTS : S T A R T T S ;
 ENDTS : E N D T S;
 CREATE : C R E A T E;
 DROP : D R O P;
+SHOW : S H O W;
 VIRTUAL : V I R T U A L;
 TABLE : T A B L E;
+TABLES : T A B L E S;
 WITH : W I T H ;
 PROPERTIES : P R O P E R T I E S;
 NULLABLE : N U L L A B L E;
@@ -104,6 +106,8 @@ fragment DOT_R : '\'';
 /* parser rules */
 query : createTableStatement
       | dropTableStatement
+      | showTableStatement
+      | showCreateTableStatement
       | insertStatement
       | selectStatement
       | deleteStatement
@@ -111,6 +115,8 @@ query : createTableStatement
 
 createTableStatement : CREATE VIRTUAL TABLE tableName '(' fields ')' (WITH PROPERTIES '(' properties ')')? ';'?;
 dropTableStatement : DROP VIRTUAL TABLE tableName ';'?;
+showTableStatement : SHOW VIRTUAL TABLES ';'?;
+showCreateTableStatement : SHOW CREATE VIRTUAL TABLE tableName ';'?;
 
 tableName : ID;
 
@@ -129,16 +135,16 @@ selectColList : '*'          # colList_Star
 	     	  ;
 columnList : column (COMMA column)*;
 
-insertStatement : INSERT INTO tableName LR_BRACKET columnList RR_BRACKET VALUES multiValueList (WHERE TS EQ tsExp)?;
+insertStatement : INSERT INTO tableName LR_BRACKET columnList RR_BRACKET VALUES multiValueList (WHERE TS EQ tsExp)? ';'?;
 
 multiValueList : LR_BRACKET valueList RR_BRACKET (COMMA LR_BRACKET valueList RR_BRACKET)*;
 valueList: value ( COMMA value ) *;
 value : (STRING | ID | NULL | ROWKEY)+;
 
 
-selectStatement : SELECT selectColList FROM tableName WHERE rowKeyRangeExp (AND wherec)? (AND multiVersionExp)? limitExp?;
+selectStatement : SELECT selectColList FROM tableName WHERE rowKeyRangeExp (AND wherec)? (AND multiVersionExp)? limitExp? ';'?;
 
-deleteStatement : DELETE selectColList FROM tableName WHERE rowKeyRangeExp (AND wherec)? (AND TS EQ tsExp)?;
+deleteStatement : DELETE selectColList FROM tableName WHERE rowKeyRangeExp (AND wherec)? (AND TS EQ tsExp)? ';'?;
 
 rowKeyRangeExp :  STARTKEY gtOper rowKeyExp AND ENDKEY leOper rowKeyExp            # rowkeyrange_startAndEnd
                 | STARTKEY gtOper rowKeyExp                                          # rowkeyrange_start

@@ -52,7 +52,7 @@ EOF
 
       def count(table, params = {})
         # If the second parameter is an integer, then it is the old command syntax
-        params = { 'INTERVAL' => params } if params.kind_of?(Fixnum)
+        params = { 'INTERVAL' => params } if params.is_a?(Integer)
 
         # Merge params with defaults
         params = {

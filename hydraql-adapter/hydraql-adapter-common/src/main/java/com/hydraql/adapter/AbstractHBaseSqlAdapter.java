@@ -43,8 +43,10 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,11 +57,41 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
     protected static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
     protected static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
     protected static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
-
-    protected static final byte[] HQL_META_DATA_CREATE_TABLE_HQL= Bytes.toBytes( "create_hql");
+    protected static final byte[] HQL_META_DATA_CREATE_HQL_QUALIFIER = Bytes.toBytes( "create_hql");
 
     public AbstractHBaseSqlAdapter(Configuration configuration) {
         super(configuration);
+    }
+
+    @Override
+    public List<String> showVirtualTables(String hql) {
+        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
+        HBaseSQLParser.ShowTableStatementContext showTableStatementContext = queryContext.showTableStatement();
+        if (showTableStatementContext == null) {
+            throw new HBaseSqlAnalysisException("Please enter the statement show virtual tables.");
+        }
+        List<String> allRegisteredVirtualTables = HBaseSqlContext.getInstance().getAllRegisteredVirtualTables();
+        List<String> allVirtualTables = queryAllVirtualTables();
+        Set<String> tableNames = new HashSet<>(allRegisteredVirtualTables);
+        tableNames.addAll(allVirtualTables);
+        return new ArrayList<>(tableNames);
+    }
+
+    @Override
+    public String showCreateVirtualTable(String hql) {
+        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
+        HBaseSQLParser.ShowCreateTableStatementContext showCreateTableStatementContext =
+                queryContext.showCreateTableStatement();
+        if (showCreateTableStatementContext == null) {
+            throw new HBaseSqlAnalysisException("Please enter the statement show create virtual table.");
+        }
+        String tableName = showCreateTableStatementContext.tableName().getText();
+        HBaseTableSchema tableSchema = getTableSchema(tableName);
+        String schema = tableSchema.toString();
+        String createSql = tableSchema.getCreateSql();
+        createSql = createSql.replaceAll("\n", "").replaceAll(",", ",\n");
+
+        return createSql + "\n\n" + schema;
     }
 
     @Override
@@ -105,6 +137,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             }
         }
         HBaseTableSchema tableSchema = tableSchemaBuilder.build();
+        tableSchema.setCreateSql(hql);
         checkAndCreateHqlMetaTable();
         boolean res = saveTableSchemaMeta(tableSchema, hql);
         if (res) {
@@ -148,6 +181,18 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
     protected abstract boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql);
 
+    protected List<String> queryAllVirtualTables() {
+        Scan scan = new Scan();
+        return this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
+            ResultScanner scanner = table.getScanner(scan);
+            List<String> tables = new ArrayList<>();
+            for (Result result : scanner) {
+                tables.add(Bytes.toString(result.getRow()));
+            }
+            return tables;
+        }).orElse(new ArrayList<>(0));
+    }
+
     protected HBaseTableSchema getTableSchema(String tableName) {
         String uniqueKey = HBaseConnectionUtil.generateUniqueConnectionKey(this.getConfiguration());
         uniqueKey = uniqueKey + "#" + HMHBaseConstants.getFullTableName(tableName);
@@ -156,20 +201,23 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             return tableSchema;
         }
         Get get = new Get(Bytes.toBytes(tableName));
-        String tableSchemaJson = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
+
+        String[] tableSchemaMataData = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {
-                return "";
+                return null;
             }
-            byte[] value = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER);
-            return Bytes.toString(value);
-        }).orElse("");
-        tableSchema = HBaseTableSchema.empty().build();
-        tableSchema = tableSchema.convert(tableSchemaJson);
-        if (tableSchema == null) {
+            byte[] schemaValue = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER);
+            byte[] sqlValue = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_CREATE_HQL_QUALIFIER);
+            return new String[] {Bytes.toString(schemaValue), Bytes.toString(sqlValue)};
+        }).orElse(null);
+        if (tableSchemaMataData == null) {
             throw new HBaseSqlTableSchemaMissingException(
-                    String.format("The table [%s] has no table schema, please register first.", tableName));
+                    String.format("The table [%s] has no table schema, please create first.", tableName));
         }
+        tableSchema = HBaseTableSchema.empty().build();
+        tableSchema = tableSchema.convert(tableSchemaMataData[0]);
+        tableSchema.setCreateSql(tableSchemaMataData[1]);
         this.registerTableSchema(tableSchema);
         return tableSchema;
     }

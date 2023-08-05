@@ -6,6 +6,8 @@ import com.hydraql.common.model.HQLType;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;
 import org.apache.hadoop.conf.Configuration;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,15 +24,24 @@ public class HBaseSqlTemplate implements BaseHBaseSqlTemplate {
     }
 
     @Override
+    public void createVirtualTable(String hql) {
+        sqlAdapter.createVirtualTable(hql);
+    }
+
+    @Override
     public void dropVirtualTable(String hql) {
         sqlAdapter.dropVirtualTable(hql);
     }
 
     @Override
-    public void createVirtualTable(String hql) {
-        sqlAdapter.createVirtualTable(hql);
+    public String showCreateVirtualTable(String hql) {
+        return sqlAdapter.showCreateVirtualTable(hql);
     }
 
+    @Override
+    public List<String> showVirtualTables(String hql) {
+        return sqlAdapter.showVirtualTables(hql);
+    }
     @Override
     public HBaseDataSet select(String hql) {
         return sqlAdapter.select(hql);
