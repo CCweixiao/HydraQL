@@ -53,7 +53,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
         String tableSchemaJson = tableSchema.toJson();
         String tableName = HMHBaseConstants.getFullTableName(tableSchema.getTableName());
         Get get = new Get(Bytes.toBytes(tableName));
-        Optional<String> res = this.execute(tableName, table -> {
+        Optional<String> res = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {
                 return "";

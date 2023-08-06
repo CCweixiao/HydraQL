@@ -1,6 +1,7 @@
 package com.hydraql.service;
 
 import com.hydraql.common.model.row.HBaseDataSet;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.List;
@@ -20,6 +21,27 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
         for (String hql : hqlList) {
             sqlTemplate.insert(hql);
         }
+    }
+
+    @Test
+    public void testInsertOne() {
+        String hql = "insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )\n" +
+                " values ('a10001', 'a10001' , 'leo_a100_01' , 18 , 'Coding' , 13333.33 , 'BeiJing' , 'Car' );";
+        sqlTemplate.insert(hql);
+    }
+
+    @Test
+    public void testInsertMultiValues() {
+        String hql = " insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )\n" +
+                "  values ('a10001', 'a10001' , 'leo_a100_01' , 18 , 'Coding' , 13333.33 , 'BeiJing' , 'Car' ), " +
+                "('a10002', 'a10002' , 'leo_a100_02' , 19 , '外卖员' , 7333.33 , 'ShangHai' , '电动车' );";
+        sqlTemplate.insert(hql);
+    }
+
+    @Test
+    public void testDeleteOneColByRow() {
+        String hql = "delete f1:id from test:test_hql where rowKey = 'a10001';";
+        sqlTemplate.delete(hql);
     }
 
     @Test
@@ -57,7 +79,7 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testCreateVirtualTable() {
-        String hql1 = "create virtual table test:test_sql (\n" +
+        String hql1 = " create virtual table test:test_sql (\n" +
                 " row_key string isrowkey,\n" +
                 " f1:id string nullable,\n" +
                 " f1:name string nullable,\n" +
@@ -67,13 +89,29 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
                 " f2:address string nullable,\n" +
                 " f2:commuter string nullable\n" +
                 " );";
-        sqlTemplate.createVirtualTable(hql1);
+        String hql2 = "create virtual table test:test_hql (\n" +
+                "    row_key string isrowkey,\n" +
+                "    f1:id string nullable,\n" +
+                "    f1:name string nullable,\n" +
+                "    f1:age int nullable,\n" +
+                "    f1:job string nullable,\n" +
+                "    f1:pay double nullable,\n" +
+                "    f2:address string nullable,\n" +
+                "    f2:commuter string nullable\n" +
+                ") with properties (\n" +
+                "\"hbase.client.scanner.caching\"=\"100\"\n" +
+                ",\"hbase.client.block.cache\"=\"false\"\n" +
+                ");";
+        sqlTemplate.createVirtualTable(hql2);
+        List<String> tables = sqlTemplate.showVirtualTables("show virtual tables;");
+        Assert.assertTrue(tables.contains("test:test_hql"));
+        // sqlTemplate.createVirtualTable(hql1);
          // String hql2 = "drop virtual table test:test_sql;";
         // sqlTemplate.dropVirtualTable(hql2);
 //        sqlTemplate.createVirtualTable(hql1);
-        String sql1 = "select * from test:test_sql where rowKey='c1005'";
-        HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
-        dataSet1.show();
+//        String sql1 = "select * from test:test_sql where rowkey = 'r1' and maxVersion = 5 limit 10";
+//        HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
+//        dataSet1.show();
     }
 
     @Test

@@ -122,6 +122,10 @@ public class HqlConsole {
                         command = command.replaceAll("ruby_exec ", "");
                         command = "createVirtualTable " + command;
                     }
+                    if (StringUtil.isShowDropVirtualTableCommand(command)) {
+                        command = command.replaceAll("ruby_exec ", "");
+                        command = "dropVirtualTable " + command;
+                    }
                     if (StringUtil.isShowVirtualTablesCommand(command)) {
                         command = command.replaceAll("ruby_exec ", "");
                         command = "showVirtualTables " + command;

@@ -11,6 +11,7 @@ LR_BRACKET:                          '(';
 RR_BRACKET:                          ')';
 COMMA:                               ',';
 SEMICOLON:                           ';';
+D_QUO: '"';
 
 // Operators
 EQ : '=';
@@ -125,7 +126,7 @@ field : fieldName fieldType ISROWKEY? NULLABLE? ;
 fieldName : ID ;
 fieldType : ID ;
 properties : keyValue (',' keyValue)* ;
-keyValue : ID '=' ID ;
+keyValue : D_QUO ID D_QUO '=' D_QUO ID D_QUO ;
 
 column : ID;
 funcname : ID;

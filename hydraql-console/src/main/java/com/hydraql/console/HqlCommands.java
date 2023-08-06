@@ -26,6 +26,7 @@ public class HqlCommands extends BaseCommands {
         commandExecute.put("showVirtualTables", new CommandMethods(this::showVirtualTables, this::defaultCompleter));
         commandExecute.put("showCreateVirtualTable", new CommandMethods(this::showCreateVirtualTable, this::defaultCompleter));
         commandExecute.put("createVirtualTable", new CommandMethods(this::create, this::defaultCompleter));
+        commandExecute.put("dropVirtualTable", new CommandMethods(this::dropVirtualTable, this::defaultCompleter));
         commandExecute.put("select", new CommandMethods(this::select, this::defaultCompleter));
         commandExecute.put("insert", new CommandMethods(this::insert, this::defaultCompleter));
         commandExecute.put("delete", new CommandMethods(this::delete, this::defaultCompleter));
@@ -101,6 +102,15 @@ public class HqlCommands extends BaseCommands {
         hql = hql.replace("createVirtualTable ", "");
         HBaseSqlTemplate sqlTemplate = HBaseSqlTemplate.of(HClusterContext.getInstance().getCurrentClusterProperties());
         sqlTemplate.createVirtualTable(hql);
+        println("OK," + " cost: " + TimeConverter.humanReadableCost(System.currentTimeMillis() - start));
+    }
+
+    private void dropVirtualTable(CommandInput input) {
+        long start = System.currentTimeMillis();
+        String hql = parseSql(input);
+        hql = hql.replace("dropVirtualTable ", "");
+        HBaseSqlTemplate sqlTemplate = HBaseSqlTemplate.of(HClusterContext.getInstance().getCurrentClusterProperties());
+        sqlTemplate.dropVirtualTable(hql);
         println("OK," + " cost: " + TimeConverter.humanReadableCost(System.currentTimeMillis() - start));
     }
 

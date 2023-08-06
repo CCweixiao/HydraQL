@@ -190,7 +190,7 @@ public class StringUtil {
             return false;
         }
         command = command.toLowerCase().trim();
-        return command.matches("(?i).*create\\s+virtual\\s+table.*") && !command.startsWith("show");
+        return command.matches("(?i).*create\\s+virtual\\s+table.*") && !command.startsWith("ruby_exec show");
     }
 
     public static boolean isShowVirtualTablesCommand(String command) {
@@ -209,6 +209,14 @@ public class StringUtil {
         return command.matches("(?i).*show\\s+create\\s+virtual\\s+table.*");
     }
 
+    public static boolean isShowDropVirtualTableCommand(String command) {
+        if (StringUtil.isBlank(command)) {
+            return false;
+        }
+        command = command.toLowerCase().trim();
+        return command.matches("(?i).*drop\\s+virtual\\s+table.*");
+    }
+
     public static void main(String[] args) {
         String sql = "create virtual table test:test_sql (\n" +
                 " row_key string isrowkey,\n" +
@@ -224,5 +232,6 @@ public class StringUtil {
 
         System.out.println(isShowVirtualTablesCommand("show virtual tables;"));
         System.out.println(isShowCreateVirtualTableCommand("show create virtual table test"));
+        System.out.println(isShowDropVirtualTableCommand("drop virtual table test:test_hql;"));
     }
 }

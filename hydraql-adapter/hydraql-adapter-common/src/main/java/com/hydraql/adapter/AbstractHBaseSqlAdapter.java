@@ -209,6 +209,9 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             }
             byte[] schemaValue = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER);
             byte[] sqlValue = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_CREATE_HQL_QUALIFIER);
+            if (schemaValue == null || sqlValue == null) {
+                return null;
+            }
             return new String[] {Bytes.toString(schemaValue), Bytes.toString(sqlValue)};
         }).orElse(null);
         if (tableSchemaMataData == null) {
@@ -382,6 +385,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         if (rowDataList.size() == 1) {
             Put put = this.constructPut(rowDataList.get(0), timestamp);
             this.executeSave(tableName, put);
+            return;
         }
 
         List<Mutation> puts = rowDataList.stream().map(rowData -> this.constructPut(rowData, timestamp))
@@ -543,26 +547,34 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         if (queryExtInfo.isMaxVersionSet()) {
             maxVersion = queryExtInfo.getMaxVersions();
         }
-        List<HBaseDataRow> dataRows = new ArrayList<>(maxVersion);
-        Object rowKey = tableSchema.findRow().convertBytesToVal(result.getRow());
-        if (rowKey == null) {
+        if (result == null || result.isEmpty()) {
             return new ArrayList<>(0);
         }
-        for (HBaseColumn columnSchema : tableSchema.findAllColumns()) {
-            List<Cell> cells = result.getColumnCells(columnSchema.getFamilyNameBytes(), columnSchema.getColumnNameBytes());
-            if (cells == null || cells.isEmpty()) {
-                continue;
-            }
-            for (int i = 0; i < cells.size(); i++) {
-                if (dataRows.size() < i + 1) {
-                    dataRows.add(HBaseDataRow.of(rowKey));
-                }
-                Cell cell = cells.get(i);
-                Object value = columnSchema.getColumnType().getTypeHandler().
-                        toObject(columnSchema.getColumnType().getTypeClass(), CellUtil.cloneValue(cell));
+        List<HBaseDataRow> dataRows = new ArrayList<>(maxVersion);
+        Object rowKey = tableSchema.findRow().convertBytesToVal(result.getRow());
 
-                dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(), columnSchema.getColumnType(),
-                        value, cell.getTimestamp());
+        for (int i = 0; i < maxVersion; i++) {
+            dataRows.add(HBaseDataRow.of(rowKey));
+            for (HBaseColumn columnSchema : tableSchema.findAllColumns()) {
+                if (columnSchema.columnIsRow()) {
+                    continue;
+                }
+                List<Cell> cells = result.getColumnCells(columnSchema.getFamilyNameBytes(), columnSchema.getColumnNameBytes());
+                if (cells.isEmpty()) {
+                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(), columnSchema.getColumnType(),
+                            null, 0);
+                    continue;
+                }
+                if (i < cells.size()) {
+                    Cell cell = cells.get(i);
+                    Object value = columnSchema.getColumnType().getTypeHandler().
+                            toObject(columnSchema.getColumnType().getTypeClass(), CellUtil.cloneValue(cell));
+                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(), columnSchema.getColumnType(),
+                            value, cell.getTimestamp());
+                } else {
+                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(), columnSchema.getColumnType(),
+                            null, 0);
+                }
             }
         }
         return dataRows;

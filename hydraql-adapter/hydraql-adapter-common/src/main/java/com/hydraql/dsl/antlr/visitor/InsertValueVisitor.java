@@ -81,7 +81,7 @@ public class InsertValueVisitor extends BaseVisitor<List<InsertRowData>> {
 
 
     public List<InsertRowData> parseInsertConstantValue(HBaseSQLParser.InsertStatementContext insertStatementContext) {
-        return insertStatementContext.accept(this);
+        return insertStatementContext.multiValueList().accept(this);
     }
 
     public long parseTimestamp(HBaseSQLParser.InsertStatementContext insertStatementContext) {

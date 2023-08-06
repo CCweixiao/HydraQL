@@ -55,7 +55,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
         String tableSchemaJson = tableSchema.toJson();
         String tableName = HMHBaseConstants.getFullTableName(tableSchema.getTableName());
         Get get = new Get(Bytes.toBytes(tableName));
-        Optional<String> res = this.execute(tableName, table -> {
+        Optional<String> res = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {
                 return "";
@@ -63,7 +63,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
             return Bytes.toString(result.getRow());
         });
         if (StringUtil.isNotBlank(res.orElse(""))) {
-            throw new HBaseSqlAnalysisException(String.format("The schema of table %s has been created.", tableName));
+            throw new HBaseSqlAnalysisException(String.format("The virtual table %s has been created.", tableName));
         }
         Put put = new Put(Bytes.toBytes(tableName));
         put.addColumn(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER, Bytes.toBytes(tableSchemaJson));
