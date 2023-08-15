@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.ValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.hydraql.tests.common.HydraQlBaseTestConstants.F1;
+import static com.hydraql.tests.common.HydraQlBaseTestConstants.TEST_TABLE;
+
 /**
  * @author leojie 2023/8/4 22:53
  */
@@ -44,6 +48,11 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
         startMiniCluster();
         tableTemplate = HBaseTableTemplate.of(getConfiguration());
         createTestTable();
+    }
+
+    @After
+    public void destroy() throws Exception {
+        shutdownMiniCluster();
     }
 
     @Test

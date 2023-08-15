@@ -18,25 +18,23 @@
 
     <modules>
         <module>hydraql-tests-common</module>
-        <module>hydraql-template-test</module>
+        <module>hydraql-tests-adapter_1.2</module>
+        <module>hydraql-tests-adapter_1.4</module>
+        <module>hydraql-tests-adapter_2.2</module>
+        <module>hydraql-tests-main</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-server</artifactId>
-                <version>${hbase2.2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hydraql</groupId>
-                <artifactId>hydraql-template_2.2</artifactId>
-                <version>${project.parent.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.hydraql</groupId>
                 <artifactId>hydraql-tests-common</artifactId>
                 <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-tests-adapter_${hydraql.hbase.adapter.version}</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
