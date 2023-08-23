@@ -75,6 +75,7 @@
         <hbase1.4.version>1.4.3</hbase1.4.version>
         <hbase2.1.version>2.1.3</hbase2.1.version>
         <hbase2.2.version>2.2.6</hbase2.2.version>
+        <hbase2.5.version>2.5.3</hbase2.5.version>
         <hbase.thrift.1.4.version>1.4.3</hbase.thrift.1.4.version>
         <commons.pool2.version>2.6.2</commons.pool2.version>
         <guava.version>30.0-jre</guava.version>
@@ -261,6 +262,29 @@
                         <groupId>org.apache.hbase</groupId>
                         <artifactId>hbase-server</artifactId>
                         <version>${hbase2.2.version}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <profile>
+            <id>hbase-2.5</id>
+            <activation>
+                <property>
+                    <name>hbase.profile</name>
+                    <value>2.5</value>
+                </property>
+            </activation>
+            <properties>
+                <profiles.active>hbase-2.5</profiles.active>
+                <hydraql.hbase.adapter.version>2.5</hydraql.hbase.adapter.version>
+            </properties>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.hbase</groupId>
+                        <artifactId>hbase-server</artifactId>
+                        <version>${hbase2.5.version}</version>
                     </dependency>
                 </dependencies>
             </dependencyManagement>

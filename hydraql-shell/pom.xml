@@ -17,6 +17,7 @@
         <module>hydraql-shell_1.2</module>
         <module>hydraql-shell_1.4</module>
         <module>hydraql-shell_2.2</module>
+        <module>hydraql-shell_2.5</module>
     </modules>
 
     <dependencyManagement>
