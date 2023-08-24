@@ -21,6 +21,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class HBaseShellSession implements ShellSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseShellSession.class);
+    private static final String SESSION_PROP_SEPARATOR = "$";
 
     private final String sessionId;
     private final int sessionInitMaxTimes;
@@ -169,7 +170,7 @@ public class HBaseShellSession implements ShellSession {
         Properties sysProps = System.getProperties();
         String prop = "";
         if (this.isSessionDebugLog()) {
-            prop = "-d,";
+            prop = "-d".concat(SESSION_PROP_SEPARATOR);
         }
         if (properties != null && !properties.isEmpty()) {
             StringBuilder sb = new StringBuilder();
@@ -178,7 +179,7 @@ public class HBaseShellSession implements ShellSession {
                 sb.append(key);
                 sb.append("=");
                 sb.append(properties.getProperty(key));
-                sb.append(",");
+                sb.append(SESSION_PROP_SEPARATOR);
             }
             prop = prop + sb.substring(0, sb.length() - 1);
         }

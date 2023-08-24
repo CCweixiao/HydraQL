@@ -52,7 +52,7 @@ args_input_by_env = java.lang.System.getProperty('hbase.ruby.args')
 if args_input_by_env.nil?
   args = Array.new
 else
-  args = args_input_by_env.split(",")
+  args = args_input_by_env.split("$")
 end
 
 #
@@ -124,10 +124,10 @@ while (arg = args.shift)
 end
 
 # Delete all processed args
-found.each { |arg| ARGV.delete(arg) }
+found.each { |arg| args.delete(arg) }
 # Make sure debug flag gets back to IRB
 if @shell_debug
-  ARGV.unshift('-d')
+  args.unshift('-d')
 end
 
 # Set logging level to avoid verboseness

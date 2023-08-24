@@ -50,7 +50,7 @@ args_input_by_env = java.lang.System.getProperty('hbase.ruby.args')
 if args_input_by_env.nil?
   args = Array.new
 else
-  args = args_input_by_env.split(",")
+  args = args_input_by_env.split("$")
 end
 
 #
@@ -126,9 +126,9 @@ while (arg = args.shift)
 end
 
 # Delete all processed args
-found.each { |arg| ARGV.delete(arg) }
+found.each { |arg| args.delete(arg) }
 # Make sure debug flag gets back to IRB
-ARGV.unshift('-d') if @shell_debug
+args.unshift('-d') if @shell_debug
 
 # Set logging level to avoid verboseness
 org.apache.log4j.Logger.getLogger('org.apache.zookeeper').setLevel(log_level)

@@ -2,7 +2,7 @@
 
 hydraqlConsoleBasePath=$(cd `dirname $0`; cd ..; pwd)
 hydraqlConsoleBasePath="$hydraqlConsoleBasePath/lib"
-jarFile=$(ls "$hydraqlConsoleBasePath" | grep 'hydraql-console_' | grep -v 'sources.jar')
+jarFile=$(ls "$hydraqlConsoleBasePath" | grep 'hydraql-console_' | grep -v 'sources.jar' | grep -v 'javadoc.jar')
 
 if [ "$jarFile" = "" ];
 then

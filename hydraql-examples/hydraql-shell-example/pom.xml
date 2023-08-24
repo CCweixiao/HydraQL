@@ -19,7 +19,8 @@
     <dependencies>
         <dependency>
             <groupId>com.hydraql</groupId>
-            <artifactId>hydraql-shell_${hydraql.hbase.adapter.version}</artifactId>
+            <artifactId>hydraql-shell_2.5</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -29,8 +30,19 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-server</artifactId>
-            <version>${hbase2.2.version}</version>
+            <version>${hbase2.5.version}</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-reload4j</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-shaded-client</artifactId>
+            <version>${hbase2.5.version}</version>
         </dependency>
     </dependencies>
 

@@ -18,13 +18,17 @@ import java.util.stream.Collectors;
 public class HBaseConnectionManagerRuby {
     public static Connection getConnection(Properties prop) {
         Configuration configuration = getConfiguration(prop);
+        return getConnection(configuration);
+    }
+
+    public static Connection getConnection(Configuration configuration) {
         return HBaseConnectionManager.getInstance().getConnection(configuration);
     }
 
     public static Configuration getConfiguration(Properties properties) {
+        final List<String> keys = properties.keySet().stream().map(Object::toString).collect(Collectors.toList());
         AuthType auth = getAuthType(properties.getProperty(HBaseConfigKeys.HBASE_SECURITY_AUTH, ""));
         Configuration configuration = HBaseConfiguration.create();
-        final List<String> keys = properties.keySet().stream().map(Object::toString).collect(Collectors.toList());
         switch (auth) {
             case SIMPLE:
                 keys.forEach(key -> configuration.set(key, properties.getProperty(key)));
@@ -54,7 +58,7 @@ public class HBaseConnectionManagerRuby {
             return AuthType.SIMPLE;
         }
         for (AuthType value : AuthType.values()) {
-            if (auth.equals(value.getAuthType())) {
+            if (auth.equalsIgnoreCase(value.getAuthType())) {
                 return value;
             }
         }
