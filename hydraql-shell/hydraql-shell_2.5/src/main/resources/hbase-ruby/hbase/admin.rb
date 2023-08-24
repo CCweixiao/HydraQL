@@ -841,7 +841,7 @@ module Hbase
     end
 
     def status(format, type)
-      status = @admin.getClusterStatus
+      status = @admin.getClusterMetrics
       if format == 'detailed'
         puts(format('version %s', status.getHBaseVersion))
         # Put regions in transition first because usually empty
@@ -1772,6 +1772,15 @@ module Hbase
         balancer_rejections_resp_arr << balancer_dec_resp.toJsonPrettyPrint
       }
       balancer_rejections_resp_arr
+    end
+
+    #----------------------------------------------------------------------------------------------
+    # get region info
+    def get_region_info(regionname)
+      sn = @admin.getMaster()
+      puts org.apache.hadoop.hbase.shaded.protobuf.ProtobufUtil.getRegionInfo(nil,
+                                                                              @connection.getAdmin(sn),
+                                                                              regionname.to_java_bytes)
     end
 
     #----------------------------------------------------------------------------------------------

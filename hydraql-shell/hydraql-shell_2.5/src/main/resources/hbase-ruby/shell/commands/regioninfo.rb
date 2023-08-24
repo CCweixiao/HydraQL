@@ -36,11 +36,7 @@ EOF
       end
 
       def command(regionname)
-        connection = org.apache.hadoop.hbase.client.ConnectionFactory.createConnection()
-        admin = connection.getAdmin()
-        sn = admin.getMaster()
-        puts org.apache.hadoop.hbase.shaded.protobuf.ProtobufUtil.getRegionInfo(nil,
-          connection.getAdmin(sn), regionname.to_java_bytes)
+        admin.get_region_info(regionname)
       end
     end
   end

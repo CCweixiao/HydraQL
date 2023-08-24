@@ -21,4 +21,4 @@
 # still behave the same as in earlier releases if folks unpackage the
 # jar contents onto the local filesystem if they need that for some
 # other reason.
-require 'uri:classloader:/shell.rb'
+require 'uri:classloader:/hbase-ruby/shell.rb'
