@@ -14,7 +14,9 @@ elif [ "$version" == "1.4" ]; then
   mvn clean install -Dmaven.test.skip=true -Dhbase.profile=1.4
 elif [ "$version" == "2.2" ]; then
   mvn clean install -Dmaven.test.skip=true -Dhbase.profile=2.2
+elif [ "$version" == "2.5" ]; then
+  mvn clean install -Dmaven.test.skip=true -Dhbase.profile=2.5
 else
-  echo "The temporarily supported HBase profile versions are [1.2, 1.4, 2.2]"
+  echo "The temporarily supported HBase profile versions are [1.2, 1.4, 2.2, 2.5]"
 fi
 

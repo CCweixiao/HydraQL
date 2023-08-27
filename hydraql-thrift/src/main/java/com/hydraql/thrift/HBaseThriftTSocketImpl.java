@@ -50,14 +50,17 @@ public class HBaseThriftTSocketImpl implements IHBaseThriftTSocket {
 
     @Override
     public TSocket createTSocket() throws HBaseThriftTSocketException {
-        TSocket socket = new TSocket(this.getHost(), this.getPort());
-        socket.setConnectTimeout(this.getConnectionTimeout());
+        TSocket socket = null;
         try {
+            socket = new TSocket(this.getHost(), this.getPort());
+            socket.setConnectTimeout(this.getConnectionTimeout());
             socket.open();
             socket.setSocketTimeout(this.getSocketTimeout());
             return socket;
         } catch (TTransportException ex) {
-            socket.close();
+            if (socket != null) {
+                socket.close();
+            }
             throw new HBaseThriftTSocketException("The TSocket of hbase thrift is created or opened failed!", ex);
         }
     }

@@ -6,6 +6,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransportException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,14 +15,14 @@ import java.util.stream.Collectors;
  * @author leojie 2021/1/6 8:28 下午
  */
 public class HBaseThriftApiTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws TTransportException {
         test2();
     }
 
     /**
      * 同一连接闲置失效异常
      */
-    public static void test1(){
+    public static void test1() throws TTransportException {
         TSocket socket = new TSocket("myhbase", 9090);
         List<String> allTableNames;
         Hbase.Client hbaseClient;
@@ -51,7 +52,7 @@ public class HBaseThriftApiTest {
     /**
      * 连接频繁创建的开销与短连接问题
      */
-    public static void test2(){
+    public static void test2() throws TTransportException {
         int x = 0;
         while (true){
             TSocket socket = new TSocket("myhbase", 9090);

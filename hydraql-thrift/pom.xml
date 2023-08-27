@@ -61,6 +61,21 @@
                 </dependency>
             </dependencies>
         </profile>
+
+        <profile>
+            <id>hbase-2.5</id>
+            <properties>
+                <profiles.active>hbase-2.5</profiles.active>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hbase</groupId>
+                    <artifactId>hbase-thrift</artifactId>
+                    <version>${hbase2.5.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <dependencies>

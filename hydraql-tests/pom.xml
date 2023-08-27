@@ -21,6 +21,7 @@
         <module>hydraql-tests-adapter_1.2</module>
         <module>hydraql-tests-adapter_1.4</module>
         <module>hydraql-tests-adapter_2.2</module>
+        <module>hydraql-tests-adapter_2.5</module>
         <module>hydraql-tests-main</module>
     </modules>
 
