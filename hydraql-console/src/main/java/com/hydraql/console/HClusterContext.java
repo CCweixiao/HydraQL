@@ -6,28 +6,37 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author leojie 2023/7/30 10:48
  */
 public class HClusterContext {
-    private volatile static Map<String, Properties> clusterConf;
+    private final ConcurrentMap<String, Properties> clusterConf;
     private String currentSelectedCluster;
+    private final Lock lock = new ReentrantLock();
 
     public void setCurrentSelectedCluster(String clusterName) {
-        currentSelectedCluster = clusterName;
+        lock.lock();
+        try {
+            this.currentSelectedCluster = clusterName;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public String getCurrentSelectedCluster() {
-        return currentSelectedCluster;
+        return this.currentSelectedCluster;
     }
 
     private HClusterContext() {
-
+        clusterConf = new ConcurrentHashMap<>();
     }
     public static class HClusterContextHolder {
         public static final HClusterContext INSTANCE = new HClusterContext();
@@ -37,7 +46,6 @@ public class HClusterContext {
         return HClusterContextHolder.INSTANCE;
     }
 
-
     public Properties getCurrentClusterProperties() {
         if (StringUtil.isBlank(getCurrentSelectedCluster())) {
             throw new HBaseShellSessionEnvInitException("Please switch cluster first.");
@@ -46,21 +54,18 @@ public class HClusterContext {
     }
 
     private Properties getClusterProperties(String clusterName) {
-        if (clusterConf == null || !clusterConf.containsKey(clusterName)) {
-            synchronized (HClusterContext.class) {
-                if (clusterConf == null || !clusterConf.containsKey(clusterName)) {
-                    if (clusterConf == null) {
-                        clusterConf = new HashMap<>(2);
-                    }
-                    if (!clusterConf.containsKey(clusterName)) {
-                        Properties p = readConf(clusterName);
-                        clusterConf.put(clusterName, p);
-                        return readConf(clusterName);
-                    }
-                }
+        lock.lock();
+        try {
+            Properties p = clusterConf.get(clusterName);
+            if (p != null) {
+                return p;
             }
+            p = readConf(clusterName);
+            clusterConf.put(clusterName, p);
+            return readConf(clusterName);
+        } finally {
+            lock.unlock();
         }
-        return clusterConf.get(clusterName);
     }
 
     private Properties readConf(String clusterName) {
@@ -72,7 +77,7 @@ public class HClusterContext {
             throw new HBaseShellSessionEnvInitException(String.format("The cluster %s not exists.", clusterName));
         }
         try (FileInputStream out = new FileInputStream(clusterConfFile)) {
-            List<String> lines = IOUtils.readLines(out);
+            List<String> lines = IOUtils.readLines(out, Charset.defaultCharset());
             for (String line : lines) {
                 String[] kv = line.split("=");
                 p.setProperty(kv[0], kv[1]);

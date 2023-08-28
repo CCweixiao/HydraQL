@@ -92,10 +92,11 @@ public class HqlConsole {
             builtins.setLineReader(lineReader);
             terminal.writer().append(WELCOME_MESSAGE);
             terminal.writer().append("\n");
+            int no = 0;
             while (true) {
                 try {
                     systemRegistry.cleanUp();
-                    String line = lineReader.readLine("hql> ", null, (MaskingCallback) null, null);
+                    String line = lineReader.readLine(getDefaultPrompt(no), null, (MaskingCallback) null, null);
                     String command = "";
                     if (StringUtil.isNotBlank(line)) {
                         // 多行命令，取消{}
@@ -141,10 +142,11 @@ public class HqlConsole {
                     break;
                 } catch (Exception | Error e) {
                     systemRegistry.trace(true, e);
+                } finally {
+                    no += 1;
                 }
             }
             systemRegistry.close();
-
         } catch (IOException e) {
             throw new RuntimeException("Create terminal failed.");
         }
@@ -182,5 +184,20 @@ public class HqlConsole {
 
         }
         return file;
+    }
+
+    private static String getDefaultPrompt(int no) {
+        String codeNo = String.valueOf(no);
+        if (no < 10) {
+            codeNo = "00" + codeNo;
+        }
+        if (no < 100 && no >= 10) {
+            codeNo = "0" + codeNo;
+        }
+        String cluster = HClusterContext.getInstance().getCurrentSelectedCluster();
+        if (StringUtil.isBlank(cluster)) {
+            return String.format("hql(no cluster):%s> ", codeNo);
+        }
+        return String.format("hql(%s):%s> ", cluster, codeNo);
     }
 }
