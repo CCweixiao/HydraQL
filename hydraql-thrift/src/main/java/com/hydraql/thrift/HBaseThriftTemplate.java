@@ -68,14 +68,14 @@ public class HBaseThriftTemplate implements IHBaseThriftOperations {
     }
 
     @Override
-    public <T> Optional<T> getRow(GetRowParam getRowParam, Class<T> clazz) {
+    public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
         try (HBaseThrift hBaseThrift = pool.getResource()) {
             return hBaseThrift.getRow(getRowParam, clazz);
         }
     }
 
     @Override
-    public <T> Optional<T> getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
+    public <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
         try (HBaseThrift hBaseThrift = pool.getResource()) {
             return hBaseThrift.getRow(tableName, getRowParam, rowMapper);
         }

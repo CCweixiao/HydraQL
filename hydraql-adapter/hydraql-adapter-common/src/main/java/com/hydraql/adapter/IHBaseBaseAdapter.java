@@ -18,7 +18,6 @@ import org.apache.yetus.audience.InterfaceAudience;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.*;
 
 /**
@@ -66,7 +65,7 @@ public interface IHBaseBaseAdapter {
         }
     }
 
-    default <T> Optional<T> execute(String tableName, TableCallback<T, Table> action) {
+    default <T> T execute(String tableName, TableCallback<T, Table> action) {
         if (hedgedReadIsOpen()) {
             ArrayList<Future<T>> futures = new ArrayList<>();
             CompletionService<T> hedgedService =
@@ -84,7 +83,7 @@ public interface IHBaseBaseAdapter {
                     future = hedgedService.poll(thresholdMillis, TimeUnit.MICROSECONDS);
                 }
                 if (future != null) {
-                    return Optional.ofNullable(future.get());
+                    return future.get();
                 }
             } catch (ExecutionException e) {
                 futures.remove(future);
@@ -97,14 +96,14 @@ public interface IHBaseBaseAdapter {
             try {
                 T result = getFirstToComplete(hedgedService, futures);
                 cancelAll(futures);
-                return Optional.ofNullable(result);
+                return result;
             } catch (InterruptedException e) {
                 // Ignore and retry
             }
-            return Optional.empty();
+            return null;
         } else {
             try {
-                return Optional.ofNullable(executeOnSource(tableName, action));
+                return executeOnSource(tableName, action);
             } catch (IOException e) {
                 throw new HBaseSdkException(e);
             }

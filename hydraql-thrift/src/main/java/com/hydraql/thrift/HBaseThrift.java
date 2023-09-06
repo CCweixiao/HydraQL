@@ -64,12 +64,12 @@ public class HBaseThrift implements Closeable, IHBaseThriftOperations {
     }
 
     @Override
-    public <T> Optional<T> getRow(GetRowParam getRowParam, Class<T> clazz) {
+    public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
         return hBaseThriftClient.getRow(getRowParam, clazz);
     }
 
     @Override
-    public <T> Optional<T> getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
+    public <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
         return hBaseThriftClient.getRow(tableName, getRowParam, rowMapper);
     }
 

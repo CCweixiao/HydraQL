@@ -6,7 +6,7 @@ import java.io.Serializable;
  * @author leojie 2023/5/9 23:14
  */
 public class HBaseColData implements Serializable {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private String value;
     private long timestamp;
 

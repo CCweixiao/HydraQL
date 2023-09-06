@@ -38,8 +38,8 @@ public interface IHBaseTableGetAdapter {
 
     List<Get> buildGets(GetRowsParam getRowsParam);
 
-    <T> Optional<T> get(Get get, Class<T> clazz);
-    <T> Optional<T> get(String tableName, Get get, RowMapper<T> rowMapper);
+    <T> T get(Get get, Class<T> clazz);
+    <T> T get(String tableName, Get get, RowMapper<T> rowMapper);
     HBaseRowData get(String tableName, Get get);
     <T> List<T> getWithMultiVersions(Get get, int versions, Class<T> clazz);
     <T> List<T> getWithMultiVersions(String tableName, Get get, int versions, RowMapper<T> rowMapper);
@@ -125,7 +125,7 @@ public interface IHBaseTableGetAdapter {
     default HBaseRowDataWithMultiVersions convertResultsToHBaseColDataListWithMultiVersion(Result result, int versions) {
         List<Cell> cells = result.listCells();
         if (cells == null || cells.isEmpty()) {
-            return HBaseRowDataWithMultiVersions.empty();
+            return null;
         }
 
         HBaseRowDataWithMultiVersions.Builder colDataBuilder = HBaseRowDataWithMultiVersions.of(Bytes.toString(result.getRow()));
@@ -147,7 +147,7 @@ public interface IHBaseTableGetAdapter {
             String value = Bytes.toString(cells.get(i).getValueArray(), cells.get(i).getValueOffset(), cells.get(i).getValueLength());
             HBaseColData colData = new HBaseColData(value, cells.get(i).getTimestamp());
             boolean fieldChange = StringUtil.isNotBlank(preFieldSb.toString()) &&
-                    !currentFieldSb.toString().equals(preFieldSb.toString());
+                    !currentFieldSb.toString().contentEquals(preFieldSb);
             if (fieldChange) {
                 colDataBuilder = colDataBuilder.appendColData(preFieldSb.toString(), colDataList);
                 colDataList = new ArrayList<>(versions);
@@ -165,7 +165,7 @@ public interface IHBaseTableGetAdapter {
     default HBaseRowData convertResultToHBaseColData(Result result) {
         List<Cell> cells = result.listCells();
         if (cells == null || cells.isEmpty()) {
-            return HBaseRowData.empty();
+            return null;
         }
         HBaseRowData.Builder builder = HBaseRowData.of(Bytes.toString(result.getRow()));
         StringBuilder colNameSb = new StringBuilder();

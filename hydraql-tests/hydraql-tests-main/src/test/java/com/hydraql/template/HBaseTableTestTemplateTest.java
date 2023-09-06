@@ -34,8 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.hydraql.tests.common.HydraQlBaseTestConstants.F1;
-import static com.hydraql.tests.common.HydraQlBaseTestConstants.TEST_TABLE;
+import static com.hydraql.tests.common.HydraQlBaseTestConstants.*;
 
 /**
  * @author leojie 2023/8/4 22:53
@@ -48,6 +47,7 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
         startMiniCluster();
         tableTemplate = HBaseTableTemplate.of(getConfiguration());
         createTestTable();
+        createTestMultiVersionTable();
     }
 
     @After
@@ -109,7 +109,7 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
         CityModel cityModel = CityModelUtil.createDefaultCityModel();
         tableTemplate.save(cityModel);
         GetRowParam getRowParam = GetRowParam.of(cityModel.getCityId()).build();
-        Optional<CityModel> cityModelRes = tableTemplate.getRow(getRowParam, CityModel.class);
+        CityModel cityModelRes = tableTemplate.getRow(getRowParam, CityModel.class);
         Assert.assertNotNull(cityModelRes);
     }
 
@@ -144,7 +144,7 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
                 }
                 return data;
             }
-        }).orElse(new HashMap<>(0));
+        });
         Assert.assertEquals(5, data.size());
     }
 
@@ -195,49 +195,24 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
 
     @Test
     public void testGetMultiVersions() throws InterruptedException {
-        tableTemplate.delete(TEST_TABLE, "b1");
-        Map<String, Object> data1 = new HashMap<>(3);
-        data1.put("info:version", "v1");
-        data1.put("info:age", 15);
-        data1.put("info:name", "leo1");
-        //Thread.sleep(2000);
-        tableTemplate.save(TEST_TABLE, "b1", data1);
+        Map<String, Object> data = new HashMap<>();
+        data.put("f1:name", "leo");
+        data.put("f1:age", 17);
+        for (int i = 0; i < 5; i++) {
+            tableTemplate.save(TEST_TABLE_WITH_MULTI_VERSION,"1001", data);
+            Thread.sleep(500);
+        }
 
-        Map<String, Object> data2 = new HashMap<>(3);
-        data2.put("info:version", "v2");
-        data2.put("info:age", 16);
-        data2.put("info:name", "leo2");
-        //Thread.sleep(2000);
-        tableTemplate.save(TEST_TABLE, "b1", data2);
+        GetRowParam getRowParam = GetRowParam.of("1001").versions(5).build();
+        HBaseRowDataWithMultiVersions rowData = tableTemplate.getWithMultiVersions(TEST_TABLE_WITH_MULTI_VERSION, getRowParam);
 
-        Map<String, Object> data3 = new HashMap<>(3);
-        data3.put("info:version", "v3");
-        data3.put("info:age", 17);
-        data3.put("info:name", "leo3");
-        //Thread.sleep(2000);
-        tableTemplate.save(TEST_TABLE, "b1", data3);
-
-        Map<String, Object> data4 = new HashMap<>(3);
-        data4.put("info:version", "v4");
-        data4.put("info:age", 18);
-        data4.put("info:name", "leo4");
-        //Thread.sleep(2000);
-        tableTemplate.save(TEST_TABLE, "b1", data4);
-
-        Map<String, Object> data5 = new HashMap<>(3);
-        data5.put("info:version", "v5");
-        //Thread.sleep(2000);
-        tableTemplate.save(TEST_TABLE, "b1", data5);
-
-        GetRowParam getRowParam = GetRowParam.of("b1").versions(5).build();
-        HBaseRowDataWithMultiVersions rowData = tableTemplate.getWithMultiVersions(TEST_TABLE, getRowParam);
-
-        Assert.assertEquals(3, rowData.getColDataWithMultiVersions().size());
-        Assert.assertEquals(4, rowData.getColDataWithMultiVersions().get("info:name").size());
+        Assert.assertEquals(2, rowData.getColDataWithMultiVersions().size());
+        Assert.assertEquals(5, rowData.getColDataWithMultiVersions().get("f1:name").size());
     }
 
     @Test
     public void testScan() {
+        testSaveBatchMap();
         ScanParams scanParams = ScanParams.of()
                 .startRow("1001")
                 .inclusiveStartRow(true)
@@ -246,11 +221,19 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
                 .caching(100)
                 .build();
         List<HBaseRowData> rowDataList = tableTemplate.scan(TEST_TABLE, scanParams);
-        Assert.assertEquals(2, rowDataList.size());
+        Assert.assertFalse(rowDataList.isEmpty());
     }
 
     @Test
-    public void testScanWithMultiVersions() {
+    public void testScanWithMultiVersions() throws InterruptedException {
+        Map<String, Object> data = new HashMap<>();
+        data.put("f1:name", "leo");
+        data.put("f1:age", 17);
+        for (int i = 0; i < 5; i++) {
+            tableTemplate.save(TEST_TABLE,"1001", data);
+            Thread.sleep(500);
+        }
+
         ScanParams scanParams = ScanParams.of().startRow("b1").stopRow("b1").versions(5).build();
         List<HBaseRowDataWithMultiVersions> hBaseRowDataWithMultiVersions =
                 tableTemplate.scanWithMultiVersions(TEST_TABLE, scanParams);

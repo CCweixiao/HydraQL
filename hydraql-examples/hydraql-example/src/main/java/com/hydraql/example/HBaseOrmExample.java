@@ -4,7 +4,6 @@ import com.hydraql.common.model.example.CityModel;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.template.BaseHBaseTableTemplate;
 import com.hydraql.template.HBaseTableTemplate;
-import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -15,8 +14,8 @@ public class HBaseOrmExample {
         Properties properties = HBaseServiceExample.getProperties();
         BaseHBaseTableTemplate tableTemplate = HBaseTableTemplate.of(properties);
         tableTemplate.save(CityModel.createDefaultCityModel());
-        Optional<CityModel> result = tableTemplate.getRow(GetRowParam.of("a10001").build(), CityModel.class);
-        System.out.println(result.orElse(new CityModel()));
+        CityModel result = tableTemplate.getRow(GetRowParam.of("a10001").build(), CityModel.class);
+        System.out.println(result);
     }
 
 

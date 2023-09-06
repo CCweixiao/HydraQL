@@ -9,7 +9,6 @@ import com.hydraql.common.query.ScanParams;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * 定义HBase的数据操作接口
@@ -83,7 +82,7 @@ public interface IHBaseTableOpAdapter {
      * @param <T>         泛型类型
      * @return 结果数据，使用Optional来避免空指针异常
      */
-    <T> Optional<T> getRow(GetRowParam getRowParam, Class<T> clazz);
+    <T> T getRow(GetRowParam getRowParam, Class<T> clazz);
 
     /**
      * 构造一个{@link GetRowParam}参数对象，查询单条数据，不识别查询参数中的versions <br/>
@@ -95,7 +94,7 @@ public interface IHBaseTableOpAdapter {
      * @param <T>       泛型类型
      * @return 查询结果
      */
-    <T> Optional<T> getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper);
+    <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper);
 
     /**
      * 构造一个{@link GetRowParam}参数对象，查询单条数据，不识别查询参数中的versions <br/>

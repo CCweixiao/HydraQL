@@ -78,13 +78,13 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
     }
 
     @Override
-    public <T> Optional<T> getRow(GetRowParam getRowParam, Class<T> clazz) {
+    public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
         Get get = this.buildGet(getRowParam);
         return this.get(get, clazz);
     }
 
     @Override
-    public <T> Optional<T> get(Get get, Class<T> clazz) {
+    public <T> T get(Get get, Class<T> clazz) {
         String tableName = ReflectFactory.getHBaseTableMeta(clazz).getTableName();
         return this.execute(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
@@ -96,13 +96,13 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
     }
 
     @Override
-    public <T> Optional<T> getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
+    public <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
         Get get = buildGet(getRowParam);
         return this.get(tableName, get, rowMapper);
     }
 
     @Override
-    public <T> Optional<T> get(String tableName, Get get, RowMapper<T> rowMapper) {
+    public <T> T get(String tableName, Get get, RowMapper<T> rowMapper) {
         return this.execute(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
@@ -126,7 +126,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
                 return null;
             }
             return convertResultToHBaseColData(result);
-        }).orElse(HBaseRowData.empty());
+        });
     }
 
     @Override
@@ -135,10 +135,10 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
         return this.execute(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
-                return null;
+                return new ArrayList<>();
             }
             return mapperRowToList(result, versions, clazz);
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -153,10 +153,10 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
         return this.execute(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
-                return null;
+                return new ArrayList<>();
             }
             return rowMapper.mapRowWithVersions(result, 0);
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -180,7 +180,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
                 return null;
             }
             return convertResultsToHBaseColDataListWithMultiVersion(result, versions);
-        }).orElse(HBaseRowDataWithMultiVersions.empty());
+        });
     }
 
     @Override
@@ -195,14 +195,14 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
         return this.execute(tableName, table -> {
             Result[] results = checkBatchGetAndReturnResult(gets, table);
             if (results == null) {
-                return null;
+                return new ArrayList<>();
             }
             List<T> data = new ArrayList<>(results.length);
             for (Result result : results) {
                 data.add(mapperRowToT(result, clazz));
             }
             return data;
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -216,14 +216,17 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
         return this.execute(tableName, table -> {
             Result[] results = checkBatchGetAndReturnResult(gets, table);
             if (results == null) {
-                return null;
+                return new ArrayList<>();
             }
             List<T> data = new ArrayList<>(results.length);
             for (Result result : results) {
-                data.add(rowMapper.mapRow(result, 0));
+                T t = rowMapper.mapRow(result, 0);
+                if (t != null) {
+                    data.add(t);
+                }
             }
             return data;
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -260,7 +263,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
                 }
                 return rs;
             }
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -280,7 +283,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
                 }
                 return rs;
             }
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -295,11 +298,14 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
         return this.execute(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 for (Result result : scanner) {
-                    rowDataList.add(convertResultToHBaseColData(result));
+                    HBaseRowData data = convertResultToHBaseColData(result);
+                    if (data != null) {
+                        rowDataList.add(data);
+                    }
                 }
                 return rowDataList;
             }
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -319,7 +325,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
                 }
                 return rowDataListWithMultiVersions;
             }
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override

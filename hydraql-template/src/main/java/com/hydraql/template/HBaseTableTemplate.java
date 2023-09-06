@@ -13,7 +13,6 @@ import org.apache.hadoop.hbase.client.Scan;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -49,12 +48,12 @@ public class HBaseTableTemplate extends BaseHBaseTableTemplate {
     }
 
     @Override
-    public <T> Optional<T> getRow(GetRowParam getRowParam, Class<T> clazz) {
+    public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
         return tableOpAdapter.getRow(getRowParam, clazz);
     }
 
     @Override
-    public <T> Optional<T> getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
+    public <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
         return tableOpAdapter.getRow(tableName, getRowParam, rowMapper);
     }
 
@@ -79,12 +78,12 @@ public class HBaseTableTemplate extends BaseHBaseTableTemplate {
     }
 
     @Override
-    <T> Optional<T> get(Get get, Class<T> clazz) {
+    <T> T get(Get get, Class<T> clazz) {
         return tableOpAdapter.get(get, clazz);
     }
 
     @Override
-    <T> Optional<T> get(String tableName, Get get, RowMapper<T> rowMapper) {
+    <T> T get(String tableName, Get get, RowMapper<T> rowMapper) {
         return tableOpAdapter.get(tableName, get, rowMapper);
     }
 

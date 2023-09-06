@@ -113,7 +113,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
     }
 
     @Override
-    public <T> Optional<T> getRow(GetRowParam getRowParam, Class<T> clazz) {
+    public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
         String tableName = ReflectFactory.getHBaseTableMeta(clazz).getTableName();
         return this.execute(thriftClient -> {
             List<TRowResult> results = getToRowResultList(thriftClient, tableName, getRowParam);
@@ -126,7 +126,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
 
     @Override
-    public <T> Optional<T> getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
+    public <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
         return this.execute(thriftClient -> {
             List<TRowResult> results = getToRowResultList(thriftClient, tableName, getRowParam);
             if (results == null || results.isEmpty()) {
@@ -141,7 +141,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
         return this.execute(thriftClient -> {
             List<TRowResult> results = getToRowResultList(thriftClient, tableName, getRowParam);
             return convertResultToHBaseColData(results.get(0));
-        }).orElse(HBaseRowData.empty());
+        });
     }
 
     @Override
@@ -165,7 +165,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
         return this.execute(thriftClient -> {
             List<TRowResult> results = getToRowsResultList(thriftClient, tableName, getRowsParam);
             return mapperRowToTList(results, clazz);
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override
@@ -177,7 +177,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
                 data.add(rowMapper.mapRow(result, 0));
             }
             return data;
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     @Override

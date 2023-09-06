@@ -162,7 +162,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             }
             byte[] value = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER);
             return value != null && StringUtil.isNotBlank(Bytes.toString(value));
-        }).orElse(false);
+        });
         if (!virtualTableExists) {
             throw new HBaseSqlAnalysisException(String.format("The virtual table %s does not exist.", virtualTableName));
         }
@@ -170,7 +170,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         boolean deleteRes = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             table.delete(delete);
             return true;
-        }).orElse(false);
+        });
         if (!deleteRes) {
             throw new HBaseSqlAnalysisException(String.format("The virtual table %s failed to be deleted.", virtualTableName));
         }
@@ -190,7 +190,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 tables.add(Bytes.toString(result.getRow()));
             }
             return tables;
-        }).orElse(new ArrayList<>(0));
+        });
     }
 
     protected HBaseTableSchema getTableSchema(String tableName) {
@@ -213,7 +213,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 return null;
             }
             return new String[] {Bytes.toString(schemaValue), Bytes.toString(sqlValue)};
-        }).orElse(null);
+        });
         if (tableSchemaMataData == null) {
             throw new HBaseSqlTableSchemaMissingException(
                     String.format("The table [%s] has no table schema, please create first.", tableName));
@@ -288,7 +288,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 }
                 List<HBaseDataRow> rowList = convertResultToDataRow(result, tableSchema, queryExtInfo);
                 return HBaseDataSet.of(tableName).appendRows(rowList);
-            }).orElse(HBaseDataSet.of(tableName));
+            });
         }
 
         // in row keys; get rows
@@ -317,7 +317,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                     }
                 }
                 return dataSet;
-            }).orElse(HBaseDataSet.of(tableName));
+            });
         }
         Scan scan = constructScan(tableName, rowKeyRange, queryExtInfo, filter, queryColumns);
         // 构造scan查询条件
@@ -355,7 +355,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 }
                 return dataSet;
             }
-        }).orElse(HBaseDataSet.of(tableName));
+        });
     }
 
     @Override

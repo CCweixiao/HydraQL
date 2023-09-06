@@ -8,7 +8,7 @@ import java.util.Map;
  * @author leojie 2023/7/20 20:09
  */
 public class HBaseRowData implements Serializable {
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private final String rowKey;
     private final Map<String, HBaseColData> colDataContainer;

@@ -45,9 +45,9 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
 
     abstract boolean ping();
 
-    protected <T> Optional<T> execute(TableCallback<T, Hbase.Client> action) {
+    protected <T> T execute(TableCallback<T, Hbase.Client> action) {
         try {
-            return Optional.ofNullable(action.doInTable(this.hbaseClient));
+            return action.doInTable(this.hbaseClient);
         } catch (Throwable throwable) {
             throw new HBaseThriftException(throwable);
         }

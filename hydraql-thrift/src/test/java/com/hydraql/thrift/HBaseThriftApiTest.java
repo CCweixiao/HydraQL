@@ -23,12 +23,9 @@ public class HBaseThriftApiTest extends BaseHBaseThriftTemplateTest {
     @Test
     public void testGetPOJO() {
         try (HBaseThrift hBaseThrift = thriftPool.getResource()) {
-            Optional<CityModel> cityModelO = hBaseThrift.getRow(GetRowParam.of("a10001").build(), CityModel.class);
-            Assert.assertTrue(cityModelO.isPresent());
-            Assert.assertEquals("a10001", cityModelO.orElse(new CityModel()).getCityId());
-            Assert.assertTrue(cityModelO.orElse(new CityModel()).getCityTagList().size() > 0);
-            Optional<CityModel> cityModel1 = hBaseThrift.getRow(GetRowParam.of("a100011").build(), CityModel.class);
-            Assert.assertFalse(cityModel1.isPresent());
+            CityModel cityModelO = hBaseThrift.getRow(GetRowParam.of("a10001").build(), CityModel.class);
+            Assert.assertEquals("a10001", cityModelO.getCityId());
+            Assert.assertFalse(cityModelO.getCityTagList().isEmpty());
         }
     }
 

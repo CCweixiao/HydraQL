@@ -8,6 +8,8 @@ public final class HydraQlBaseTestConstants {
     }
 
     public static final String TEST_TABLE = "test_table";
+
+    public static final String TEST_TABLE_WITH_MULTI_VERSION = "test_table_with_multi_version";
     public static final String TEST_HQL_TABLE = "test_hql_table";
     public static final String F1 = "f1";
     public static final String F2 = "f2";
