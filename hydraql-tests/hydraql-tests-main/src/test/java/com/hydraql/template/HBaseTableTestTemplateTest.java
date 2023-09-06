@@ -1,5 +1,6 @@
 package com.hydraql.template;
 
+import com.alibaba.fastjson2.JSON;
 import com.hydraql.common.mapper.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
@@ -9,6 +10,7 @@ import com.hydraql.common.query.IHBaseFilter;
 import com.hydraql.common.query.ScanParams;
 import com.hydraql.template.model.CityModel;
 import com.hydraql.template.model.CityModelUtil;
+import com.hydraql.template.model.CityTag;
 import com.hydraql.tests.common.HydraQlBaseTestTemplate;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -31,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.hydraql.tests.common.HydraQlBaseTestConstants.*;
@@ -57,11 +58,25 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
 
     @Test
     public void testSaveMap() {
+        List<String> address = new ArrayList<>();
+        address.add("上海");
+        address.add("北京");
+        Map<String, Object> detail = new HashMap<>(2);
+        detail.put("pay", 1000f);
+        detail.put("nationality", "中国");
         Map<String, Object> data = new HashMap<>(2);
         data.put("f1:name", "leo");
         data.put("f1:age", 18);
+        data.put("f1:address", address);
+        data.put("f1:detail", detail);
         tableTemplate.save(TEST_TABLE, "1001", data);
-        HBaseRowData rowData = tableTemplate.getRow(TEST_TABLE, GetRowParam.of("1001").build());
+        HBaseRowData rowData = tableTemplate.getRow(TEST_TABLE,
+                GetRowParam.of("1001")
+                        .family("f1")
+                        .qualifier("name")
+                        .qualifier("age")
+                        .versions(1)
+                        .build());
         Assert.assertEquals(2, rowData.getColDataContainer().size());
     }
 
@@ -69,8 +84,11 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
     public void testDelete() {
         testSaveMap();
         tableTemplate.delete(TEST_TABLE, "1001", F1, "name", "age");
-        HBaseRowData row = tableTemplate.getRow(TEST_TABLE, GetRowParam.of("1001").build());
-        Assert.assertTrue(row.getColDataContainer().isEmpty());
+        HBaseRowData rowData = tableTemplate.getRow(TEST_TABLE, GetRowParam.of("1001").build());
+        Assert.assertEquals(2, rowData.getColDataContainer().size());
+        tableTemplate.delete(TEST_TABLE, "1001", F1);
+        rowData = tableTemplate.getRow(TEST_TABLE, GetRowParam.of("1001").build());
+        Assert.assertNull(rowData);
     }
 
     @Test
@@ -88,8 +106,7 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
         data.put("1002", data2);
 
         tableTemplate.saveBatch(TEST_TABLE, data);
-        GetRowsParam getRowsParam = GetRowsParam.of().appendRowKey("1001")
-                .appendRowKey("1002").build();
+        GetRowsParam getRowsParam = GetRowsParam.of(Arrays.asList("1001", "1002", "1003")).build();
         List<HBaseRowData> rowDataList = tableTemplate.getRows(TEST_TABLE, getRowsParam);
         Assert.assertEquals(2, rowDataList.size());
     }
@@ -98,18 +115,20 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
     public void testDeleteBatch() {
         testSaveBatchMap();
         tableTemplate.deleteBatch(TEST_TABLE, Arrays.asList("1001", "1002"));
-        GetRowsParam getRowsParam = GetRowsParam.of().appendRowKey("1001")
-                .appendRowKey("1002").build();
+        GetRowsParam getRowsParam = GetRowsParam.of(Arrays.asList("1001", "1002")).build();
         List<HBaseRowData> rowDataList = tableTemplate.getRows(TEST_TABLE, getRowsParam);
-        Assert.assertEquals(0, rowDataList.size());
+        Assert.assertTrue(rowDataList.isEmpty());
     }
 
     @Test
     public void testSave() {
         CityModel cityModel = CityModelUtil.createDefaultCityModel();
+        byte[] jsonBytes = JSON.toJSONBytes(cityModel);
+        CityModel cityModel1 = JSON.parseObject(jsonBytes, CityModel.class);
         tableTemplate.save(cityModel);
         GetRowParam getRowParam = GetRowParam.of(cityModel.getCityId()).build();
         CityModel cityModelRes = tableTemplate.getRow(getRowParam, CityModel.class);
+        List<CityTag> cityTagList = cityModelRes.getCityTagList();
         Assert.assertNotNull(cityModelRes);
     }
 
@@ -120,7 +139,7 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
         List<String> rowKeys = cityModelList.stream().map(CityModel::getCityId)
                 .collect(Collectors.toList());
 
-        GetRowsParam getRowsParam = GetRowsParam.of().rowKeyList(rowKeys).build();
+        GetRowsParam getRowsParam = GetRowsParam.of(rowKeys).build();
         List<CityModel> rows = tableTemplate.getRows(getRowsParam, CityModel.class);
         Assert.assertEquals(rowKeys.size(), rows.size());
     }

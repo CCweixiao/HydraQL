@@ -9,6 +9,7 @@ import com.hydraql.common.mapper.RowMapper;
 import com.hydraql.common.model.data.HBaseColData;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
+import com.hydraql.common.query.BaseGetRowParam;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.reflect.FieldStruct;
@@ -224,7 +225,7 @@ public interface IHBaseTableGetAdapter {
 
     default Get buildGetCondition(String rowKey, String familyName, List<String> qualifiers,
                                   int versions, long ts, long minTs, long maxTs) {
-        GetRowParam.Builder builder = GetRowParam.of(rowKey);
+        BaseGetRowParam.Builder<GetRowParam> builder = GetRowParam.of(rowKey);
         if (ts > 0) {
             builder = builder.withTimestamp(ts);
         }

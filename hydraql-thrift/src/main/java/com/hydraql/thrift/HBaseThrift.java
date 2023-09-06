@@ -10,7 +10,6 @@ import com.hydraql.common.query.ScanParams;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author leojie 2020/12/27 2:48 下午
