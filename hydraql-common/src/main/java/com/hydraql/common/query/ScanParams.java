@@ -74,7 +74,7 @@ public class ScanParams {
 
         private Builder of() {
             this.inclusiveStartRow = true;
-            this.inclusiveStopRow = true;
+            this.inclusiveStopRow = false;
             this.versions = 1;
             this.cacheBlocks = false;
             return this;

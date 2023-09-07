@@ -2,6 +2,7 @@ package com.hydraql.template;
 
 import com.alibaba.fastjson2.JSON;
 import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.model.data.HBaseColData;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
@@ -249,14 +250,17 @@ public class HBaseTableTestTemplateTest extends HydraQlBaseTestTemplate {
         data.put("f1:name", "leo");
         data.put("f1:age", 17);
         for (int i = 0; i < 5; i++) {
-            tableTemplate.save(TEST_TABLE,"1001", data);
+            tableTemplate.save(TEST_TABLE_WITH_MULTI_VERSION,"1001", data);
+            tableTemplate.save(TEST_TABLE_WITH_MULTI_VERSION,"1002", data);
             Thread.sleep(500);
         }
 
-        ScanParams scanParams = ScanParams.of().startRow("b1").stopRow("b1").versions(5).build();
+        ScanParams scanParams = ScanParams.of().startRow("1001").stopRow("1002").versions(5).build();
         List<HBaseRowDataWithMultiVersions> hBaseRowDataWithMultiVersions =
-                tableTemplate.scanWithMultiVersions(TEST_TABLE, scanParams);
-        Assert.assertEquals(1, hBaseRowDataWithMultiVersions.size());
+                tableTemplate.scanWithMultiVersions(TEST_TABLE_WITH_MULTI_VERSION, scanParams);
+        List<HBaseColData> colDataList =
+                hBaseRowDataWithMultiVersions.get(0).getColDataWithMultiVersions().get("f1:name");
+        Assert.assertEquals(5, colDataList.size());
     }
 
 }
