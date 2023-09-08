@@ -42,3 +42,19 @@ select * from test:test_hql where rowKey = 'a10002' and maxversion = 2;
 delete f1:id from test:test_hql where rowKey = 'a10002';
 
 
+
+create virtual table if not exists
+test:test (
+f1:userid varchar(100) not null primary key,
+f1:name varchar(200) null default '12121',
+f1:age smallint null default 18
+) with properties
+( "key"='1213' , "dsds"='dsds');
+
+create virtual table if not exists
+test:test (
+f1:userid varchar(100) not null primary key,
+f1:name varchar(200) null default '12121',
+f1:age smallint null default 18
+) with properties
+( "key"='1213' , "dsds"='dsds');
