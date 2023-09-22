@@ -74,7 +74,7 @@ table_ref
     ;
 
 upsert_values_command
-    : UPSERT INTO table_ref ('(' column_ref_list ')')?
+    : UPSERT INTO table_ref ('(' upsert_column_def_list ')')?
         VALUES '(' insert_values? ')'
         (',' '(' insert_values? ')')*
     ;
@@ -83,7 +83,7 @@ insert_values
     : literal (',' literal)*
     ;
 
-column_ref_list
+upsert_column_def_list
     : column_ref (',' column_ref)*
     ;
 
@@ -91,8 +91,12 @@ column_def_list
     : column_def (',' column_def)*
     ;
 
+delete_column_def_list
+    : delete_column_def (',' delete_column_def)*
+    ;
+
 delete_command
-    : DELETE select_expression (',' select_expression)* FROM table_name
+    : DELETE delete_column_def_list? FROM table_ref
         where_clause?
         timestamp_range_clause?
     ;
@@ -130,7 +134,7 @@ select_command
     ;
 
 select_statement
-    : SELECT select_expression (',' select_expression)*
+    : SELECT select_column_def (',' select_column_def)*
       FROM table_ref
       where_clause?
     ;
@@ -139,14 +143,18 @@ number
     : DECIMAL_LITERAL
     ;
 
-select_expression : '*'                                 # selectAllFamilyAndCol
-                  | family_name '.' '*'                 # selectOneFamilyAllCol
-                  | (family_name ':')? column_name      # selectFamilyAndCol
-                  | functionCall (AS? column_alias)?    # selectWithFuncCall
+delete_column_def : family_name '.' '*'                # deleteOneFamilyAllCol
+                  | (family_name ':')? column_name     # deleteFamilyAndCol
+                  ;
+
+select_column_def : '*'                                                    # selectAllFamilyAndCol
+                  | family_name '.' '*'                                    # selectOneFamilyAllCol
+                  | (family_name ':')? column_name (AS? column_alias)?     # selectFamilyAndCol
+                  | functionCall (AS? column_alias)?                       # selectWithFuncCall
                   ;
 
 functionCall
-    : funcName '(' functionArgs? ')'                                  #udfFunctionCall
+    : funcName '(' functionArgs? ')'                                  # udfFunctionCall
     ;
 
 funcName
@@ -211,10 +219,9 @@ data_type
     ;
 
 expression
-    : literal                                                         # expressionConstantValue
+    : literal                                                         # expressionConstant
     | VAR_LP variable VAR_RP                                          # expressionVariable
     | (family_name COLON)? column_name                                # expressionColName
-    | functionCall                                                    # expressionWithFunc
     | expression comp_op expression                                   # expressionCompOp
     | expression (LIKE | NOT LIKE) expression                         # expressionLikeOrNot
     | expression IS NOT? NULL_                                        # expressionIsNullOrNot
