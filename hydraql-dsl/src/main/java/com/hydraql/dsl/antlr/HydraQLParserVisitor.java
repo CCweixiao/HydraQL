@@ -215,12 +215,6 @@ public interface HydraQLParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSelect_statement(HydraQLParser.Select_statementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link HydraQLParser#number}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNumber(HydraQLParser.NumberContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code deleteOneFamilyAllCol}
 	 * labeled alternative in {@link HydraQLParser#delete_column_def}.
 	 * @param ctx the parse tree
@@ -372,6 +366,12 @@ public interface HydraQLParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConstant(HydraQLParser.ConstantContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link HydraQLParser#variable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariable(HydraQLParser.VariableContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link HydraQLParser#var}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -499,12 +499,6 @@ public interface HydraQLParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitComp_op(HydraQLParser.Comp_opContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link HydraQLParser#variable}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVariable(HydraQLParser.VariableContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HydraQLParser#literal}.
 	 * @param ctx the parse tree

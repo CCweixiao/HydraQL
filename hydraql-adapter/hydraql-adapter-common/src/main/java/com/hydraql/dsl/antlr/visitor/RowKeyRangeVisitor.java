@@ -1,10 +1,8 @@
 package com.hydraql.dsl.antlr.visitor;
 
-import com.hydraql.common.exception.HBaseSqlAnalysisException;
-import com.hydraql.common.util.StringUtil;
 import com.hydraql.dsl.antlr.HydraQLParser;
-import com.hydraql.dsl.client.rowkey.RowKey;
 import com.hydraql.dsl.antlr.data.RowKeyRange;
+import com.hydraql.dsl.client.rowkey.RowKey;
 import com.hydraql.dsl.client.rowkey.RowKeyFactory;
 import com.hydraql.dsl.model.HBaseTableSchema;
 
@@ -35,15 +33,6 @@ public class RowKeyRangeVisitor extends BaseVisitor<RowKeyRange> {
         rowKeyRange.setStop(stop);
         rowKeyRange.setMatchScanByStartAndEnd(true);
         return rowKeyRange;
-    }
-
-    private RowKey<?> extractRowKey(HydraQLParser.RowKeyContext rowKeyContext) {
-        // todo 类型
-        String row = rowKeyContext.string().STRING_LITERAL().getText();
-        if (StringUtil.isBlank(row)) {
-            throw new HBaseSqlAnalysisException("The value of rowKey could not be resolved.");
-        }
-        return RowKeyFactory.getRowKeyByTableSchema(row, this.getTableSchema());
     }
 
     @Override
@@ -103,6 +92,11 @@ public class RowKeyRangeVisitor extends BaseVisitor<RowKeyRange> {
         rowKeyRange.setRowPrefix(rowKey);
         rowKeyRange.setMatchScanByRowPrefix(true);
         return rowKeyRange;
+    }
+
+    private RowKey<?> extractRowKey(HydraQLParser.RowKeyContext rowKeyContext) {
+        String row = extractRowKeyVal(rowKeyContext);
+        return RowKeyFactory.getRowKeyByTableSchema(row, this.getTableSchema());
     }
 
     public RowKeyRange extractRowKeyRange(HydraQLParser.WhereRowContext whereRowContext) {

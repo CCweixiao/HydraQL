@@ -31,12 +31,12 @@ public class SelectColListVisitor extends BaseVisitor<List<QueryHBaseColumn>> {
     public List<QueryHBaseColumn> visitSelectOneFamilyAllCol(HydraQLParser.SelectOneFamilyAllColContext ctx) {
         HydraQLParser.NameContext nameContext = ctx.family_name().name();
         String family = getText(nameContext);
-        if (StringUtil.isNotBlank(family)) {
+        if (StringUtil.isBlank(family)) {
             return new ArrayList<>();
         }
         List<HBaseColumn> allColumnsOfOneFamily = this.getTableSchema().findAllColumnsOfOneFamily(family);
         if (allColumnsOfOneFamily.isEmpty()) {
-            throw new HBaseSqlAnalysisException(String.format("The family [%s] undefined.", family));
+            throw new HBaseSqlAnalysisException(String.format("The column family [%s] is not defined.", family));
         }
         return allColumnsOfOneFamily.stream().map(QueryHBaseColumn::column).collect(Collectors.toList());
     }
@@ -54,22 +54,23 @@ public class SelectColListVisitor extends BaseVisitor<List<QueryHBaseColumn>> {
             column = getText(columnNameContext.name());
         }
         HBaseColumn hBaseColumn = this.getTableSchema().findColumn(family, column);
-        if (ctx.AS() != null) {
+        HydraQLParser.Column_aliasContext columnAliasContext = ctx.column_alias();
+
+        if (columnAliasContext != null && !columnAliasContext.isEmpty()) {
             return Collections.singletonList(QueryHBaseColumn.
-                    column(hBaseColumn, getText(ctx.column_alias().alias().name())));
+                    column(hBaseColumn, getText(columnAliasContext.alias().name())));
         }
         return Collections.singletonList(QueryHBaseColumn.column(hBaseColumn));
     }
 
     @Override
     public List<QueryHBaseColumn> visitSelectWithFuncCall(HydraQLParser.SelectWithFuncCallContext ctx) {
-        // todo 待实现
+        // todo 待实现筛选的列应用 function
         return super.visitSelectWithFuncCall(ctx);
     }
 
 
-    public List<QueryHBaseColumn> extractSelectColumns(HydraQLParser.Select_column_defContext
-                                                               selectColumnDefContext) {
+    public List<QueryHBaseColumn> extractSelectColumns(HydraQLParser.Select_column_defContext selectColumnDefContext) {
         return selectColumnDefContext.accept(this);
     }
 }

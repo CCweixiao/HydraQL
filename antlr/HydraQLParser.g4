@@ -75,8 +75,8 @@ table_ref
 
 upsert_values_command
     : UPSERT INTO table_ref ('(' upsert_column_def_list ')')?
-        VALUES '(' insert_values? ')'
-        (',' '(' insert_values? ')')*
+        VALUES '(' insert_values ')'
+        (',' '(' insert_values ')')*
     ;
 
 insert_values
@@ -116,11 +116,11 @@ gtOper: GT | GE;
 leOper: LT | LE;
 
 versions_clause
-    : VERSIONS number
+    : VERSIONS integer
     ;
 
 limit_clause
-    : LIMIT number
+    : LIMIT integer
     ;
 
 select_command
@@ -135,10 +135,6 @@ select_statement
       FROM table_ref
       WHERE whereRow
       (AND whereCol)?
-    ;
-
-number
-    : DECIMAL_LITERAL
     ;
 
 delete_column_def : family_name '.' '*'                # deleteOneFamilyAllCol
@@ -229,6 +225,10 @@ constant
     : literal
     ;
 
+variable
+   : varString
+   ;
+
 var
     : VAR_LP variable VAR_RP
     ;
@@ -267,10 +267,6 @@ comp_op
     : EQ | GT | GE | LT | LE | NE | NE2
     ;
 
-variable
-   : varString
-   ;
-
 literal
     : string
     | numeric
@@ -296,7 +292,7 @@ integer
     ;
 
 decimal
-    : '-'? number ('.' number)?
+    : FLOAT_LITERAL
     ;
 
 true_false

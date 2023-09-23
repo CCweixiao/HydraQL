@@ -331,9 +331,6 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         explainPlan.setTableSchema(tableSchema);
         List<HBaseColumn> deleteColumns = explainPlan.getSqlCommandParser().getDeleteColumns();
 
-        if (deleteColumns == null || deleteColumns.isEmpty()) {
-            throw new HBaseSqlAnalysisException(String.format("The list of field names to be deleted cannot be parsed from hql [%s]", hql));
-        }
         HydraQLParser.Delete_commandContext deleteCommandContext =
                 explainPlan.getDmlCommandContext().delete_command();
         //Row in start row and end row

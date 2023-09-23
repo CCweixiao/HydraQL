@@ -14,7 +14,7 @@ import java.util.List;
  * @author leojie 2023/9/20 21:54
  */
 public class CreateVirtualTableVisitor extends BaseVisitor<HBaseTableSchema> {
-    private String tableName;
+    private final String tableName;
     public CreateVirtualTableVisitor(String tableName, HBaseTableSchema tableSchema) {
         super(tableSchema);
         this.tableName = tableName;

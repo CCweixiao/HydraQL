@@ -192,7 +192,7 @@ public class HBaseTableSchema {
         }
         column = this.columnSchemaMap.get(family + HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR + columnName);
         if (column == null) {
-            throw new HBaseColumnNotFoundException(String.format("The column of %s:%s is undefined.", family, columnName));
+            throw new HBaseColumnNotFoundException(String.format("The column of %s:%s is not defined.", family, columnName));
         }
         return column;
     }
@@ -241,7 +241,8 @@ public class HBaseTableSchema {
             return new ArrayList<>();
         }
         List<HBaseColumn> allColumns = findAllColumns();
-        return allColumns.stream().filter(c -> family.equals(c.getFamily())).collect(Collectors.toList());
+        return allColumns.stream().filter(c -> !c.columnIsRow() &&
+                family.equals(c.getFamily())).collect(Collectors.toList());
     }
 
     public Map<KeyValue, HBaseColumn> createColumnsMap() {

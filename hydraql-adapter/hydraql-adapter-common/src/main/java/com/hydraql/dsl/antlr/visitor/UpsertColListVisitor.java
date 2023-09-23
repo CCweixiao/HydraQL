@@ -1,7 +1,5 @@
 package com.hydraql.dsl.antlr.visitor;
 
-import com.hydraql.common.constants.HMHBaseConstants;
-import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
@@ -28,29 +26,13 @@ public class UpsertColListVisitor extends BaseVisitor<List<HBaseColumn>> {
         Map<String, HBaseColumn> columnSchemaMap = tableSchema.getColumnSchemaMap();
         List<HBaseColumn> columns = new ArrayList<>(columnSchemaMap.size());
         for (HydraQLParser.Column_refContext columnRefContext : columnRefContexts) {
-            HydraQLParser.Family_nameContext familyNameContext = columnRefContext.family_name();
-            HydraQLParser.Column_nameContext columnNameContext = columnRefContext.column_name();
-            String family = "";
-            String column = "";
-            if (familyNameContext != null && !familyNameContext.isEmpty()) {
-                family = getText(familyNameContext.name());
-            }
-            if (columnNameContext != null && !columnNameContext.isEmpty()) {
-                column = getText(columnNameContext.name());
-            }
-            String columnName = HMHBaseConstants.getColumnName(family, column);
-            HBaseColumn columnSchema = columnSchemaMap.get(columnName);
-            if (columnSchema == null) {
-                throw new HBaseSqlAnalysisException(String.format(
-                        "The column %s is not exists.", columnRefContext.getText()));
-            }
-            columns.add(columnSchema);
+            HBaseColumn column = this.extractColumn(columnRefContext);
+            columns.add(column);
         }
         return columns;
     }
 
-    public List<HBaseColumn> extractUpsertColumns(HydraQLParser.Upsert_column_def_listContext
-                                                         upsertColumnDefListContext) {
-        return upsertColumnDefListContext.accept(this);
+    public List<HBaseColumn> extractUpsertColumns(HydraQLParser.Upsert_column_def_listContext ctx) {
+        return ctx.accept(this);
     }
 }

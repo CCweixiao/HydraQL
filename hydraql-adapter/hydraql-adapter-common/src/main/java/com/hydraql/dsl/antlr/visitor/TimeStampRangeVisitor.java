@@ -44,11 +44,11 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
     @Override
     public TimeStampRange visitTsRangeEnd(HydraQLParser.TsRangeEndContext ctx) {
         TimeStampRange timeStampRange = new TimeStampRange();
-        timeStampRange.setStart(0L);
         long stopTs = this.extractTimeStamp(ctx.tsExp());
         if (ctx.leOper().LT() != null) {
             stopTs -= 1;
         }
+        timeStampRange.setStart(0L);
         timeStampRange.setEnd(stopTs);
         return timeStampRange;
     }
@@ -74,7 +74,7 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
         return timeStampRange;
     }
 
-    public TimeStampRange parseTimeStampRange(HydraQLParser.Timestamp_range_clauseContext tsRangeContext) {
+    public TimeStampRange extractTimeStampRange(HydraQLParser.Timestamp_range_clauseContext tsRangeContext) {
         MyAssert.checkNotNull(tsRangeContext);
         return tsRangeContext.accept(this);
     }
