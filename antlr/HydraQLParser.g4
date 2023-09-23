@@ -97,15 +97,16 @@ delete_column_def_list
 
 delete_command
     : DELETE delete_column_def_list? FROM table_ref
-        where_clause?
-        timestamp_range_clause?
+      WHERE whereRow
+      (AND whereCol)?
+      timestamp_range_clause?
     ;
 
 timestamp_range_clause
-    : LP STARTTS gtOper tsExp COMMA ENDTS leOper tsExp RP                  # tsrange_startAndEnd
-    | STARTTS gtOper tsExp                                                 # tsrange_start
-    | ENDTS leOper tsExp                                                   # tsrange_end
-    | TS EQ tsExp                                                          # tsequal
+    : LP STARTTS gtOper tsExp COMMA ENDTS leOper tsExp RP                  # tsRangeStartAndEnd
+    | STARTTS gtOper tsExp                                                 # tsRangeStart
+    | ENDTS leOper tsExp                                                   # tsRangeEnd
+    | TS EQ tsExp                                                          # tsRangeEq
     ;
 
 tsExp: timestamp ;
@@ -122,10 +123,6 @@ limit_clause
     : LIMIT number
     ;
 
-where_clause
-    : WHERE expression
-    ;
-
 select_command
     : select_statement
       versions_clause?
@@ -136,7 +133,8 @@ select_command
 select_statement
     : SELECT select_column_def (',' select_column_def)*
       FROM table_ref
-      where_clause?
+      WHERE whereRow
+      (AND whereCol)?
     ;
 
 number
@@ -162,10 +160,10 @@ funcName
     ;
 
 functionArgs
-    : ( fullColumnName | expression )
+    : ( fullColumnName | literal )
     (
       ','
-      ( fullColumnName | expression )
+      ( fullColumnName | literal )
     )*
     ;
 
@@ -218,26 +216,55 @@ data_type
     : (sql_data_type | hbase_data_type) (ARRAY ('[' dimension_int ']')?)?
     ;
 
-expression
-    : literal                                                         # expressionConstant
-    | VAR_LP variable VAR_RP                                          # expressionVariable
-    | (family_name COLON)? column_name                                # expressionColName
-    | expression comp_op expression                                   # expressionCompOp
-    | expression (LIKE | NOT LIKE) expression                         # expressionLikeOrNot
-    | expression IS NOT? NULL_                                        # expressionIsNullOrNot
-    | expression NOT? IN LP expression_list RP                        # expressionIn
-    | expression NOT? BETWEEN expression AND expression               # expressionBetweenOrNot
-    | LP expression RP                                                # expressionWrapper
-    | expression AND expression                                       # expressionAnd
-    | expression OR expression                                        # expressionOr
+conditionVal
+    : constant
+    | var
+    ;
+
+conditionValList
+    : conditionVal (COMMA conditionVal)*
+    ;
+
+constant
+    : literal
+    ;
+
+var
+    : VAR_LP variable VAR_RP
+    ;
+
+column
+    : (family_name COLON)? column_name
+    ;
+
+rowKey
+    : string
+    | numeric
+    ;
+
+whereRow
+    : STARTKEY gtOper rowKey AND ENDKEY leOper rowKey                   # rowKeyStartAndEnd
+    | STARTKEY gtOper rowKey                                            # rowKeyStart
+    | ENDKEY leOper rowKey		                                        # rowKeyEnd
+    | ROWKEY EQ rowKey 			                                        # rowKeyEqOne
+    | ROWKEY IN LP rowKey (COMMA rowKey)* RP                            # rowKeyInSomeKeys
+    | ROWKEY LIKE rowKey                                                # rowKeyLike
+    ;
+
+whereCol: colCondition;
+colCondition
+    : LP colCondition RP                                                # colConditionWrapper
+    | colCondition AND colCondition                                     # colConditionAnd
+    | colCondition OR colCondition                                      # colConditionOr
+    | column comp_op conditionVal                                       # colConditionCompOp
+    | column (LIKE | NOT LIKE) conditionVal                             # colConditionLikeOrNot
+    | column IS NOT? NULL_                                              # colConditionIsNullOrNot
+    | column NOT? IN LP conditionValList RP                             # colConditionInOrNotIn
+    | column NOT? BETWEEN conditionVal AND conditionVal                 # colConditionBetweenOrNot
     ;
 
 comp_op
     : EQ | GT | GE | LT | LE | NE | NE2
-    ;
-
-expression_list
-    : expression (COMMA expression)*
     ;
 
 variable

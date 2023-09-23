@@ -15,5 +15,12 @@ public enum HQLType {
     /**
      * DELETE
      */
-    DELETE
+    DELETE,
+    /**
+     * CREATE
+     */
+    CREATE_VIRTUAL_TABLE,
+    DROP_VIRTUAL_TABLE,
+    SHOW_VIRTUAL_TABLES,
+    SHOW_VIRTUAL_TABLE
 }

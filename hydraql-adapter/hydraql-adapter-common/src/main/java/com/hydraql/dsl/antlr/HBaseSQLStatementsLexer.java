@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.LexerNoViableAltException;
 /**
  * @author leojie 2020/11/24 10:48 下午
  */
-public class HBaseSQLStatementsLexer extends HBaseSQLLexer {
+public class HBaseSQLStatementsLexer extends HydraQLLexer {
     public HBaseSQLStatementsLexer(CharStream input) {
         super(input);
     }

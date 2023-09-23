@@ -3,9 +3,11 @@ package com.hydraql.dsl.antlr.visitor;
 
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.lang.MyAssert;
-import com.hydraql.dsl.antlr.HBaseSQLParser;
+import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.data.TimeStampRange;
 import com.hydraql.dsl.model.HBaseTableSchema;
+
+import java.util.List;
 
 /**
  * @author leojie 2020/11/28 10:24 上午
@@ -17,9 +19,9 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
     }
 
     @Override
-    public TimeStampRange visitTsequal(HBaseSQLParser.TsequalContext tsequalContext) {
+    public TimeStampRange visitTsRangeEq(HydraQLParser.TsRangeEqContext ctx) {
         TimeStampRange timeStampRange = new TimeStampRange();
-        long ts = this.extractTimeStamp(tsequalContext.tsExp());
+        long ts = this.extractTimeStamp(ctx.tsExp());
         if (ts > 1) {
             timeStampRange.setStart(ts);
             timeStampRange.setEnd(ts + 1);
@@ -28,10 +30,10 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
     }
 
     @Override
-    public TimeStampRange visitTsrange_start(HBaseSQLParser.Tsrange_startContext startContext) {
+    public TimeStampRange visitTsRangeStart(HydraQLParser.TsRangeStartContext ctx) {
         TimeStampRange timeStampRange = new TimeStampRange();
-        long startTs = this.extractTimeStamp(startContext.tsExp());
-        if (startContext.gtOper().GREATER() != null) {
+        long startTs = this.extractTimeStamp(ctx.tsExp());
+        if (ctx.gtOper().GT() != null) {
             startTs += 1;
         }
         timeStampRange.setStart(startTs);
@@ -40,11 +42,11 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
     }
 
     @Override
-    public TimeStampRange visitTsrange_end(HBaseSQLParser.Tsrange_endContext endContext) {
+    public TimeStampRange visitTsRangeEnd(HydraQLParser.TsRangeEndContext ctx) {
         TimeStampRange timeStampRange = new TimeStampRange();
         timeStampRange.setStart(0L);
-        long stopTs = this.extractTimeStamp(endContext.tsExp());
-        if (endContext.leOper().LESS() != null) {
+        long stopTs = this.extractTimeStamp(ctx.tsExp());
+        if (ctx.leOper().LT() != null) {
             stopTs -= 1;
         }
         timeStampRange.setEnd(stopTs);
@@ -52,14 +54,15 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
     }
 
     @Override
-    public TimeStampRange visitTsrange_startAndEnd(HBaseSQLParser.Tsrange_startAndEndContext startAndEndContext) {
+    public TimeStampRange visitTsRangeStartAndEnd(HydraQLParser.TsRangeStartAndEndContext ctx) {
         TimeStampRange timeStampRange = new TimeStampRange();
-        long startTs = this.extractTimeStamp(startAndEndContext.tsExp(0));
-        long stopTs = this.extractTimeStamp(startAndEndContext.tsExp(1));
-        if (startAndEndContext.gtOper().GREATER() != null) {
+        List<HydraQLParser.TsExpContext> tsExpContexts = ctx.tsExp();
+        long startTs = this.extractTimeStamp(tsExpContexts.get(0));
+        long stopTs = this.extractTimeStamp(tsExpContexts.get(1));
+        if (ctx.gtOper().GT() != null) {
             startTs += 1;
         }
-        if (startAndEndContext.leOper().LESS() != null) {
+        if (ctx.leOper().LT() != null) {
             stopTs -= 1;
         }
         if (startTs > stopTs) {
@@ -71,7 +74,7 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
         return timeStampRange;
     }
 
-    public TimeStampRange parseTimeStampRange(HBaseSQLParser.TsRangeContext tsRangeContext) {
+    public TimeStampRange parseTimeStampRange(HydraQLParser.Timestamp_range_clauseContext tsRangeContext) {
         MyAssert.checkNotNull(tsRangeContext);
         return tsRangeContext.accept(this);
     }

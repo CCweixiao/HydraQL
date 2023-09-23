@@ -1,15 +1,13 @@
 package com.hydraql.dsl.antlr.visitor;
 
-import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.exception.HBaseSqlColValueAnalysisException;
 import com.hydraql.common.exception.HBaseSqlTableColumnsMissingException;
 import com.hydraql.common.exception.HBaseSqlTableSchemaMissingException;
-import com.hydraql.common.lang.MyAssert;
 import com.hydraql.common.util.StringUtil;
+import com.hydraql.dsl.antlr.HydraQLParser;
+import com.hydraql.dsl.antlr.HydraQLParserBaseVisitor;
 import com.hydraql.dsl.antlr.data.TimeStampRange;
-import com.hydraql.dsl.antlr.HBaseSQLBaseVisitor;
-import com.hydraql.dsl.antlr.HBaseSQLParser;
 import com.hydraql.dsl.client.QueryExtInfo;
 import com.hydraql.dsl.client.rowkey.BytesRowKey;
 import com.hydraql.dsl.client.rowkey.RowKey;
@@ -24,7 +22,7 @@ import java.util.Map;
 /**
  * @author leojie 2022/12/3 10:30
  */
-public abstract class BaseVisitor<T> extends HBaseSQLBaseVisitor<T> {
+public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
     protected final HBaseTableSchema tableSchema;
 
     public BaseVisitor(HBaseTableSchema tableSchema) {
@@ -58,101 +56,47 @@ public abstract class BaseVisitor<T> extends HBaseSQLBaseVisitor<T> {
         return new BytesRowKey(new byte[0]);
     }
 
-    protected String extractValueFromValueContext(HBaseSQLParser.ValueContext valueContext) {
-        if (valueContext == null) {
-            return null;
+    protected HBaseColumn extractColumn(HydraQLParser.ColumnContext columnContext) {
+        String family = "";
+        String colName = "";
+        HydraQLParser.Family_nameContext familyNameContext = columnContext.family_name();
+        if (!familyNameContext.isEmpty()) {
+            family = getText(familyNameContext.name());
         }
-
-        if (valueContext.NULL() != null) {
-            List<TerminalNode> nodeList = valueContext.NULL();
-            if (!nodeList.isEmpty()) {
-                return null;
-            }
+        HydraQLParser.Column_nameContext columnNameContext = columnContext.column_name();
+        if (!columnNameContext.isEmpty()) {
+            colName = getText(columnNameContext.name());
         }
-        if (valueContext.ID() != null) {
-            List<TerminalNode> nodes = valueContext.ID();
-            if (!nodes.isEmpty()) {
-                return nodes.get(0).getText();
-            }
-        }
-
-        if (valueContext.ROWKEY() != null) {
-            List<TerminalNode> rowNodes = valueContext.ROWKEY();
-            if (!rowNodes.isEmpty()) {
-                return rowNodes.get(0).getText();
-            }
-        }
-
-        if (valueContext.STRING() != null) {
-            List<TerminalNode> nodes = valueContext.STRING();
-            if (!nodes.isEmpty()) {
-                String val = nodes.get(0).getText();
-                if (StringUtil.isBlank(val)) {
-                    return "";
-                }
-                return val.substring(1, val.length() - 1);
-            }
-        }
-        return null;
-    }
-
-    protected List<HBaseColumn> extractColumns(HBaseSQLParser.ColumnListContext colListContext) {
-        List<HBaseColumn> columnList = new ArrayList<>();
-        for (HBaseSQLParser.ColumnContext colContext : colListContext.column()) {
-            columnList.add(extractColumn(colContext));
-        }
-        return columnList;
-    }
-
-    protected HBaseColumn extractColumn(HBaseSQLParser.ColumnContext colContext) {
-        String col = colContext.ID().getText();
-        String[] colArr = col.split(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
-        if (colArr.length == 1) {
-            return this.getTableSchema().findColumn(colArr[0]);
-        } else if (colArr.length == 2) {
-            return this.getTableSchema().findColumn(colArr[0], colArr[1]);
+        if (StringUtil.isNotBlank(family)) {
+            return this.getTableSchema().findColumn(family, colName);
         } else {
-            throw new HBaseSqlAnalysisException("Can not get family and column from the col:" + col);
+            return this.getTableSchema().findColumn(colName);
         }
     }
 
-    protected Object extractConstantVal(HBaseColumn column, HBaseSQLParser.ConstantContext constantContext) {
-        MyAssert.checkNotNull(column);
-        MyAssert.checkNotNull(constantContext);
-        String constantOriVal = this.extractValueFromValueContext(constantContext.value());
+    protected Object extractConditionVal(HydraQLParser.ConditionValContext conditionValContext,
+                                         HBaseColumn column, Map<String, Object> params) {
+        HydraQLParser.VarContext varContext = conditionValContext.var();
+        if (varContext != null && !varContext.isEmpty()) {
+            return extractParamVal(varContext, params);
+        }
+        HydraQLParser.ConstantContext constantContext = conditionValContext.constant();
+        return extractConstantVal(column, constantContext);
+    }
+
+    private Object extractConstantVal(HBaseColumn column, HydraQLParser.ConstantContext constantContext) {
+        String constantOriVal = this.extractLiteralValFrom(constantContext.literal());
         if (constantOriVal == null) {
-            throw new HBaseSqlColValueAnalysisException(String.format("The value of a field [%s] filter cannot be null.",
-                    column.getColumnName()));
+            return null;
         }
         return column.getColumnType().getTypeHandler().extractMatchTtypeValue(constantOriVal);
     }
 
-    protected List<Object> extractConstantValList(HBaseColumn column,
-                                                  List<HBaseSQLParser.ConstantContext> constantContextList) {
-        List<Object> valList = new ArrayList<>();
-        for (HBaseSQLParser.ConstantContext constantContext : constantContextList) {
-            valList.add(extractConstantVal(column, constantContext));
-        }
-        return valList;
-    }
-
-    protected List<Object> extractParamValList(List<HBaseSQLParser.VarContext> varContextList,
-                                               Map<String, Object> params) {
+    private Object extractParamVal(HydraQLParser.VarContext varContext, Map<String, Object> params) {
         if (params == null || params.isEmpty()) {
             throw new HBaseSqlAnalysisException("The parameter list cannot be empty.");
         }
-        List<Object> valList = new ArrayList<>();
-        for (HBaseSQLParser.VarContext varContext : varContextList) {
-            valList.add(extractParamVal(varContext, params));
-        }
-        return valList;
-    }
-
-    protected Object extractParamVal(HBaseSQLParser.VarContext varContext, Map<String, Object> params) {
-        if (params == null || params.isEmpty()) {
-            throw new HBaseSqlAnalysisException("The parameter list cannot be empty.");
-        }
-        String paramName = varContext.ID().getText();
+        String paramName = varContext.variable().varString().getText();
         if (StringUtil.isBlank(paramName)) {
             throw new HBaseSqlAnalysisException("The parameter name cannot be empty.");
         }
@@ -163,40 +107,59 @@ public abstract class BaseVisitor<T> extends HBaseSQLBaseVisitor<T> {
         return paramVal;
     }
 
-    protected TimeStampRange extractTimeStampRange(HBaseTableSchema tableSchema, HBaseSQLParser.TsRangeContext tsRangeContext) {
+
+    private String extractLiteralValFrom(HydraQLParser.LiteralContext literalContext) {
+        if (literalContext.NULL_() != null) {
+            return null;
+        }
+        //todo 处理不同类型
+       return literalContext.string().STRING_LITERAL().getText();
+    }
+
+    protected List<Object> extractConstantValList(HydraQLParser.ConditionValListContext conditionValListContext,
+                                                  HBaseColumn column,
+                                                  Map<String, Object> params) {
+        List<HydraQLParser.ConditionValContext> conditionValContextList =
+                conditionValListContext.conditionVal();
+        List<Object> valList = new ArrayList<>(conditionValContextList.size());
+        for (HydraQLParser.ConditionValContext conditionValContext : conditionValContextList) {
+            valList.add(extractConditionVal(conditionValContext, column, params));
+        }
+        return valList;
+    }
+
+    protected TimeStampRange extractTimeStampRange(HBaseTableSchema tableSchema,
+                                                   HydraQLParser.Timestamp_range_clauseContext tsRangeContext) {
         TimeStampRangeVisitor visitor = new TimeStampRangeVisitor(tableSchema);
         return visitor.parseTimeStampRange(tsRangeContext);
     }
 
-    public QueryExtInfo parseQueryExtInfo(HBaseSQLParser.SelectStatementContext selectStatementContext) {
+    public QueryExtInfo parseQueryExtInfo(HydraQLParser.Select_commandContext selectCommandContext) {
         QueryExtInfo queryExtInfo = new QueryExtInfo();
+        HydraQLParser.Versions_clauseContext versionsClauseContext = selectCommandContext.versions_clause();
+        if (versionsClauseContext != null) {
+            String val = versionsClauseContext.number().DECIMAL_LITERAL().getText();
+            int maxVersion = Integer.parseInt(val);
+            if (maxVersion <= 0) {
+                throw new HBaseSqlAnalysisException("The value of max version must be bigger than zero.");
+            }
+            queryExtInfo.setMaxVersions(maxVersion);
+        }
 
-        if (selectStatementContext.multiVersionExp() != null) {
-            // 解析最大版本号
-            HBaseSQLParser.MaxVersionExpContext maxVersionExpContext = selectStatementContext.multiVersionExp().maxVersionExp();
-            if (maxVersionExpContext != null) {
-                int maxVersion;
-                try {
-                    maxVersion = Integer.parseInt(maxVersionExpContext.integer().ID().getText());
-                } catch (NumberFormatException e) {
-                    throw new HBaseSqlAnalysisException("The value of max version must be one integer number.");
-                }
-                queryExtInfo.setMaxVersions(maxVersion);
-            }
-            // 解析起止时间戳范围
-            HBaseSQLParser.TsRangeContext tsRangeContext = selectStatementContext.multiVersionExp().tsRange();
-            if (tsRangeContext != null) {
-                TimeStampRange timeStampRange = extractTimeStampRange(this.getTableSchema(), tsRangeContext);
-                queryExtInfo.setTimeRange(timeStampRange.getStart(), timeStampRange.getEnd());
-            }
+        HydraQLParser.Timestamp_range_clauseContext timestampRangeClauseContext =
+                selectCommandContext.timestamp_range_clause();
+
+        if (timestampRangeClauseContext != null) {
+            TimeStampRange timeStampRange = extractTimeStampRange(this.getTableSchema(), timestampRangeClauseContext);
+            queryExtInfo.setTimeRange(timeStampRange.getStart(), timeStampRange.getEnd());
         }
 
         // 解析limit
-        HBaseSQLParser.LimitExpContext limitExpContext = selectStatementContext.limitExp();
-        if (limitExpContext != null) {
+        HydraQLParser.Limit_clauseContext limitClauseContext = selectCommandContext.limit_clause();
+        if (limitClauseContext != null) {
             int limit;
             try {
-                limit = Integer.parseInt(limitExpContext.integer().ID().getText());
+                limit = Integer.parseInt(limitClauseContext.number().DECIMAL_LITERAL().getText());
             } catch (NumberFormatException e) {
                 throw new HBaseSqlAnalysisException("The value of limit must be a number.");
             }
@@ -208,8 +171,8 @@ public abstract class BaseVisitor<T> extends HBaseSQLBaseVisitor<T> {
         return queryExtInfo;
     }
 
-    public long extractTimeStamp(HBaseSQLParser.TsExpContext tsExpContext) {
-        String ts = tsExpContext.timestamp().getText();
+    public long extractTimeStamp(HydraQLParser.TsExpContext tsExpContext) {
+        String ts = tsExpContext.timestamp().integer().getText();
         if (StringUtil.isBlank(ts)) {
             throw new HBaseSqlAnalysisException("The value of timestamp must not be empty.");
         }
@@ -223,5 +186,28 @@ public abstract class BaseVisitor<T> extends HBaseSQLBaseVisitor<T> {
         } catch (NumberFormatException e) {
             throw new HBaseSqlColValueAnalysisException(error);
         }
+    }
+
+    protected String getText(HydraQLParser.NameContext nameContext) {
+        if (nameContext == null || nameContext.isEmpty()) {
+            return "";
+        }
+        TerminalNode id = nameContext.ID();
+        if (id != null) {
+            return id.getText();
+        }
+        String text = getText(nameContext.quoted_name());
+        if (StringUtil.isNotBlank(text)) {
+            return text;
+        }
+        return "";
+    }
+
+    private String getText(HydraQLParser.Quoted_nameContext quotedNameContext) {
+        if (quotedNameContext != null && !quotedNameContext.isEmpty()) {
+            String text = quotedNameContext.DOUBLE_QUOTE_ID().getText();
+            return text.substring(1, text.length() - 1);
+        }
+        return "";
     }
 }

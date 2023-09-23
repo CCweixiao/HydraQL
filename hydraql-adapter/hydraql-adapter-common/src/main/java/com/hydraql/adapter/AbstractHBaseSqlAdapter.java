@@ -2,7 +2,6 @@ package com.hydraql.adapter;
 
 import com.hydraql.common.constants.HBaseConfigKeys;
 import com.hydraql.common.constants.HMHBaseConstants;
-import com.hydraql.common.exception.HBaseOperationsException;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.exception.HBaseSqlExecuteException;
 import com.hydraql.common.exception.HBaseSqlTableSchemaMissingException;
@@ -10,15 +9,17 @@ import com.hydraql.common.lang.MyAssert;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.common.model.row.HBaseDataRow;
 import com.hydraql.common.model.row.HBaseDataSet;
-import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.connection.HBaseConnectionUtil;
 import com.hydraql.dsl.antlr.HBaseSQLErrorListener;
+import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.data.InsertRowData;
-import com.hydraql.dsl.antlr.visitor.InsertValueVisitor;
+import com.hydraql.dsl.antlr.parser.QueryExplainPlan;
+import com.hydraql.dsl.antlr.visitor.CreateVirtualTableVisitor;
 import com.hydraql.dsl.antlr.visitor.RowKeyRangeVisitor;
 import com.hydraql.dsl.antlr.visitor.SelectColListVisitor;
-import com.hydraql.dsl.antlr.HBaseSQLParser;
+import com.hydraql.dsl.antlr.visitor.TimeStampRangeVisitor;
+import com.hydraql.dsl.antlr.visitor.UpsertValuesVisitor;
 import com.hydraql.dsl.client.QueryExtInfo;
 import com.hydraql.dsl.client.rowkey.RowKey;
 import com.hydraql.dsl.context.HBaseSqlContext;
@@ -26,11 +27,11 @@ import com.hydraql.dsl.antlr.HBaseSQLStatementsLexer;
 import com.hydraql.dsl.antlr.data.RowKeyRange;
 import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
+import com.hydraql.dsl.model.QueryHBaseColumn;
 import com.hydraql.dsl.model.TableQueryProperties;
 import com.hydraql.dsl.util.Util;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -65,78 +66,40 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
     @Override
     public List<String> showVirtualTables(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        HBaseSQLParser.ShowTableStatementContext showTableStatementContext = queryContext.showTableStatement();
-        if (showTableStatementContext == null) {
-            throw new HBaseSqlAnalysisException("Please enter the statement show virtual tables.");
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        HQLType hqlType = explainPlan.getSqlCommandParser().getHqlType();
+        if (hqlType == HQLType.SHOW_VIRTUAL_TABLES) {
+            List<String> allRegisteredVirtualTables = HBaseSqlContext.getInstance().getAllRegisteredVirtualTables();
+            List<String> allVirtualTables = queryAllVirtualTables();
+            Set<String> tableNames = new HashSet<>(allRegisteredVirtualTables);
+            tableNames.addAll(allVirtualTables);
+            return new ArrayList<>(tableNames);
         }
-        List<String> allRegisteredVirtualTables = HBaseSqlContext.getInstance().getAllRegisteredVirtualTables();
-        List<String> allVirtualTables = queryAllVirtualTables();
-        Set<String> tableNames = new HashSet<>(allRegisteredVirtualTables);
-        tableNames.addAll(allVirtualTables);
-        return new ArrayList<>(tableNames);
+        return new ArrayList<>(0);
     }
 
     @Override
     public String showCreateVirtualTable(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        HBaseSQLParser.ShowCreateTableStatementContext showCreateTableStatementContext =
-                queryContext.showCreateTableStatement();
-        if (showCreateTableStatementContext == null) {
-            throw new HBaseSqlAnalysisException("Please enter the statement show create virtual table.");
-        }
-        String tableName = showCreateTableStatementContext.tableName().getText();
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        String tableName = explainPlan.getSqlCommandParser().getTableName();
         HBaseTableSchema tableSchema = getTableSchema(tableName);
         String schema = tableSchema.toString();
         String createSql = tableSchema.getCreateSql();
         createSql = createSql.replaceAll("\n", "").replaceAll(",", ",\n");
-
         return createSql + "\n\n" + schema;
     }
 
     @Override
     public void createVirtualTable(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        HBaseSQLParser.CreateTableStatementContext createTableStatementContext = queryContext.createTableStatement();
-        if (createTableStatementContext == null) {
-            throw new HBaseSqlAnalysisException("Please enter the statement create virtual table.");
-        }
-        HBaseSQLParser.FieldsContext fieldsContext = createTableStatementContext.fields();
-        List<HBaseSQLParser.FieldContext> fields = fieldsContext.field();
-        String virtualTableName = HMHBaseConstants.getFullTableName(createTableStatementContext.tableName().getText().trim());
-        HBaseTableSchema.Builder tableSchemaBuilder = HBaseTableSchema.of(virtualTableName);
-        for (HBaseSQLParser.FieldContext fieldContext : fields) {
-            String filedName = fieldContext.fieldName().ID().getText();
-            String fieldType = fieldContext.fieldType().ID().getText();
-            TerminalNode nullable = fieldContext.NULLABLE();
-            HBaseColumn row = getRowColumn(fieldContext, filedName, fieldType, nullable);
-            if (row != null) {
-                tableSchemaBuilder.addColumn(row);
-            } else {
-                HBaseColumn column = getColumn(filedName, fieldType, nullable);
-                if (column != null) {
-                    tableSchemaBuilder.addColumn(column);
-                }
-            }
-        }
-
-        HBaseSQLParser.PropertiesContext properties = createTableStatementContext.properties();
-        if (properties != null) {
-            List<HBaseSQLParser.KeyValueContext> keyValueContexts = properties.keyValue();
-            for (HBaseSQLParser.KeyValueContext keyValueContext : keyValueContexts) {
-                List<TerminalNode> kvs = keyValueContext.ID();
-                String key = kvs.get(0).getText().trim();
-                String value = kvs.get(1).getText().trim();
-                if (HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHING.equals(key)) {
-                    tableSchemaBuilder.scanCaching(Integer.parseInt(value));
-                } else if (HBaseConfigKeys.HBASE_CLIENT_BLOCK_CACHE.equals(key)) {
-                    tableSchemaBuilder.scanCacheBlocks(Boolean.parseBoolean(value));
-                } else {
-                    throw new HBaseSqlAnalysisException(String.format("Configuration [%s] not currently supported.", key));
-                }
-            }
-        }
-        HBaseTableSchema tableSchema = tableSchemaBuilder.build();
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        String tableName = explainPlan.getTableName();
+        HydraQLParser.Create_virtual_table_commandContext virtualTableCommand
+                = explainPlan.getDdlCommandContext().create_virtual_table_command();
+        CreateVirtualTableVisitor createVirtualTableVisitor = new CreateVirtualTableVisitor(tableName,null);
+        HBaseTableSchema tableSchema = createVirtualTableVisitor.extractHBaseTableSchema(virtualTableCommand);
         tableSchema.setCreateSql(hql);
         checkAndCreateHqlMetaTable();
         boolean res = saveTableSchemaMeta(tableSchema, hql);
@@ -147,12 +110,9 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
     @Override
     public void dropVirtualTable(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        HBaseSQLParser.DropTableStatementContext dropTableStatementContext = queryContext.dropTableStatement();
-        if (dropTableStatementContext == null) {
-            throw new HBaseSqlAnalysisException("Please enter the statement drop virtual table.");
-        }
-        String virtualTableName = HMHBaseConstants.getFullTableName(dropTableStatementContext.tableName().getText().trim());
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        String virtualTableName = explainPlan.getTableName();
 
         Get get = new Get(Bytes.toBytes(virtualTableName));
         boolean virtualTableExists = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
@@ -225,62 +185,31 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         return tableSchema;
     }
 
-    private HBaseColumn getColumn(String filedName, String fieldType, TerminalNode nullable) {
-        String[] cols = filedName.split(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
-        if (cols.length != 2) {
-            throw new HBaseSqlAnalysisException("An example field name is family:qualifier.");
-        }
-        String family = cols[0].trim();
-        String qualifier = cols[1].trim();
-        return HBaseColumn.of(family, qualifier)
-                .nullable(nullable != null)
-                .columnType(ColumnType.getColumnType(fieldType)).build();
-    }
-
-
-    private HBaseColumn getRowColumn(HBaseSQLParser.FieldContext fieldContext, String filedName,
-                                     String fieldType, TerminalNode nullable) {
-        TerminalNode isRowKey = fieldContext.ISROWKEY();
-        if (isRowKey == null) {
-            return null;
-        }
-        if (nullable != null) {
-            throw new HBaseSqlAnalysisException("The rowKey field cannot be nullable.");
-        }
-        fieldType = fieldType.toLowerCase();
-        return HBaseColumn.of("", filedName)
-                .columnIsRow(true)
-                .columnType(ColumnType.getColumnType(fieldType))
-                .nullable(false)
-                .build();
-    }
-
     @Override
     public HBaseDataSet select(String hql, Map<String, Object> params) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        HBaseSQLParser.SelectStatementContext selectStatementContext = queryContext.selectStatement();
-        if (selectStatementContext == null) {
-            throw new HBaseSqlAnalysisException("Please enter the statement select table.");
-        }
-        String tableName = selectStatementContext.tableName().getText();
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        String tableName = explainPlan.getTableName();
         HBaseTableSchema tableSchema = this.getTableSchema(tableName);
-        // 解析查询字段 * 或指定字段
-        HBaseSQLParser.SelectColListContext selectColListContext = selectStatementContext.selectColList();
-
-        // 解析查询字段
-        final List<HBaseColumn> queryColumns = new SelectColListVisitor(tableSchema).extractColumns(selectColListContext);
-        if (queryColumns == null || queryColumns.isEmpty()) {
-            throw new HBaseSqlAnalysisException(String.format("The list of field names to be selected cannot be parsed from hql [%s]", hql));
+        explainPlan.setTableSchema(tableSchema);
+        List<QueryHBaseColumn> selectColumns = explainPlan.getSqlCommandParser().getSelectColumns();
+        if (selectColumns == null || selectColumns.isEmpty()) {
+            throw new HBaseSqlAnalysisException(String.format("The list of field names " +
+                    "to be selected cannot be parsed from hql [%s]", hql));
         }
+
+        HydraQLParser.Select_commandContext selectCommandContext =
+                explainPlan.getDmlCommandContext().select_command();
         RowKeyRangeVisitor rowKeyRangeVisitor = new RowKeyRangeVisitor(tableSchema);
-        RowKeyRange rowKeyRange = rowKeyRangeVisitor.extractRowKeyRange(selectStatementContext.rowKeyRangeExp());
-        QueryExtInfo queryExtInfo = rowKeyRangeVisitor.parseQueryExtInfo(selectStatementContext);
+
+        RowKeyRange rowKeyRange = rowKeyRangeVisitor.extractRowKeyRange(selectCommandContext.select_statement().whereRow());
+        QueryExtInfo queryExtInfo = rowKeyRangeVisitor.parseQueryExtInfo(selectCommandContext);
         // 解析字段或row key的filter条件
-        Filter filter = this.parseFilter(selectStatementContext.wherec(), params, tableSchema);
+        Filter filter = this.parseFilter(selectCommandContext.select_statement().whereCol(), params, tableSchema);
         // = rowKey 即：get row
 
         if (rowKeyRange.isMatchGet()) {
-            Get get = constructGet(rowKeyRange.getEqRow(), queryExtInfo, filter, queryColumns);
+            Get get = constructGet(rowKeyRange.getEqRow(), queryExtInfo, filter, selectColumns);
             return this.execute(tableName, table -> {
                 Result result = table.get(get);
                 if (result == null) {
@@ -305,7 +234,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             }
             Get[] getArr = new Get[limit];
             for (int i = 0; i < getArr.length; i++) {
-                getArr[i] = constructGet(queryInRows.get(i), queryExtInfo, filter, queryColumns);
+                getArr[i] = constructGet(queryInRows.get(i), queryExtInfo, filter, selectColumns);
             }
             return this.execute(tableName, table -> {
                 HBaseDataSet dataSet = HBaseDataSet.of(tableName);
@@ -319,7 +248,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 return dataSet;
             });
         }
-        Scan scan = constructScan(tableName, rowKeyRange, queryExtInfo, filter, queryColumns);
+        Scan scan = constructScan(tableName, rowKeyRange, queryExtInfo, filter, selectColumns);
         // 构造scan查询条件
        if (rowKeyRange.isMatchScanByRowPrefix()) {
             scan = setScanRowPrefixFilter(scan, rowKeyRange.getRowPrefix());
@@ -365,52 +294,51 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
     @Override
     public void insert(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        HBaseSQLParser.InsertStatementContext insertStatementContext = queryContext.insertStatement();
-        if (insertStatementContext == null) {
-            throw new HBaseSqlAnalysisException("Please enter the statement insert into table.");
-        }
-        String tableName = insertStatementContext.tableName().ID().getText();
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        String tableName = explainPlan.getTableName();
         HBaseTableSchema tableSchema = this.getTableSchema(tableName);
+        explainPlan.setTableSchema(tableSchema);
+        List<HBaseColumn> upsertColumns = explainPlan.getSqlCommandParser().getUpsertColumns();
+        UpsertValuesVisitor upsertValuesVisitor = new UpsertValuesVisitor(tableSchema, upsertColumns);
+        HydraQLParser.Upsert_values_commandContext upsertValuesCommandContext =
+                explainPlan.getDmlCommandContext().upsert_values_command();
+        List<InsertRowData> rowDataList = new ArrayList<>(upsertValuesCommandContext.insert_values().size());
+        for (HydraQLParser.Insert_valuesContext insertValuesContext :
+                upsertValuesCommandContext.insert_values()) {
+            InsertRowData insertRowData = upsertValuesVisitor.extractInsertRowData(insertValuesContext);
+            rowDataList.add(insertRowData);
+        }
 
-
-        List<String> insertCols = insertStatementContext.columnList()
-                .column().stream().map(c -> c.ID().getText())
-                .collect(Collectors.toList());
-
-        InsertValueVisitor insertValueVisitor = new InsertValueVisitor(tableSchema, insertCols);
-        long timestamp = insertValueVisitor.parseTimestamp(insertStatementContext);
-        List<InsertRowData> rowDataList = new InsertValueVisitor(tableSchema, insertCols)
-                .parseInsertConstantValue(insertStatementContext);
         if (rowDataList.size() == 1) {
-            Put put = this.constructPut(rowDataList.get(0), timestamp);
+            // todo timestamp处理
+            Put put = this.constructPut(rowDataList.get(0), 0L);
             this.executeSave(tableName, put);
             return;
         }
 
-        List<Mutation> puts = rowDataList.stream().map(rowData -> this.constructPut(rowData, timestamp))
+        List<Mutation> puts = rowDataList.stream().map(rowData -> this.constructPut(rowData, 0L))
                 .collect(Collectors.toList());
         this.executeSaveBatch(tableName, puts);
     }
 
     @Override
     public void delete(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        HBaseSQLParser.DeleteStatementContext deleteStatementContext = queryContext.deleteStatement();
-        if (deleteStatementContext == null) {
-            throw new HBaseSqlAnalysisException("Please enter the statement delete from table.");
-        }
-        String tableName = deleteStatementContext.tableName().getText();
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        String tableName = explainPlan.getTableName();
         HBaseTableSchema tableSchema = this.getTableSchema(tableName);
-        // 解析删除字段 * 或指定字段
-        HBaseSQLParser.SelectColListContext deleteColListContext = deleteStatementContext.selectColList();
-        List<HBaseColumn> deleteColumns = new SelectColListVisitor(tableSchema).extractColumns(deleteColListContext);
+        explainPlan.setTableSchema(tableSchema);
+        List<HBaseColumn> deleteColumns = explainPlan.getSqlCommandParser().getDeleteColumns();
+
         if (deleteColumns == null || deleteColumns.isEmpty()) {
             throw new HBaseSqlAnalysisException(String.format("The list of field names to be deleted cannot be parsed from hql [%s]", hql));
         }
+        HydraQLParser.Delete_commandContext deleteCommandContext =
+                explainPlan.getDmlCommandContext().delete_command();
         //Row in start row and end row
         RowKeyRangeVisitor rowKeyRangeVisitor = new RowKeyRangeVisitor(tableSchema);
-        RowKeyRange rowKeyRange = rowKeyRangeVisitor.extractRowKeyRange(deleteStatementContext.rowKeyRangeExp());
+        RowKeyRange rowKeyRange = rowKeyRangeVisitor.extractRowKeyRange(deleteCommandContext.whereRow());
         RowKey<?> startRowKey = rowKeyRange.getStart();
         RowKey<?> endRowKey = rowKeyRange.getStop();
         // delete one row key
@@ -418,11 +346,14 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         // delete in row key list
         List<RowKey<?>> inRowKeyList = rowKeyRange.getInSomeKeys();
         // filter
-        Filter filter = this.parseFilter(deleteStatementContext.wherec(), tableSchema);
+        Filter filter = this.parseFilter(deleteCommandContext.whereCol(), tableSchema);
         long ts = 0;
-        if (deleteStatementContext.TS() != null) {
+        //todo delete with time range
+        /*HydraQLParser.Timestamp_range_clauseContext timestampRangeClauseContext = deleteCommandContext.timestamp_range_clause();
+
+        if (timestampRangeClauseContext != null && timestampRangeClauseContext.op!= null) {
             ts = rowKeyRangeVisitor.extractTimeStamp(deleteStatementContext.tsExp());
-        }
+        }*/
 
         // delete eq row key
         if (eqRowKey != null) {
@@ -469,7 +400,9 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
         final int deleteBatch = getDeleteBatch(tableName);
         while (true) {
-            Scan firstScan = constructScan(tableName, rowKeyRange, null, filter, deleteColumns);
+            List<QueryHBaseColumn> queryHBaseColumns = deleteColumns.stream()
+                    .map(QueryHBaseColumn::column).collect(Collectors.toList());
+            Scan firstScan = constructScan(tableName, rowKeyRange, null, filter, queryHBaseColumns);
             // 只扫描row
             firstScan.addFamily(null);
             List<Mutation> deletes = new ArrayList<>(deleteBatch);
@@ -526,13 +459,14 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         return getTableQueryProperties(tableName).isScanCacheBlocks();
     }
 
-    protected abstract Filter parseFilter(HBaseSQLParser.WherecContext whereContext, HBaseTableSchema tableSchema);
-    protected abstract Filter parseFilter(HBaseSQLParser.WherecContext whereContext, Map<String, Object> queryParams, HBaseTableSchema tableSchema);
+    protected abstract Filter parseFilter(HydraQLParser.WhereColContext whereColContext, HBaseTableSchema tableSchema);
+    protected abstract Filter parseFilter(HydraQLParser.WhereColContext whereColContext, Map<String, Object> queryParams,
+                                          HBaseTableSchema tableSchema);
 
-    protected abstract Get constructGet(RowKey<?> rowKey, QueryExtInfo queryExtInfo, Filter filter, List<HBaseColumn> columnList);
+    protected abstract Get constructGet(RowKey<?> rowKey, QueryExtInfo queryExtInfo, Filter filter, List<QueryHBaseColumn> columnList);
 
     protected abstract Scan constructScan(String tableName, RowKeyRange rowKeyRange, QueryExtInfo queryExtInfo,
-                                          Filter filter, List<HBaseColumn> columnList);
+                                          Filter filter, List<QueryHBaseColumn> columnList);
 
     protected abstract Scan setScanRowPrefixFilter(Scan scan, RowKey<?> rowPrefixKey);
 
@@ -584,7 +518,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         return this.getTableSchema(tableName).getTableQueryProperties();
     }
 
-    protected HBaseSQLParser.QueryContext parseQueryContext(String hql) {
+    protected HydraQLParser.Sql_commandContext parseSqlCommandContext(String hql) {
         if (StringUtil.isBlank(hql)) {
             throw new HBaseSqlAnalysisException("Please enter hql.");
         }
@@ -592,52 +526,29 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             ANTLRInputStream input = new ANTLRInputStream(new StringReader(hql));
             HBaseSQLStatementsLexer lexer = new HBaseSQLStatementsLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
-            HBaseSQLParser parser = new HBaseSQLParser(tokens);
+            HydraQLParser parser = new HydraQLParser(tokens);
             parser.removeErrorListeners();
             parser.addErrorListener(new HBaseSQLErrorListener());
-            return parser.query();
+            HydraQLParser.RootContext root = parser.root();
+            List<HydraQLParser.BatchContext> batchList = root.batch();
+            if (batchList.size() > 1) {
+                throw new HBaseSqlAnalysisException("The execution of multi-segment SQL is not currently supported.");
+            }
+            HydraQLParser.BatchContext batchContext = batchList.get(0);
+            return batchContext.sql_command();
         } catch (Exception e) {
             throw new HBaseSqlAnalysisException(String.format("The hql %s was parsed failed.", hql), e);
         }
     }
 
     public String parseTableNameFromHql(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        return parseTableNameFromHql(queryContext);
-    }
-
-    protected String parseTableNameFromHql(HBaseSQLParser.QueryContext queryContext) {
-        String tableName;
-        if (queryContext.selectStatement() != null) {
-            tableName = queryContext.selectStatement().tableName().getText();
-        } else if (queryContext.insertStatement() != null) {
-            tableName = queryContext.insertStatement().tableName().getText();
-        } else if (queryContext.deleteStatement() != null) {
-            tableName = queryContext.deleteStatement().tableName().getText();
-        } else {
-            throw new HBaseSqlAnalysisException("The table name cannot be parsed from the input hql.");
-        }
-        checkTableNameIsNotEmpty(tableName);
-        return tableName;
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        return new QueryExplainPlan(sqlCommandContext).getTableName();
     }
 
     public HQLType parseHQLType(String hql) {
-        HBaseSQLParser.QueryContext queryContext = parseQueryContext(hql);
-        return parseHQLType(queryContext);
-    }
-
-    protected HQLType parseHQLType(HBaseSQLParser.QueryContext queryContext) {
-
-        if (queryContext.insertStatement() != null) {
-            return HQLType.PUT;
-        }
-        if (queryContext.selectStatement() != null) {
-            return HQLType.SELECT;
-        }
-        if (queryContext.deleteStatement() != null) {
-            return HQLType.DELETE;
-        }
-        throw new HBaseOperationsException("can't parse hql type.");
+        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
+        return new QueryExplainPlan(sqlCommandContext).getHqlType();
     }
 
     private void checkTableNameIsNotEmpty(String tableName) {

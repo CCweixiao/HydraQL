@@ -2,6 +2,10 @@ lexer grammar HydraQLLexer;
 
 options { caseInsensitive = true; }
 
+@header {
+package com.hydraql.dsl.antlr;
+}
+
 AND:                                'AND';
 ARRAY:                              'ARRAY';
 AS:                                 'AS';
@@ -22,10 +26,15 @@ FALSE:                              'FALSE';
 FLOAT:                              'FLOAT';
 FROM:                               'FROM';
 IN:                                 'IN';
+IF:                                 'IF';
 INTEGER:                            'INTEGER';
+BIGINT:                             'BIGINT';
 INTO:                               'INTO';
 IS:                                 'IS';
 KEY:                                'KEY';
+STARTKEY:                           'STARTKEY';
+ENDKEY:                             'ENDKEY';
+ROWKEY:                             'ROWKEY';
 LIKE:                               'LIKE';
 VERSIONS:                           'VERSIONS';
 STARTTS:                            'STARTTS';
@@ -37,6 +46,7 @@ NULL_:                              'NULL';
 OR:                                 'OR';
 PRIMARY:                            'PRIMARY';
 SELECT:                             'SELECT';
+SHOW:                               'SHOW';
 SMALLINT:                           'SMALLINT';
 VIRTUAL:                            'VIRTUAL';
 TABLE:                              'TABLE';

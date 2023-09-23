@@ -157,4 +157,12 @@ public class HBaseColumn {
         sb.append(")");
         return sb.toString();
     }
+
+    @Override
+    public String toString() {
+        if (this.columnIsRow()) {
+            return this.getColumnName();
+        }
+        return HMHBaseConstants.getColumnName(this.getFamily(), this.getColumnName());
+    }
 }

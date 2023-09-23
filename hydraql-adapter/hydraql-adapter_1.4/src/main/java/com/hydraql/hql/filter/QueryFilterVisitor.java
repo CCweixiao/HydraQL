@@ -1,13 +1,15 @@
 package com.hydraql.hql.filter;
 
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
+import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.visitor.BaseVisitor;
-import com.hydraql.dsl.antlr.HBaseSQLParser;
 import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
+import org.apache.hadoop.hbase.exceptions.DeserializationException;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 
 import java.util.ArrayList;
@@ -27,210 +29,115 @@ public class QueryFilterVisitor extends BaseVisitor<Filter> {
     }
 
     public Map<String, Object> getQueryParams() {
-        if (this.queryParams == null || this.queryParams.isEmpty()) {
-            throw new HBaseSqlAnalysisException("The parameter list cannot be empty.");
-        }
         return queryParams;
     }
 
     @Override
-    public Filter visitOrcondition(HBaseSQLParser.OrconditionContext ctx) {
-        final List<HBaseSQLParser.ConditioncContext> conditioncContextList = ctx.conditionc();
-
-        List<Filter> filters = new ArrayList<>();
-        for (HBaseSQLParser.ConditioncContext conditioncContext : conditioncContextList) {
-            filters.add(conditioncContext.accept(this));
-        }
-        if (filters.isEmpty()) {
-            return null;
-        }
-        return new FilterList(FilterList.Operator.MUST_PASS_ONE, filters);
+    public Filter visitColConditionWrapper(HydraQLParser.ColConditionWrapperContext ctx) {
+        return ctx.colCondition().accept(this);
     }
 
     @Override
-    public Filter visitAndcondition(HBaseSQLParser.AndconditionContext ctx) {
-        final List<HBaseSQLParser.ConditioncContext> conditioncContextList = ctx.conditionc();
-
-        List<Filter> filters = new ArrayList<>();
-        for (HBaseSQLParser.ConditioncContext conditioncContext : conditioncContextList) {
-            filters.add(conditioncContext.accept(this));
-        }
-        if (filters.isEmpty()) {
+    public Filter visitColConditionAnd(HydraQLParser.ColConditionAndContext ctx) {
+        List<HydraQLParser.ColConditionContext> colConditionContextList = ctx.colCondition();
+        if (colConditionContextList.isEmpty()) {
             return null;
+        }
+        List<Filter> filters = new ArrayList<>();
+        for (HydraQLParser.ColConditionContext colConditionContext : colConditionContextList) {
+            filters.add(colConditionContext.accept(this));
         }
         return new FilterList(FilterList.Operator.MUST_PASS_ALL, filters);
     }
 
     @Override
-    public Filter visitConditionwrapper(HBaseSQLParser.ConditionwrapperContext ctx) {
-        return ctx.conditionc().accept(this);
+    public Filter visitColConditionOr(HydraQLParser.ColConditionOrContext ctx) {
+        List<HydraQLParser.ColConditionContext> colConditionContextList = ctx.colCondition();
+        if (colConditionContextList.isEmpty()) {
+            return null;
+        }
+        List<Filter> filters = new ArrayList<>();
+        for (HydraQLParser.ColConditionContext colConditionContext : colConditionContextList) {
+            filters.add(colConditionContext.accept(this));
+        }
+        return new FilterList(FilterList.Operator.MUST_PASS_ONE, filters);
     }
 
     @Override
-    public Filter visitEqualvar(HBaseSQLParser.EqualvarContext ctx) {
+    public Filter visitColConditionCompOp(HydraQLParser.ColConditionCompOpContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
-        Object paramVal = this.extractParamVal(ctx.var(), this.getQueryParams());
-        return constructFilter(column, CompareFilter.CompareOp.EQUAL, paramVal);
+        final Object conditionVal = this.extractConditionVal(ctx.conditionVal(), column, this.getQueryParams());
+        if (ctx.comp_op().EQ() != null) {
+            return constructFilter(column, CompareFilter.CompareOp.EQUAL, conditionVal);
+        } else if (ctx.comp_op().GE() != null) {
+            return constructFilter(column, CompareFilter.CompareOp.GREATER_OR_EQUAL, conditionVal);
+        } else if (ctx.comp_op().GT() != null) {
+            return constructFilter(column, CompareFilter.CompareOp.GREATER, conditionVal);
+        } else if (ctx.comp_op().LT() != null) {
+            return constructFilter(column, CompareFilter.CompareOp.LESS, conditionVal);
+        } else if (ctx.comp_op().LE() != null) {
+            return constructFilter(column, CompareFilter.CompareOp.LESS_OR_EQUAL, conditionVal);
+        } else if (ctx.comp_op().NE() != null || ctx.comp_op().NE2() != null) {
+            return constructFilter(column, CompareFilter.CompareOp.NOT_EQUAL, conditionVal);
+        } else {
+            throw new HBaseSqlAnalysisException("Unsupported operator " + ctx.comp_op().getText());
+        }
     }
 
     @Override
-    public Filter visitEqualconstant(HBaseSQLParser.EqualconstantContext ctx) {
-        final HBaseColumn columnSchema = this.extractColumn(ctx.column());
-        final Object constantVal = this.extractConstantVal(columnSchema, ctx.constant());
-        return constructFilter(columnSchema, CompareFilter.CompareOp.EQUAL, constantVal);
-    }
-
-    @Override
-    public Filter visitIsnullc(HBaseSQLParser.IsnullcContext ctx) {
+    public Filter visitColConditionLikeOrNot(HydraQLParser.ColConditionLikeOrNotContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
-        return constructFilter(column, CompareFilter.CompareOp.EQUAL, new byte[0]);
+        final Object conditionVal = this.extractConditionVal(ctx.conditionVal(), column, this.getQueryParams());
+        byte[] value = column.getColumnType().getTypeHandler()
+                .toBytes(column.getColumnType().getTypeClass(), conditionVal);
+        try {
+            RegexStringComparator regexStringComparator = RegexStringComparator.parseFrom(value);
+            return new SingleColumnValueFilter(column.getFamilyNameBytes(),
+                    column.getColumnNameBytes(), CompareFilter.CompareOp.EQUAL, regexStringComparator);
+        } catch (DeserializationException e) {
+            throw new HBaseSqlAnalysisException(e);
+        }
     }
 
     @Override
-    public Filter visitIsnotnullc(HBaseSQLParser.IsnotnullcContext ctx) {
+    public Filter visitColConditionIsNullOrNot(HydraQLParser.ColConditionIsNullOrNotContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
-        return constructFilter(column, CompareFilter.CompareOp.NOT_EQUAL, new byte[0]);
+        if (ctx.NOT() != null) {
+            return constructFilter(column, CompareFilter.CompareOp.NOT_EQUAL, new byte[0]);
+        } else {
+            return constructFilter(column, CompareFilter.CompareOp.EQUAL, new byte[0]);
+        }
     }
 
     @Override
-    public Filter visitNotequalconstant(HBaseSQLParser.NotequalconstantContext ctx) {
-        final HBaseColumn columnSchema = this.extractColumn(ctx.column());
-        final Object constantVal = this.extractConstantVal(columnSchema, ctx.constant());
-        return constructFilter(columnSchema, CompareFilter.CompareOp.NOT_EQUAL, constantVal);
-    }
-
-    @Override
-    public Filter visitNotequalvar(HBaseSQLParser.NotequalvarContext ctx) {
+    public Filter visitColConditionInOrNotIn(HydraQLParser.ColConditionInOrNotInContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
-        Object paramVal = this.extractParamVal(ctx.var(), this.getQueryParams());
-        return constructFilter(column, CompareFilter.CompareOp.NOT_EQUAL, paramVal);
+        HydraQLParser.ConditionValListContext conditionValListContext = ctx.conditionValList();
+        List<Object> constantValList = this.extractConstantValList(conditionValListContext, column,
+                this.getQueryParams());
+        if (ctx.NOT() != null) {
+            return constructFilterForContain(column, CompareFilter.CompareOp.NOT_EQUAL,
+                    constantValList, FilterList.Operator.MUST_PASS_ALL);
+        }
+        return constructFilterForContain(column, CompareFilter.CompareOp.EQUAL,
+                constantValList, FilterList.Operator.MUST_PASS_ONE);
     }
 
     @Override
-    public Filter visitLessvar(HBaseSQLParser.LessvarContext ctx) {
+    public Filter visitColConditionBetweenOrNot(HydraQLParser.ColConditionBetweenOrNotContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
-        Object paramVal = this.extractParamVal(ctx.var(), this.getQueryParams());
-        return constructFilter(column, CompareFilter.CompareOp.LESS, paramVal);
-    }
+        List<HydraQLParser.ConditionValContext> conditionValContextList = ctx.conditionVal();
+        Object start = this.extractConditionVal(conditionValContextList.get(0), column, this.getQueryParams());
+        Object end = this.extractConditionVal(conditionValContextList.get(1), column, this.getQueryParams());
 
-    @Override
-    public Filter visitLessconstant(HBaseSQLParser.LessconstantContext ctx) {
-        final HBaseColumn columnSchema = this.extractColumn(ctx.column());
-        final Object constantVal = this.extractConstantVal(columnSchema, ctx.constant());
-        return constructFilter(columnSchema, CompareFilter.CompareOp.LESS, constantVal);
-    }
+        if (ctx.NOT() != null) {
+            Filter startFilter = constructFilter(column, CompareFilter.CompareOp.LESS, start);
+            Filter endFilter = constructFilter(column, CompareFilter.CompareOp.GREATER, end);
+            return new FilterList(FilterList.Operator.MUST_PASS_ONE, Arrays.asList(startFilter, endFilter));
+        }
 
-    @Override
-    public Filter visitLessequalconstant(HBaseSQLParser.LessequalconstantContext ctx) {
-        final HBaseColumn columnSchema = this.extractColumn(ctx.column());
-        final Object constantVal = this.extractConstantVal(columnSchema, ctx.constant());
-        return constructFilter(columnSchema, CompareFilter.CompareOp.LESS_OR_EQUAL, constantVal);
-    }
-
-    @Override
-    public Filter visitLessequalvar(HBaseSQLParser.LessequalvarContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        Object paramVal = this.extractParamVal(ctx.var(), this.getQueryParams());
-        return constructFilter(column, CompareFilter.CompareOp.LESS_OR_EQUAL, paramVal);
-    }
-
-    @Override
-    public Filter visitGreaterconstant(HBaseSQLParser.GreaterconstantContext ctx) {
-        final HBaseColumn columnSchema = this.extractColumn(ctx.column());
-        final Object constantVal = this.extractConstantVal(columnSchema, ctx.constant());
-        return constructFilter(columnSchema, CompareFilter.CompareOp.GREATER, constantVal);
-    }
-
-    @Override
-    public Filter visitGreatervar(HBaseSQLParser.GreatervarContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        Object paramVal = this.extractParamVal(ctx.var(), this.getQueryParams());
-        return constructFilter(column, CompareFilter.CompareOp.GREATER, paramVal);
-    }
-
-
-    @Override
-    public Filter visitGreaterequalvar(HBaseSQLParser.GreaterequalvarContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        Object paramVal = this.extractParamVal(ctx.var(), this.getQueryParams());
-        return constructFilter(column, CompareFilter.CompareOp.GREATER_OR_EQUAL, paramVal);
-    }
-
-    @Override
-    public Filter visitGreaterequalconstant(HBaseSQLParser.GreaterequalconstantContext ctx) {
-        final HBaseColumn columnSchema = this.extractColumn(ctx.column());
-        final Object constantVal = this.extractConstantVal(columnSchema, ctx.constant());
-        return constructFilter(columnSchema, CompareFilter.CompareOp.GREATER_OR_EQUAL, constantVal);
-    }
-
-    @Override
-    public Filter visitNotinconstantlist(HBaseSQLParser.NotinconstantlistContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        HBaseSQLParser.ConstantListContext constantListContext = ctx.constantList();
-        List<HBaseSQLParser.ConstantContext> constantContextList = constantListContext.constant();
-        List<Object> constantValList = this.extractConstantValList(column, constantContextList);
-        return constructFilterForContain(column, CompareFilter.CompareOp.NOT_EQUAL,
-                constantValList, FilterList.Operator.MUST_PASS_ALL);
-    }
-
-    @Override
-    public Filter visitNotinvarlist(HBaseSQLParser.NotinvarlistContext ctx) {
-        HBaseColumn hbaseColumn = this.extractColumn(ctx.column());
-        HBaseSQLParser.VarListContext varListContext = ctx.varList();
-        List<Object> paramValList = this.extractParamValList(varListContext.var(), this.getQueryParams());
-
-        return constructFilterForContain(hbaseColumn, CompareFilter.CompareOp.NOT_EQUAL,
-                paramValList, FilterList.Operator.MUST_PASS_ALL);
-    }
-
-    @Override
-    public Filter visitInvarlist(HBaseSQLParser.InvarlistContext ctx) {
-        HBaseColumn hbaseColumn = this.extractColumn(ctx.column());
-        List<Object> paramValList = this.extractParamValList(ctx.varList().var(), this.getQueryParams());
-        return constructFilterForContain(hbaseColumn, CompareFilter.CompareOp.EQUAL,
-                paramValList, FilterList.Operator.MUST_PASS_ONE);
-    }
-
-    @Override
-    public Filter visitInconstantlist(HBaseSQLParser.InconstantlistContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        List<Object> constantValList = this.extractConstantValList(column, ctx.constantList().constant());
-        return constructFilterForContain(column, CompareFilter.CompareOp.EQUAL, constantValList, FilterList.Operator.MUST_PASS_ONE);
-    }
-
-    @Override
-    public Filter visitNotbetweenconstant(HBaseSQLParser.NotbetweenconstantContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        List<Object> constantValList = this.extractConstantValList(column, ctx.constant());
-        Filter startFilter = constructFilter(column, CompareFilter.CompareOp.LESS, constantValList.get(0));
-        Filter endFilter = constructFilter(column, CompareFilter.CompareOp.GREATER, constantValList.get(1));
-        return new FilterList(FilterList.Operator.MUST_PASS_ONE, Arrays.asList(startFilter, endFilter));
-    }
-
-    @Override
-    public Filter visitNotbetweenvar(HBaseSQLParser.NotbetweenvarContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        List<Object> parasValList = this.extractParamValList(ctx.var(), this.getQueryParams());
-        Filter startFilter = constructFilter(column, CompareFilter.CompareOp.LESS, parasValList.get(0));
-        Filter endFilter = constructFilter(column, CompareFilter.CompareOp.GREATER, parasValList.get(1));
-        return new FilterList(FilterList.Operator.MUST_PASS_ONE, Arrays.asList(startFilter, endFilter));
-    }
-
-    @Override
-    public Filter visitBetweenvar(HBaseSQLParser.BetweenvarContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        List<Object> parasValList = this.extractParamValList(ctx.var(), this.getQueryParams());
-        Filter startFilter = constructFilter(column, CompareFilter.CompareOp.GREATER_OR_EQUAL, parasValList.get(0));
-        Filter endFilter = constructFilter(column, CompareFilter.CompareOp.LESS_OR_EQUAL, parasValList.get(1));
-        return new FilterList(FilterList.Operator.MUST_PASS_ALL, Arrays.asList(startFilter, endFilter));
-    }
-
-    @Override
-    public Filter visitBetweenconstant(HBaseSQLParser.BetweenconstantContext ctx) {
-        HBaseColumn column = this.extractColumn(ctx.column());
-        List<Object> constantValList = this.extractConstantValList(column, ctx.constant());
-        Filter startFilter = constructFilter(column, CompareFilter.CompareOp.LESS, constantValList.get(0));
-        Filter endFilter = constructFilter(column, CompareFilter.CompareOp.GREATER, constantValList.get(1));
+        Filter startFilter = constructFilter(column, CompareFilter.CompareOp.GREATER_OR_EQUAL, start);
+        Filter endFilter = constructFilter(column, CompareFilter.CompareOp.LESS_OR_EQUAL, end);
         return new FilterList(FilterList.Operator.MUST_PASS_ALL, Arrays.asList(startFilter, endFilter));
     }
 
@@ -257,6 +164,9 @@ public class QueryFilterVisitor extends BaseVisitor<Filter> {
     private Filter constructFilter(HBaseColumn column,
                                    CompareFilter.CompareOp compareOp,
                                    byte[] value) {
+        if (value == null || value.length == 0) {
+            return null;
+        }
         SingleColumnValueFilter singleColumnValueFilter = new SingleColumnValueFilter(column.getFamilyNameBytes(),
                 column.getColumnNameBytes(), compareOp, value);
         singleColumnValueFilter.setFilterIfMissing(true);

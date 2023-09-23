@@ -5,11 +5,12 @@ import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseOperationsException;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.util.StringUtil;
+import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.data.InsertColData;
 import com.hydraql.dsl.antlr.data.InsertRowData;
 import com.hydraql.dsl.antlr.data.RowKeyRange;
+import com.hydraql.dsl.model.QueryHBaseColumn;
 import com.hydraql.hql.filter.QueryFilterVisitor;
-import com.hydraql.dsl.antlr.HBaseSQLParser;
 import com.hydraql.dsl.client.QueryExtInfo;
 import com.hydraql.dsl.client.rowkey.RowKey;
 import com.hydraql.dsl.model.HBaseColumn;
@@ -73,31 +74,33 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected Filter parseFilter(HBaseSQLParser.WherecContext whereContext, HBaseTableSchema tableSchema) {
-        if (whereContext == null) {
+    protected Filter parseFilter(HydraQLParser.WhereColContext whereColContext, HBaseTableSchema tableSchema) {
+        if (whereColContext == null) {
             return null;
         }
-        if (whereContext.conditionc() == null) {
+        if (whereColContext.colCondition() == null) {
             return null;
         }
         QueryFilterVisitor filterVisitor = new QueryFilterVisitor(tableSchema, new HashMap<>(0));
-        return whereContext.conditionc().accept(filterVisitor);
+        return whereColContext.colCondition().accept(filterVisitor);
     }
 
     @Override
-    protected Filter parseFilter(HBaseSQLParser.WherecContext whereContext, Map<String, Object> queryParams, HBaseTableSchema tableSchema) {
-        if (whereContext == null) {
+    protected Filter parseFilter(HydraQLParser.WhereColContext whereColContext, Map<String, Object> queryParams,
+                                 HBaseTableSchema tableSchema) {
+        if (whereColContext == null) {
             return null;
         }
-        if (whereContext.conditionc() == null) {
+        if (whereColContext.colCondition() == null) {
             return null;
         }
         QueryFilterVisitor filterVisitor = new QueryFilterVisitor(tableSchema, queryParams);
-        return whereContext.conditionc().accept(filterVisitor);
+        return whereColContext.colCondition().accept(filterVisitor);
     }
 
     @Override
-    protected Get constructGet(RowKey<?> rowKey, QueryExtInfo queryExtInfo, Filter filter, List<HBaseColumn> columnList) {
+    protected Get constructGet(RowKey<?> rowKey, QueryExtInfo queryExtInfo, Filter filter,
+                               List<QueryHBaseColumn> columnList) {
         Util.checkRowKey(rowKey);
         Get get = new Get(rowKey.toBytes());
         if (queryExtInfo != null) {
@@ -120,7 +123,8 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
             get.setFilter(filter);
         }
         if (columnList != null && !columnList.isEmpty()) {
-            for (HBaseColumn column : columnList) {
+            for (QueryHBaseColumn queryHBaseColumn : columnList) {
+                HBaseColumn column = queryHBaseColumn.getColumn();
                 if (column.columnIsRow()) {
                     continue;
                 }
@@ -131,7 +135,8 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected Scan constructScan(String tableName, RowKeyRange rowKeyRange, QueryExtInfo queryExtInfo, Filter filter, List<HBaseColumn> columnList) {
+    protected Scan constructScan(String tableName, RowKeyRange rowKeyRange, QueryExtInfo queryExtInfo, Filter filter,
+                                 List<QueryHBaseColumn> columnList) {
         Scan scan = new Scan();
         RowKey<?> startRowKey = rowKeyRange.getStart();
         if (startRowKey != null && startRowKey.toBytes() != null) {
@@ -162,7 +167,8 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
             scan.setBatch(getScanBatch(tableName));
         }
         if (columnList != null && !columnList.isEmpty()) {
-            for (HBaseColumn column : columnList) {
+            for (QueryHBaseColumn queryHBaseColumn : columnList) {
+                HBaseColumn column = queryHBaseColumn.getColumn();
                 if (column.columnIsRow()) {
                     continue;
                 }

@@ -40,13 +40,13 @@ public class HBaseThriftApiTest extends BaseHBaseThriftTemplateTest {
     @Test
     public void testGetRowsToPOJO() {
         try (HBaseThrift hBaseThrift = thriftPool.getResource()) {
-            GetRowsParam getRowsParam1 = GetRowsParam.of().rowKeyList(Arrays.asList("a11001", "a12002"))
+            GetRowsParam getRowsParam1 = GetRowsParam.of(Arrays.asList("a11001", "a12002"))
                     .family("info").build();
 
             List<CityModel> rows = hBaseThrift.getRows(getRowsParam1, CityModel.class);
 
             Assert.assertEquals(1, rows.size());
-            GetRowsParam getRowsParam2 = GetRowsParam.of().rowKeyList(Arrays.asList("a11001", "a12002"))
+            GetRowsParam getRowsParam2 = GetRowsParam.of(Arrays.asList("a11001", "a12002"))
                     .family("info")
                     .qualifiers(Arrays.asList("city_name", "city_address")).build();
             List<CityModel> rows2 = hBaseThrift.getRows(getRowsParam2, CityModel.class);

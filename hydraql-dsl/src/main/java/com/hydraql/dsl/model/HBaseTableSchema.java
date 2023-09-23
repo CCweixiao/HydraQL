@@ -173,10 +173,14 @@ public class HBaseTableSchema {
         }
     }
 
+    public boolean columnIsAvailable(String family, String columnName) {
+        return findColumn(family, columnName) != null;
+    }
+
     public HBaseColumn findColumn(String family, String columnName) {
         MyAssert.checkArgument(StringUtil.isNotBlank(columnName), "The column name must not be empty.");
         if (this.columnSchemaMap == null || this.columnSchemaMap.isEmpty()) {
-            return null;
+            throw new HBaseColumnNotFoundException("Please add column for the table schema: " + this.getTableName());
         }
         HBaseColumn column;
         if (StringUtil.isBlank(family)) {
@@ -230,6 +234,14 @@ public class HBaseTableSchema {
         List<HBaseColumn> columns = new ArrayList<>(this.columnSchemaMap.size());
         this.columnSchemaMap.forEach((columnName, column) -> columns.add(column));
         return columns;
+    }
+
+    public List<HBaseColumn> findAllColumnsOfOneFamily(String family) {
+        if (StringUtil.isBlank(family)) {
+            return new ArrayList<>();
+        }
+        List<HBaseColumn> allColumns = findAllColumns();
+        return allColumns.stream().filter(c -> family.equals(c.getFamily())).collect(Collectors.toList());
     }
 
     public Map<KeyValue, HBaseColumn> createColumnsMap() {

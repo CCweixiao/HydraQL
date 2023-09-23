@@ -73,6 +73,16 @@ public class HMHBaseConstants {
         }
     }
 
+    public static String getColumnName(String family, String column) {
+        if (StringUtil.isNotBlank(column)) {
+            throw new IllegalArgumentException("The column name cannot empty.");
+        }
+        if (StringUtil.isBlank(family)) {
+            return column;
+        }
+        return family.concat(FAMILY_QUALIFIER_SEPARATOR).concat(column);
+    }
+
     private HMHBaseConstants() {
 
     }
