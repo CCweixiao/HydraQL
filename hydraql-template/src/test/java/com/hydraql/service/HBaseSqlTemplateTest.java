@@ -152,21 +152,35 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testInsertMaxVersionData() {
-        String hsql1 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )" +
-                " values ('r1', 'id1_v1' , 'leo1_v1' , 11 )," +
-                " ('r2', 'id2_v1' , 'leo2_v1' , 21 )," +
-                " ('r3', 'id3_v1' , 'leo3_v1' , 31 )";
+        String hsql1 = "upsert into test:test_sql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
+                " values ('10011', '10001v1' , 'leojie' , null , '程序员' , 10666.67 , '北京' , '' )";
         sqlTemplate.insert(hsql1);
-        String hsql2 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )" +
-                " values ('r1', 'id2' , 'leo1_v2' , 12 )," +
-                " ('r2', 'id2' , 'leo2_v2' , 22 )," +
-                " ('r3', 'id2' , 'leo2_v2' , 32 )";
+        String hsql2 = "upsert into test:test_sql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
+                " values ('10011', '10001v2' , 'leojie' , null , '程序员' , 10666.67 , '北京' , '' )";
         sqlTemplate.insert(hsql2);
-        String hsql3 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )" +
-                " values ('r1', 'id3' , 'leo1_v3' , 13 )," +
-                " ('r2', 'id3' , 'leo2_v3' , 23 )," +
-                " ('r3', 'id3' , 'leo3_v3' , 33 )";
+        String hsql3 = "upsert into test:test_sql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
+                " values ('10011', '10001v3' , 'leojie' , null , '程序员' , 10666.67 , '北京' , '' )";
         sqlTemplate.insert(hsql3);
+        String hsql4 = "upsert into test:test_sql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
+                " values ('10011', '10001v4' , 'leojie' , null , '程序员' , 10666.67 , '北京' , '' )";
+        sqlTemplate.insert(hsql4);
+        String hsql5 = "upsert into test:test_sql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
+                " values ('10011', '10001v5' , 'leojie' , null , '程序员' , 10666.67 , '北京' , '' )";
+        sqlTemplate.insert(hsql5);
+    }
+
+    @Test
+    public void testSelectMaxVersions() {
+        String hql = "select f1:id from test:test_sql where rowkey = '10011' versions 5 (startTs>=1695564244983, endTs <= 1695564245041)";
+        HBaseDataSet dataSet = sqlTemplate.select(hql);
+        dataSet.show();
+    }
+
+    @Test
+    public void testSelectLike() {
+        String hql = "select f1:id as user_id from test:test_sql where rowkey like '100' versions 6 ";
+        HBaseDataSet dataSet = sqlTemplate.select(hql);
+        dataSet.show();
     }
 
     @Test

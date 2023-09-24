@@ -1,5 +1,6 @@
 package com.hydraql.common.model.row;
 
+import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.type.ColumnType;
 
 import java.util.ArrayList;
@@ -30,11 +31,11 @@ public class HBaseDataRow {
         return columns;
     }
 
-    public HBaseDataRow appendColumn(String family, String qualifier, ColumnType columnType, Object value, long timestamp) {
+    public HBaseDataRow appendColumn(String family, String qualifier, String alias, ColumnType columnType, Object value, long timestamp) {
         if (this.columns == null) {
             this.columns = new ArrayList<>();
         }
-        this.columns.add(new HBaseDataColumn(family, qualifier, columnType, value, timestamp));
+        this.columns.add(new HBaseDataColumn(family, qualifier, alias, columnType, value, timestamp));
         return this;
     }
 
@@ -42,16 +43,22 @@ public class HBaseDataRow {
         if (this.columns == null) {
             this.columns = new ArrayList<>();
         }
-        this.columns.add(new HBaseDataColumn(family, qualifier, columnType, value, 0L));
+        String alias = HMHBaseConstants.getColumnName(family, qualifier);
+        this.columns.add(new HBaseDataColumn(family, qualifier, alias, columnType, value, 0L));
+        return this;
+    }
+
+    public HBaseDataRow appendColumn(String family, String qualifier, String alias, Object value) {
+        if (this.columns == null) {
+            this.columns = new ArrayList<>();
+        }
+        this.columns.add(new HBaseDataColumn(family, qualifier, alias, ColumnType.StringType, value, 0L));
         return this;
     }
 
     public HBaseDataRow appendColumn(String family, String qualifier, Object value) {
-        if (this.columns == null) {
-            this.columns = new ArrayList<>();
-        }
-        this.columns.add(new HBaseDataColumn(family, qualifier, ColumnType.StringType, value, 0L));
-        return this;
+        String alias = HMHBaseConstants.getColumnName(family, qualifier);
+        return appendColumn(family, qualifier, alias, value);
     }
 
     public static HBaseDataRow of(String rowKeyFieldName, Object rowKeyVal) {

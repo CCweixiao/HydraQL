@@ -222,7 +222,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 if (result == null) {
                     return null;
                 }
-                List<HBaseDataRow> rowList = convertResultToDataRow(result, tableSchema, queryExtInfo);
+                List<HBaseDataRow> rowList = convertResultToDataRow(result, tableSchema, queryExtInfo, selectColumns);
                 return HBaseDataSet.of(tableName).appendRows(rowList);
             });
         }
@@ -248,7 +248,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 final Result[] results = table.get(Arrays.asList(getArr));
                 if (results != null) {
                     for (Result result : results) {
-                        List<HBaseDataRow> rowList = convertResultToDataRow(result, tableSchema, queryExtInfo);
+                        List<HBaseDataRow> rowList = convertResultToDataRow(result, tableSchema, queryExtInfo, selectColumns);
                         dataSet.appendRows(rowList);
                     }
                 }
@@ -262,13 +262,14 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
         }
 
         try {
-            return queryToDataSet(tableSchema, queryExtInfo, scan);
+            return queryToDataSet(tableSchema, queryExtInfo, selectColumns, scan);
         } catch (Exception e) {
             throw new HBaseSqlExecuteException("Select error. hql=" + hql, e);
         }
     }
 
-    private HBaseDataSet queryToDataSet(HBaseTableSchema tableSchema, QueryExtInfo queryExtInfo, Scan scan) {
+    private HBaseDataSet queryToDataSet(HBaseTableSchema tableSchema, QueryExtInfo queryExtInfo,
+                                        List<QueryHBaseColumn> selectColumns, Scan scan) {
         String tableName = tableSchema.getTableName();
         return this.execute(tableName, table -> {
             int limit = Integer.MAX_VALUE;
@@ -283,7 +284,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
                 long resultCounter = 0L;
                 Result result;
                 while ((result = scanner.next()) != null) {
-                    List<HBaseDataRow> rowList = convertResultToDataRow(result, tableSchema, queryExtInfo);
+                    List<HBaseDataRow> rowList = convertResultToDataRow(result, tableSchema, queryExtInfo, selectColumns);
                     dataSet.appendRows(rowList);
                     if (++resultCounter >= limit) {
                         break;
@@ -480,7 +481,8 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
     protected abstract Delete constructDelete(Result result, List<HBaseColumn> columnSchemaList, long ts);
 
-    private List<HBaseDataRow> convertResultToDataRow(Result result, HBaseTableSchema tableSchema, QueryExtInfo queryExtInfo) {
+    private List<HBaseDataRow> convertResultToDataRow(Result result, HBaseTableSchema tableSchema,
+                                                      QueryExtInfo queryExtInfo, List<QueryHBaseColumn> selectColumns) {
         int maxVersion = 1;
         if (queryExtInfo.isMaxVersionSet()) {
             maxVersion = queryExtInfo.getMaxVersions();
@@ -493,25 +495,26 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
         for (int i = 0; i < maxVersion; i++) {
             dataRows.add(HBaseDataRow.of(rowKey));
-            for (HBaseColumn columnSchema : tableSchema.findAllColumns()) {
+            for (QueryHBaseColumn queryColumn : selectColumns) {
+                HBaseColumn columnSchema = queryColumn.getColumn();
                 if (columnSchema.columnIsRow()) {
                     continue;
                 }
                 List<Cell> cells = result.getColumnCells(columnSchema.getFamilyNameBytes(), columnSchema.getColumnNameBytes());
                 if (cells.isEmpty()) {
-                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(), columnSchema.getColumnType(),
-                            null, 0);
+                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(),
+                            queryColumn.getAlias(), columnSchema.getColumnType(), null, 0);
                     continue;
                 }
                 if (i < cells.size()) {
                     Cell cell = cells.get(i);
                     Object value = columnSchema.getColumnType().getTypeHandler().
                             toObject(columnSchema.getColumnType().getTypeClass(), CellUtil.cloneValue(cell));
-                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(), columnSchema.getColumnType(),
-                            value, cell.getTimestamp());
+                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(),
+                            queryColumn.getAlias(), columnSchema.getColumnType(), value, cell.getTimestamp());
                 } else {
-                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(), columnSchema.getColumnType(),
-                            null, 0);
+                    dataRows.get(i).appendColumn(columnSchema.getFamily(), columnSchema.getColumnName(),
+                            queryColumn.getAlias(), columnSchema.getColumnType(), null, 0);
                 }
             }
         }

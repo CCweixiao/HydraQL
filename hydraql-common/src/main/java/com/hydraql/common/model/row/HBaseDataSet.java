@@ -1,7 +1,5 @@
 package com.hydraql.common.model.row;
 
-import com.hydraql.common.constants.HMHBaseConstants;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +55,7 @@ public class HBaseDataSet {
         HBaseDataRow row = this.getRowSet().get(0);
         colNams.add(row.getRowKeyFieldName());
         for (HBaseDataColumn column : row.getColumns()) {
-            colNams.add(column.getFamily() + HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR + column.getQualifier());
+            colNams.add(column.getAlias());
             if (showTs) {
                 colNams.add("timestamp");
             }
