@@ -132,14 +132,11 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testSelectTimeRange() {
-        String sql1 = "select * from test:test_sql where " +
-                "-- rowKey = a1000" +
-                "startkey >= 'a1009', endKey < 'a1009'" +
-                "and (f1:name = 'ds' or f1:age < 12 or (f1:pay between 10 and 20))" +
-                "and ( startTs > 1212 , endTs <= 23 )" +
-                "-- and startTs >= 1212 " +
-                "limit 10";
-        HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
+        String hql = "select * from test:test_sql where " +
+                "rowKey = '10001'" +
+                " ( startTs > 1695558386198 , endTs <= 1695558386199 )";
+        HBaseDataSet dataSet = sqlTemplate.select(hql);
+        dataSet.show();
     }
 
 

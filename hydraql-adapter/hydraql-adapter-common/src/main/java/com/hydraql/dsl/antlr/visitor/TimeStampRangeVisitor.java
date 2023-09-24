@@ -45,8 +45,8 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
     public TimeStampRange visitTsRangeEnd(HydraQLParser.TsRangeEndContext ctx) {
         TimeStampRange timeStampRange = new TimeStampRange();
         long stopTs = this.extractTimeStamp(ctx.tsExp());
-        if (ctx.leOper().LT() != null) {
-            stopTs -= 1;
+        if (ctx.leOper().LE() != null) {
+            stopTs += 1;
         }
         timeStampRange.setStart(0L);
         timeStampRange.setEnd(stopTs);
@@ -62,8 +62,8 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
         if (ctx.gtOper().GT() != null) {
             startTs += 1;
         }
-        if (ctx.leOper().LT() != null) {
-            stopTs -= 1;
+        if (ctx.leOper().LE() != null) {
+            stopTs += 1;
         }
         if (startTs > stopTs) {
             throw new HBaseSqlAnalysisException(String.format("The start time [%s] cannot be greater" +
