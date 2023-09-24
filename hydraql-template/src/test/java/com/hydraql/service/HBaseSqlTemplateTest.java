@@ -4,7 +4,9 @@ import com.hydraql.common.model.row.HBaseDataSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author leojie 2022/11/27 17:44
@@ -21,6 +23,17 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
         for (String hql : hqlList) {
             sqlTemplate.insert(hql);
         }
+    }
+
+    @Test
+    public void testInsertNullAndEmptyStr() {
+        String hql = String.format("upsert into test:test_sql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter ) " +
+                        "values ('%s', '%s' , '%s' , null , '%s' , %.2f , '北京' , '%s' )", "10001", "10001",
+                "leojie" , "程序员", 20000 * new Random().nextInt(10) * 0.1 / 3 + 10000, "");
+        System.out.println(hql);
+        // sqlTemplate.insert(hql);
+        HBaseDataSet dataSet = sqlTemplate.select("select * from test:test_sql where rowkey = '10001'");
+        dataSet.show();
     }
 
     @Test
@@ -69,7 +82,7 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
                 "row_key varchar(100) not null primary key, " +
                 "f1:id varchar(200) not null , " +
                 "f1:name varchar(200) not null, " +
-                "f1:age smallint," +
+                "f1:age smallint null," +
                 "f1:job varchar(200) not null, " +
                 "f1:pay float," +
                 "f2:address varchar(200) not null, " +

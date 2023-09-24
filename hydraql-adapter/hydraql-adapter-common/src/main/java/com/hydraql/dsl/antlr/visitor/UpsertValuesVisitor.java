@@ -42,12 +42,11 @@ public class UpsertValuesVisitor extends BaseVisitor<InsertRowData> {
             HydraQLParser.LiteralContext colValContext = valueContextList.get(i);
             HBaseColumn column = this.upsertColumns.get(i);
             String colValue = this.extractLiteralVal(colValContext);
-
-            if (StringUtil.isBlank(colValue)) {
-                if (colValue == null && !column.isNullable()) {
-                    throw new HBaseSqlAnalysisException(
-                            String.format("The value of field %s to be inserted cannot be empty.", column));
-                }
+            if (colValue == null && !column.isNullable()) {
+                throw new HBaseSqlAnalysisException(
+                        String.format("The value of field %s to be inserted cannot be empty.", column));
+            }
+            if (colValue == null) {
                 rowDataBuilder.addColData(column.getFamilyNameBytes(), column.getColumnNameBytes(), new byte[0]);
             } else {
                 byte[] valueBytes = column.getColumnType().getTypeHandler()

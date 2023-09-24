@@ -132,6 +132,7 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
     }
 
     protected String extractLiteralVal(HydraQLParser.LiteralContext literalContext) {
+
         if (literalContext.NULL_() != null) {
             return null;
         }
