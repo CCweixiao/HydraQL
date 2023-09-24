@@ -74,7 +74,7 @@ public class HMHBaseConstants {
     }
 
     public static String getColumnName(String family, String column) {
-        if (StringUtil.isNotBlank(column)) {
+        if (StringUtil.isBlank(column)) {
             throw new IllegalArgumentException("The column name cannot empty.");
         }
         if (StringUtil.isBlank(family)) {

@@ -81,27 +81,15 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
 
     @Override
     protected Filter parseFilter(HydraQLParser.WhereColContext whereColContext, HBaseTableSchema tableSchema) {
-        if (whereColContext == null) {
-            return null;
-        }
-        if (whereColContext.colCondition() == null) {
-            return null;
-        }
         QueryFilterVisitor filterVisitor = new QueryFilterVisitor(tableSchema, new HashMap<>(0));
-        return whereColContext.colCondition().accept(filterVisitor);
+        return filterVisitor.extractFilter(whereColContext);
     }
 
     @Override
     protected Filter parseFilter(HydraQLParser.WhereColContext whereColContext, Map<String, Object> queryParams,
                                  HBaseTableSchema tableSchema) {
-        if (whereColContext == null) {
-            return null;
-        }
-        if (whereColContext.colCondition() == null) {
-            return null;
-        }
         QueryFilterVisitor filterVisitor = new QueryFilterVisitor(tableSchema, queryParams);
-        return whereColContext.colCondition().accept(filterVisitor);
+        return filterVisitor.extractFilter(whereColContext);
     }
 
     @Override

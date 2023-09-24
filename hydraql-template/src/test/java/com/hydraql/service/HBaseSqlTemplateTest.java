@@ -16,7 +16,7 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
     }
 
     @Test
-    public void testInsert() {
+    public void testInsertMockData() {
         List<String> hqlList = mockHql();
         for (String hql : hqlList) {
             sqlTemplate.insert(hql);
@@ -25,16 +25,19 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testInsertOne() {
-        String hql = "insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
-                " values ('a10001', 'a10001' , 'leo_a100_01' , 18 , 'Coding' , 13333.33 , 'BeiJing' , 'Car' );";
+        testCreateVirtualTable();
+        String hql = "upsert into test:test_sql ( userId , f1:name, f1:age, f2:pay )" +
+                " values ('a10001', 'leo', 18, 1000.5);";
         sqlTemplate.insert(hql);
     }
 
+
+
     @Test
     public void testInsertMultiValues() {
-        String hql = " insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
-                "  values ('a10001', 'a10001' , 'leo_a100_01' , 18 , 'Coding' , 13333.33 , 'BeiJing' , 'Car' ), " +
-                "('a10002', 'a10002' , 'leo_a100_02' , 19 , '外卖员' , 7333.33 , 'ShangHai' , '电动车' );";
+        testCreateVirtualTable();
+        String hql = "upsert into test:test_sql ( userId , f1:name, f1:age, f2:pay )" +
+                " values ('a10001', 'leo', 18, 1000.5),('b10002', 'yyf', 17, 2000.5);";
         sqlTemplate.insert(hql);
     }
 
@@ -42,25 +45,6 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
     public void testDeleteOneColByRow() {
         String hql = "delete f1:id from test:test_hql where rowKey = 'a10001';";
         sqlTemplate.delete(hql);
-    }
-
-    @Test
-    public void testInsertByRowFunction() {
-        String hsql1 = "insert into test:test_sql ( f1:id , f1:name , f1:age , f2:address ) values ( '11111' , 'a_leo' , 15 , 'bj' ) where rowKey = md5 ( 'a1111' )";
-        String hsql2 = "insert into test:test_sql ( f1:id , f1:name , f1:age , f2:address ) values ( '11111' , 'a_leo' , 15 , 'bj' ) where rowKey = md5_prefix ( 'a1111' )";
-        sqlTemplate.insert(hsql1);
-        sqlTemplate.insert(hsql2);
-
-        String sql1 = "select * from test:test_sql where rowKey = md5 ( 'a1111' )";
-        HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
-        dataSet1.show();
-
-        System.out.println("============================================================");
-
-        String sql2 = "select * from test:test_sql where rowKey = md5_prefix ( 'a1111' )";
-        HBaseDataSet dataSet2 = sqlTemplate.select(sql2);
-        dataSet2.show();
-
     }
 
     @Test
@@ -79,11 +63,17 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testCreateVirtualTable() {
+        sqlTemplate.dropVirtualTable("drop virtual table if exists test:test_sql;");
         String hql = "create virtual table if not exists " +
                 "test:test_sql ( " +
-                "userId varchar(100) not null primary key, " +
-                "f1:name varchar(200) null default '12121', " +
-                "f1:age smallint " +
+                "row_key varchar(100) not null primary key, " +
+                "f1:id varchar(200) not null , " +
+                "f1:name varchar(200) not null, " +
+                "f1:age smallint," +
+                "f1:job varchar(200) not null, " +
+                "f1:pay float," +
+                "f2:address varchar(200) not null, " +
+                "f2:commuter varchar(200) not null " +
                 ") with properties " +
                 "( \"hbase.client.scanner.caching\"=100 ," +
                 " \"hbase.client.block.cache\"=false);";
@@ -92,9 +82,22 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
         Assert.assertTrue(tables.contains("test:test_sql"));
         String tableDesc = sqlTemplate.showCreateVirtualTable("show create virtual table test:test_sql;");
         Assert.assertTrue(tableDesc.contains("test:test_sql"));
+
+    }
+
+    @Test
+    public void testDropVirtualTable() {
+        this.testCreateVirtualTable();
         sqlTemplate.dropVirtualTable("drop virtual table if exists test:test_sql;");
         List<String> tableList = sqlTemplate.showVirtualTables("show virtual tables;");
         Assert.assertTrue(tableList.isEmpty());
+    }
+
+    @Test
+    public void selectOne() {
+        String hql = "select * from test:test_sql where rowKey = 'a1005'";
+        HBaseDataSet dataSet = sqlTemplate.select(hql);
+        dataSet.show();
     }
 
     @Test
@@ -117,8 +120,8 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
     @Test
     public void testSelectTimeRange() {
         String sql1 = "select * from test:test_sql where " +
-                "-- rowKey = 222" +
-                "startkey >= 'ewew', endKey < 'dsdsd'" +
+                "-- rowKey = a1000" +
+                "startkey >= 'a1009', endKey < 'a1009'" +
                 "and (f1:name = 'ds' or f1:age < 12 or (f1:pay between 10 and 20))" +
                 "and ( startTs > 1212 , endTs <= 23 )" +
                 "-- and startTs >= 1212 " +
@@ -126,20 +129,6 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
         HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
     }
 
-    @Test
-    public void testSelectRowFunction() {
-        String sql1 = "select * from test:test_sql where " +
-                "rowKey=md5('a1001') and  maxVersion = 3 and ts = 3231 limit 10e";
-        HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
-
-//        String sql2 = "select * from test:test_sql where " +
-//                "startKey=md5('a1001') and endKey = '123' ";
-//        HBaseDataSet dataSet2 = sqlTemplate.select(sql2);
-//
-//        String sql3 = "select * from test:test_sql where " +
-//                "rowKey in (md5('a1001'), md5('a1002'), 'ewe') ";
-//        HBaseDataSet dataSet3 = sqlTemplate.select(sql3);
-    }
 
     @Test
     public void testSelectFilter() {

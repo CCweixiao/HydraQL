@@ -1,5 +1,6 @@
 package com.hydraql.dsl.antlr.visitor;
 
+import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.exception.HBaseSqlColValueAnalysisException;
 import com.hydraql.common.exception.HBaseSqlTableSchemaMissingException;
@@ -82,13 +83,20 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
     }
 
     protected Object extractConditionVal(HydraQLParser.ConditionValContext conditionValContext,
-                                         HBaseColumn column, Map<String, Object> params) {
+                                         HBaseColumn column, Map<String, Object> params, boolean nullAble) {
         HydraQLParser.VarContext varContext = conditionValContext.var();
+        Object val;
         if (varContext != null && !varContext.isEmpty()) {
-            return extractParamVal(varContext, params);
+            val = extractParamVal(varContext, params);
+        } else {
+            HydraQLParser.ConstantContext constantContext = conditionValContext.constant();
+            val = extractConstantVal(column, constantContext);
         }
-        HydraQLParser.ConstantContext constantContext = conditionValContext.constant();
-        return extractConstantVal(column, constantContext);
+        if (!nullAble && val == null) {
+            throw new HBaseSqlAnalysisException(String.format("The value of filter field %s cannot be null.",
+                    HMHBaseConstants.getColumnName(column.getFamily(), column.getColumnName())));
+        }
+        return val;
     }
 
     private Object extractConstantVal(HBaseColumn column, HydraQLParser.ConstantContext constantContext) {
@@ -119,7 +127,8 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
         if (numericContext != null) {
             return extractNumberVal(numericContext);
         }
-        return rowKeyContext.string().STRING_LITERAL().getText();
+        String text = rowKeyContext.string().STRING_LITERAL().getText();
+        return text.substring(1, text.length() -1 );
     }
 
     protected String extractLiteralVal(HydraQLParser.LiteralContext literalContext) {
@@ -134,7 +143,8 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
         if (trueFalseContext != null) {
             return trueFalseContext.getText();
         }
-       return literalContext.string().STRING_LITERAL().getText();
+        String text = literalContext.string().STRING_LITERAL().getText();
+        return text.substring(1, text.length() -1 );
     }
 
     private String extractNumberVal(HydraQLParser.NumericContext numericContext) {
@@ -156,7 +166,7 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
                 conditionValListContext.conditionVal();
         List<Object> valList = new ArrayList<>(conditionValContextList.size());
         for (HydraQLParser.ConditionValContext conditionValContext : conditionValContextList) {
-            valList.add(extractConditionVal(conditionValContext, column, params));
+            valList.add(extractConditionVal(conditionValContext, column, params, true));
         }
         return valList;
     }
