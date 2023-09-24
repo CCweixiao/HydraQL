@@ -17,6 +17,7 @@ import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
 import com.hydraql.dsl.util.Util;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -50,9 +51,15 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql) {
-        String tableSchemaJson = tableSchema.toJson();
+    protected boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists) {
         String tableName = HMHBaseConstants.getFullTableName(tableSchema.getTableName());
+        Boolean oriTableExists = this.execute(admin -> admin.tableExists(TableName.valueOf(tableName)));
+        if (!oriTableExists) {
+            throw new HBaseSqlAnalysisException(String.format("The virtual table %s was created failed, " +
+                    "because the original table %s does not exist.", tableName, tableName));
+        }
+
+        String tableSchemaJson = tableSchema.toJson();
         Get get = new Get(Bytes.toBytes(tableName));
         String res = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
@@ -61,7 +68,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
             }
             return Bytes.toString(result.getRow());
         });
-        if (StringUtil.isNotBlank(res)) {
+        if (StringUtil.isNotBlank(res) && !ifNotExists) {
             throw new HBaseSqlAnalysisException(String.format("The schema of table %s has been created.", tableName));
         }
         Put put = new Put(Bytes.toBytes(tableName));

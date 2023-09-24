@@ -52,7 +52,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql) {
+    protected boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists) {
         String tableName = HMHBaseConstants.getFullTableName(tableSchema.getTableName());
         Boolean oriTableExists = this.execute(admin -> admin.tableExists(TableName.valueOf(tableName)));
         if (!oriTableExists) {
@@ -69,7 +69,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
             }
             return Bytes.toString(result.getRow());
         });
-        if (StringUtil.isNotBlank(res)) {
+        if (StringUtil.isNotBlank(res) && !ifNotExists) {
             throw new HBaseSqlAnalysisException(String.format("The virtual table %s has been created.", tableName));
         }
         Put put = new Put(Bytes.toBytes(tableName));

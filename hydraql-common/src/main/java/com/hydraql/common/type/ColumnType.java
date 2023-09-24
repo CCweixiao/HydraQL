@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,36 @@ public enum ColumnType {
     HexByteType("hex", HexBytes.class, HexBytes.class, new HexBytesHandler()),
     JsonType("json", JSON.class, JSON.class, new JsonHandler()),
     EnumType("enum", Enum.class, Enum.class, new EnumHandler());
+
+    private static final Map<String, String> JDBC_TYPE_MAPPING = new HashMap<>();
+
+    static {
+        //todo 完善JDBCType
+        JDBC_TYPE_MAPPING.put("CHAR", "string");
+        JDBC_TYPE_MAPPING.put("VARCHAR", "string");
+        JDBC_TYPE_MAPPING.put("DECIMAL", "bigdecimal");
+        JDBC_TYPE_MAPPING.put("TINYINT", "int");
+        JDBC_TYPE_MAPPING.put("SMALLINT", "int");
+        JDBC_TYPE_MAPPING.put("INTEGER", "int");
+        JDBC_TYPE_MAPPING.put("BIGINT", "long");
+        JDBC_TYPE_MAPPING.put("FLOAT", "float");
+        JDBC_TYPE_MAPPING.put("DOUBLE", "double");
+        JDBC_TYPE_MAPPING.put("TIMESTAMP", "");
+        JDBC_TYPE_MAPPING.put("DATE", "date");
+        JDBC_TYPE_MAPPING.put("TIME", "");
+        JDBC_TYPE_MAPPING.put("BINARY", "");
+        JDBC_TYPE_MAPPING.put("VARBINARY", "");
+        // 无符号类型
+        JDBC_TYPE_MAPPING.put("UNSIGNED_TIMESTAMP", "");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_DATE", "date");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_TIME", "");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_TINYINT", "int");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_SMALLINT", "int");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_INT", "int");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_LONG", "long");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_FLOAT", "float");
+        JDBC_TYPE_MAPPING.put("UNSIGNED_DOUBLE", "double");
+    }
 
     private final String typeName;
     private final Class<?> typeClass;
@@ -121,6 +152,10 @@ public enum ColumnType {
     public static ColumnType getColumnType(String typeName) {
         if (StringUtil.isBlank(typeName)) {
             return null;
+        }
+        String tmpTypeName = JDBC_TYPE_MAPPING.get(typeName.toUpperCase());
+        if (StringUtil.isNotBlank(tmpTypeName)) {
+            typeName = tmpTypeName;
         }
         for (ColumnType value : ColumnType.values()) {
             if (typeName.equalsIgnoreCase(value.getTypeName())) {

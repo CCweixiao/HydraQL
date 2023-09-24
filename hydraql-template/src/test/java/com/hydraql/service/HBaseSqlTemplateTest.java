@@ -25,14 +25,14 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testInsertOne() {
-        String hql = "insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )\n" +
+        String hql = "insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
                 " values ('a10001', 'a10001' , 'leo_a100_01' , 18 , 'Coding' , 13333.33 , 'BeiJing' , 'Car' );";
         sqlTemplate.insert(hql);
     }
 
     @Test
     public void testInsertMultiValues() {
-        String hql = " insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )\n" +
+        String hql = " insert into test:test_hql ( row_key , f1:id , f1:name , f1:age , f1:job , f1:pay , f2:address , f2:commuter )" +
                 "  values ('a10001', 'a10001' , 'leo_a100_01' , 18 , 'Coding' , 13333.33 , 'BeiJing' , 'Car' ), " +
                 "('a10002', 'a10002' , 'leo_a100_02' , 19 , '外卖员' , 7333.33 , 'ShangHai' , '电动车' );";
         sqlTemplate.insert(hql);
@@ -79,39 +79,22 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testCreateVirtualTable() {
-        String hql1 = " create virtual table test:test_sql (\n" +
-                " row_key string isrowkey,\n" +
-                " f1:id string nullable,\n" +
-                " f1:name string nullable,\n" +
-                " f1:age int nullable,\n" +
-                " f1:job string nullable,\n" +
-                " f1:pay double nullable,\n" +
-                " f2:address string nullable,\n" +
-                " f2:commuter string nullable\n" +
-                " );";
-        String hql2 = "create virtual table test:test_hql (\n" +
-                "    row_key string isrowkey,\n" +
-                "    f1:id string nullable,\n" +
-                "    f1:name string nullable,\n" +
-                "    f1:age int nullable,\n" +
-                "    f1:job string nullable,\n" +
-                "    f1:pay double nullable,\n" +
-                "    f2:address string nullable,\n" +
-                "    f2:commuter string nullable\n" +
-                ") with properties (\n" +
-                "\"hbase.client.scanner.caching\"=\"100\"\n" +
-                ",\"hbase.client.block.cache\"=\"false\"\n" +
-                ");";
-        sqlTemplate.createVirtualTable(hql2);
+        String hql = "create virtual table if not exists " +
+                "test:test_sql ( " +
+                "userId varchar(100) not null primary key, " +
+                "f1:name varchar(200) null default '12121', " +
+                "f1:age smallint " +
+                ") with properties " +
+                "( \"hbase.client.scanner.caching\"=100 ," +
+                " \"hbase.client.block.cache\"=false);";
+        sqlTemplate.createVirtualTable(hql);
         List<String> tables = sqlTemplate.showVirtualTables("show virtual tables;");
-        Assert.assertTrue(tables.contains("test:test_hql"));
-        // sqlTemplate.createVirtualTable(hql1);
-         // String hql2 = "drop virtual table test:test_sql;";
-        // sqlTemplate.dropVirtualTable(hql2);
-//        sqlTemplate.createVirtualTable(hql1);
-//        String sql1 = "select * from test:test_sql where rowkey = 'r1' and maxVersion = 5 limit 10";
-//        HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
-//        dataSet1.show();
+        Assert.assertTrue(tables.contains("test:test_sql"));
+        String tableDesc = sqlTemplate.showCreateVirtualTable("show create virtual table test:test_sql;");
+        Assert.assertTrue(tableDesc.contains("test:test_sql"));
+        sqlTemplate.dropVirtualTable("drop virtual table if exists test:test_sql;");
+        List<String> tableList = sqlTemplate.showVirtualTables("show virtual tables;");
+        Assert.assertTrue(tableList.isEmpty());
     }
 
     @Test
@@ -123,9 +106,9 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testSelectInRows() {
-        String sql3 = "select * from\n" +
-                " test:test_sql where \n" +
-                "rowKey \n" +
+        String sql3 = "select * from" +
+                " test:test_sql where " +
+                "rowKey " +
                 "in('a1000','a1002')";
         HBaseDataSet dataSet3 = sqlTemplate.select(sql3);
         dataSet3.show();
@@ -133,27 +116,27 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testSelectTimeRange() {
-        String sql1 = "select * from test:test_sql where \n" +
-                "-- rowKey = 222\n" +
-                "startkey >= 'ewew', endKey < 'dsdsd'\n" +
-                "and (f1:name = 'ds' or f1:age < 12 or (f1:pay between 10 and 20))\n" +
-                "and ( startTs > 1212 , endTs <= 23 )\n" +
-                "-- and startTs >= 1212 \n" +
+        String sql1 = "select * from test:test_sql where " +
+                "-- rowKey = 222" +
+                "startkey >= 'ewew', endKey < 'dsdsd'" +
+                "and (f1:name = 'ds' or f1:age < 12 or (f1:pay between 10 and 20))" +
+                "and ( startTs > 1212 , endTs <= 23 )" +
+                "-- and startTs >= 1212 " +
                 "limit 10";
         HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
     }
 
     @Test
     public void testSelectRowFunction() {
-        String sql1 = "select * from test:test_sql where \n" +
+        String sql1 = "select * from test:test_sql where " +
                 "rowKey=md5('a1001') and  maxVersion = 3 and ts = 3231 limit 10e";
         HBaseDataSet dataSet1 = sqlTemplate.select(sql1);
 
-//        String sql2 = "select * from test:test_sql where \n" +
+//        String sql2 = "select * from test:test_sql where " +
 //                "startKey=md5('a1001') and endKey = '123' ";
 //        HBaseDataSet dataSet2 = sqlTemplate.select(sql2);
 //
-//        String sql3 = "select * from test:test_sql where \n" +
+//        String sql3 = "select * from test:test_sql where " +
 //                "rowKey in (md5('a1001'), md5('a1002'), 'ewe') ";
 //        HBaseDataSet dataSet3 = sqlTemplate.select(sql3);
     }
@@ -170,19 +153,19 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testInsertMaxVersionData() {
-        String hsql1 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )\n" +
-                " values ('r1', 'id1_v1' , 'leo1_v1' , 11 ),\n" +
-                " ('r2', 'id2_v1' , 'leo2_v1' , 21 ),\n" +
+        String hsql1 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )" +
+                " values ('r1', 'id1_v1' , 'leo1_v1' , 11 )," +
+                " ('r2', 'id2_v1' , 'leo2_v1' , 21 )," +
                 " ('r3', 'id3_v1' , 'leo3_v1' , 31 )";
         sqlTemplate.insert(hsql1);
-        String hsql2 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )\n" +
-                " values ('r1', 'id2' , 'leo1_v2' , 12 ),\n" +
-                " ('r2', 'id2' , 'leo2_v2' , 22 ),\n" +
+        String hsql2 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )" +
+                " values ('r1', 'id2' , 'leo1_v2' , 12 )," +
+                " ('r2', 'id2' , 'leo2_v2' , 22 )," +
                 " ('r3', 'id2' , 'leo2_v2' , 32 )";
         sqlTemplate.insert(hsql2);
-        String hsql3 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )\n" +
-                " values ('r1', 'id3' , 'leo1_v3' , 13 ),\n" +
-                " ('r2', 'id3' , 'leo2_v3' , 23 ),\n" +
+        String hsql3 = "insert into test:test_sql (row_key, f1:id , f1:name , f1:age )" +
+                " values ('r1', 'id3' , 'leo1_v3' , 13 )," +
+                " ('r2', 'id3' , 'leo2_v3' , 23 )," +
                 " ('r3', 'id3' , 'leo3_v3' , 33 )";
         sqlTemplate.insert(hsql3);
     }
@@ -289,20 +272,20 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
         System.out.println(defaultTableSchemaJsonFormat());
     }
     public String defaultTableSchemaJsonFormat() {
-        return "{\n" +
-                "\t\"tableName\": \"test_table\",\n" +
-                "\t\"defaultFamily\": \"cf\",\n" +
-                "\t\"columnList\": [{\n" +
-                "\t    \"familyName\": \"\",\n" +
-                "\t    \"columnName\": \"rowKey\",\n" +
-                "\t    \"columnType\": \"string\",\n" +
-                "\t    \"columnIsRow\": \"true\"\n" +
-                "\t},{\n" +
-                "\t    \"familyName\": \"cf\",\n" +
-                "\t    \"columnName\": \"name\",\n" +
-                "\t    \"columnType\": \"string\",\n" +
-                "\t    \"columnIsRow\": \"true\"\n" +
-                "\t},]\n" +
+        return "{" +
+                "\t\"tableName\": \"test_table\"," +
+                "\t\"defaultFamily\": \"cf\"," +
+                "\t\"columnList\": [{" +
+                "\t    \"familyName\": \"\"," +
+                "\t    \"columnName\": \"rowKey\"," +
+                "\t    \"columnType\": \"string\"," +
+                "\t    \"columnIsRow\": \"true\"" +
+                "\t},{" +
+                "\t    \"familyName\": \"cf\"," +
+                "\t    \"columnName\": \"name\"," +
+                "\t    \"columnType\": \"string\"," +
+                "\t    \"columnIsRow\": \"true\"" +
+                "\t},]" +
                 "}";
     }
 

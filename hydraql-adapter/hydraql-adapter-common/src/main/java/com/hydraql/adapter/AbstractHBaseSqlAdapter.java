@@ -12,35 +12,39 @@ import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.connection.HBaseConnectionUtil;
 import com.hydraql.dsl.antlr.HBaseSQLErrorListener;
+import com.hydraql.dsl.antlr.HBaseSQLStatementsLexer;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.data.InsertRowData;
+import com.hydraql.dsl.antlr.data.RowKeyRange;
 import com.hydraql.dsl.antlr.parser.QueryExplainPlan;
 import com.hydraql.dsl.antlr.visitor.CreateVirtualTableVisitor;
 import com.hydraql.dsl.antlr.visitor.RowKeyRangeVisitor;
-import com.hydraql.dsl.antlr.visitor.SelectColListVisitor;
-import com.hydraql.dsl.antlr.visitor.TimeStampRangeVisitor;
 import com.hydraql.dsl.antlr.visitor.UpsertValuesVisitor;
 import com.hydraql.dsl.client.QueryExtInfo;
 import com.hydraql.dsl.client.rowkey.RowKey;
 import com.hydraql.dsl.context.HBaseSqlContext;
-import com.hydraql.dsl.antlr.HBaseSQLStatementsLexer;
-import com.hydraql.dsl.antlr.data.RowKeyRange;
 import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
 import com.hydraql.dsl.model.QueryHBaseColumn;
 import com.hydraql.dsl.model.TableQueryProperties;
 import com.hydraql.dsl.util.Util;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Mutation;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
-import java.io.StringReader;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,14 +99,15 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
     public void createVirtualTable(String hql) {
         HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
         QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
-        String tableName = explainPlan.getTableName();
         HydraQLParser.Create_virtual_table_commandContext virtualTableCommand
                 = explainPlan.getDdlCommandContext().create_virtual_table_command();
-        CreateVirtualTableVisitor createVirtualTableVisitor = new CreateVirtualTableVisitor(tableName,null);
+        HydraQLParser.If_not_existsContext ifNotExistsContext = virtualTableCommand.if_not_exists();
+        boolean ifNotExists = ifNotExistsContext != null;
+        CreateVirtualTableVisitor createVirtualTableVisitor = new CreateVirtualTableVisitor();
         HBaseTableSchema tableSchema = createVirtualTableVisitor.extractHBaseTableSchema(virtualTableCommand);
         tableSchema.setCreateSql(hql);
         checkAndCreateHqlMetaTable();
-        boolean res = saveTableSchemaMeta(tableSchema, hql);
+        boolean res = saveTableSchemaMeta(tableSchema, hql, ifNotExists);
         if (res) {
             registerTableSchema(tableSchema);
         }
@@ -112,8 +117,9 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
     public void dropVirtualTable(String hql) {
         HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
         QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
+        HydraQLParser.Drop_table_commandContext dropTableCommandContext =
+                explainPlan.getDdlCommandContext().drop_table_command();
         String virtualTableName = explainPlan.getTableName();
-
         Get get = new Get(Bytes.toBytes(virtualTableName));
         boolean virtualTableExists = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
@@ -123,7 +129,8 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             byte[] value = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER);
             return value != null && StringUtil.isNotBlank(Bytes.toString(value));
         });
-        if (!virtualTableExists) {
+        HydraQLParser.If_existsContext ifExistsContext = dropTableCommandContext.if_exists();
+        if (!virtualTableExists && ifExistsContext == null) {
             throw new HBaseSqlAnalysisException(String.format("The virtual table %s does not exist.", virtualTableName));
         }
         Delete delete = new Delete(Bytes.toBytes(virtualTableName));
@@ -139,7 +146,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
     protected abstract void checkAndCreateHqlMetaTable();
 
-    protected abstract boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql);
+    protected abstract boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists);
 
     protected List<String> queryAllVirtualTables() {
         Scan scan = new Scan();
@@ -520,8 +527,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
             throw new HBaseSqlAnalysisException("Please enter hql.");
         }
         try {
-            ANTLRInputStream input = new ANTLRInputStream(new StringReader(hql));
-            HBaseSQLStatementsLexer lexer = new HBaseSQLStatementsLexer(input);
+            HBaseSQLStatementsLexer lexer = new HBaseSQLStatementsLexer(CharStreams.fromString(hql));
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             HydraQLParser parser = new HydraQLParser(tokens);
             parser.removeErrorListeners();

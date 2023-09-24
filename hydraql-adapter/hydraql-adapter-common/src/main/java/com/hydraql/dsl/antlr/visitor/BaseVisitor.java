@@ -37,6 +37,22 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
         return this.getTableSchema().findRow();
     }
 
+    protected String extractFamily(HydraQLParser.Column_refContext columnRefContext) {
+        HydraQLParser.Family_nameContext familyNameContext = columnRefContext.family_name();
+        if (familyNameContext == null) {
+            return "";
+        }
+        return getText(familyNameContext.name());
+    }
+
+    protected String extractColName(HydraQLParser.Column_refContext columnRefContext) {
+        HydraQLParser.Column_nameContext columnNameContext = columnRefContext.column_name();
+        if (columnNameContext == null) {
+            return "";
+        }
+        return getText(columnNameContext.name());
+    }
+
     protected HBaseColumn extractColumn(HydraQLParser.Column_refContext columnRefContext) {
         String family = "";
         String column = "";
