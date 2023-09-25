@@ -139,18 +139,20 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
         if (endRowKey != null && endRowKey.toBytes() != null) {
             scan.withStopRow(endRowKey.toBytes(), rowKeyRange.isIncludeStop());
         }
-        if (queryExtInfo.isMaxVersionSet()) {
-            scan.readVersions(queryExtInfo.getMaxVersions());
-        }
-        if (queryExtInfo.isTimeRangeSet()) {
-            try {
-                scan.setTimeRange(queryExtInfo.getMinStamp(), queryExtInfo.getMaxStamp());
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Shouldn't happen.", e);
+        if (queryExtInfo != null) {
+            if (queryExtInfo.isMaxVersionSet()) {
+                scan.readVersions(queryExtInfo.getMaxVersions());
             }
-        }
-        if (queryExtInfo.isLimitSet()) {
-            scan.setLimit(queryExtInfo.getLimit());
+            if (queryExtInfo.isTimeRangeSet()) {
+                try {
+                    scan.setTimeRange(queryExtInfo.getMinStamp(), queryExtInfo.getMaxStamp());
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("Shouldn't happen.", e);
+                }
+            }
+            if (queryExtInfo.isLimitSet()) {
+                scan.setLimit(queryExtInfo.getLimit());
+            }
         }
         scan.setCaching(getScanCaching(tableName));
         scan.setCacheBlocks(scanCacheBlocks(tableName));

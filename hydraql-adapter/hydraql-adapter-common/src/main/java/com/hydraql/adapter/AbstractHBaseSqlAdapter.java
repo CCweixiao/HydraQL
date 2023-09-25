@@ -47,6 +47,7 @@ import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -405,11 +406,9 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
         final int deleteBatch = getDeleteBatch(tableName);
         while (true) {
-            List<QueryHBaseColumn> queryHBaseColumns = deleteColumns.stream()
-                    .map(QueryHBaseColumn::column).collect(Collectors.toList());
+            List<QueryHBaseColumn> queryHBaseColumns =
+                    Collections.singletonList(QueryHBaseColumn.column(deleteColumns.get(0)));
             Scan firstScan = constructScan(tableName, rowKeyRange, null, filter, queryHBaseColumns);
-            // 只扫描row
-            firstScan.addFamily(null);
             List<Mutation> deletes = new ArrayList<>(deleteBatch);
             try {
                 this.execute(tableName, table -> {

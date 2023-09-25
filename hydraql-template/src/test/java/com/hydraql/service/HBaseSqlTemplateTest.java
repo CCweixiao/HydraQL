@@ -272,6 +272,19 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
     }
 
     @Test
+    public void testDeleteByRow() {
+        String hql = "delete f1:id from  test:test_sql where rowkey = '2222'";
+        sqlTemplate.delete(hql);
+    }
+
+    @Test
+    public void testDeleteByStartAndEnd() {
+        String hql = "delete from  test:test_sql where startkey > 'a1000'" +
+                " and endkey <= 'a1002'";
+        sqlTemplate.delete(hql);
+    }
+
+    @Test
     public void testDeleteOne() {
         // String sql = "delete f1:age from test:test_sql where rowKey = 'b20004'";
         // sqlTemplate.delete(sql);

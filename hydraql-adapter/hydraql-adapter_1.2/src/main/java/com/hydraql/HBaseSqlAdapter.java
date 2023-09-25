@@ -139,14 +139,16 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
         if (endRowKey != null && endRowKey.toBytes() != null) {
             scan.setStopRow(endRowKey.toBytes());
         }
-        if (queryExtInfo.isMaxVersionSet()) {
-            scan.setMaxVersions(queryExtInfo.getMaxVersions());
-        }
-        if (queryExtInfo.isTimeRangeSet()) {
-            try {
-                scan.setTimeRange(queryExtInfo.getMinStamp(), queryExtInfo.getMaxStamp());
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Shouldn't happen.", e);
+        if (queryExtInfo != null) {
+            if (queryExtInfo.isMaxVersionSet()) {
+                scan.setMaxVersions(queryExtInfo.getMaxVersions());
+            }
+            if (queryExtInfo.isTimeRangeSet()) {
+                try {
+                    scan.setTimeRange(queryExtInfo.getMinStamp(), queryExtInfo.getMaxStamp());
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("Shouldn't happen.", e);
+                }
             }
         }
         // hbase1.2中，scan无法设置limit

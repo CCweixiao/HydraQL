@@ -50,14 +50,19 @@ public class DeleteColListVisitor extends BaseVisitor<List<HBaseColumn>> {
     public List<HBaseColumn> extractDeleteColumns(HydraQLParser.Delete_column_def_listContext
                                                           deleteColumnDefListContext) {
         if (deleteColumnDefListContext == null || deleteColumnDefListContext.isEmpty()) {
-            return new ArrayList<>();
+            return this.getTableSchema().findAllColumns();
         }
         List<HydraQLParser.Delete_column_defContext> columnDefContextList =
                 deleteColumnDefListContext.delete_column_def();
+
         Set<HBaseColumn> deleteColumnSet = new HashSet<>();
         for (HydraQLParser.Delete_column_defContext columnDefContext : columnDefContextList) {
             List<HBaseColumn> columns = columnDefContext.accept(this);
             deleteColumnSet.addAll(columns);
+        }
+        ArrayList<HBaseColumn> hBaseColumns = new ArrayList<>(deleteColumnSet);
+        if (hBaseColumns.size() == 1 && hBaseColumns.get(0).columnIsRow()) {
+            throw new HBaseSqlAnalysisException("Can't just delete rowKey " + hBaseColumns.get(0).getColumnName());
         }
         return new ArrayList<>(deleteColumnSet);
     }
