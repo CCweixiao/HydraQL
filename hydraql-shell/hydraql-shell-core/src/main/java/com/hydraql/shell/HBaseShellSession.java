@@ -213,6 +213,10 @@ public class HBaseShellSession implements ShellSession {
 
     @Override
     public void destroy() {
+        if (!this.isConnected()) {
+            LOGGER.info("The hbase shell session not connected.");
+            return;
+        }
         if (this.scriptingContainer != null) {
             this.scriptingContainer.terminate();
         }

@@ -23,10 +23,6 @@ public class QueryFilterVisitor extends BaseVisitor<Filter> {
         this.queryParams = queryParams;
     }
 
-    public Map<String, Object> getQueryParams() {
-        return queryParams;
-    }
-
     @Override
     public Filter visitColConditionWrapper(HydraQLParser.ColConditionWrapperContext ctx) {
         return ctx.colCondition().accept(this);
@@ -63,7 +59,7 @@ public class QueryFilterVisitor extends BaseVisitor<Filter> {
     @Override
     public Filter visitColConditionCompOp(HydraQLParser.ColConditionCompOpContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
-        final Object conditionVal = this.extractConditionVal(ctx.conditionVal(), column, this.getQueryParams(), false);
+        final Object conditionVal = this.extractConditionVal(ctx.conditionVal(), column, this.queryParams, false);
         if (ctx.comp_op().EQ() != null) {
             return constructFilter(column, CompareFilter.CompareOp.EQUAL, conditionVal);
         } else if (ctx.comp_op().GE() != null) {
@@ -84,7 +80,7 @@ public class QueryFilterVisitor extends BaseVisitor<Filter> {
     @Override
     public Filter visitColConditionLikeOrNot(HydraQLParser.ColConditionLikeOrNotContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
-        final Object conditionVal = this.extractConditionVal(ctx.conditionVal(), column, this.getQueryParams(), false);
+        final Object conditionVal = this.extractConditionVal(ctx.conditionVal(), column, this.queryParams, false);
         byte[] value = column.getColumnType().getTypeHandler()
                 .toBytes(column.getColumnType().getTypeClass(), conditionVal);
         try {
@@ -111,7 +107,7 @@ public class QueryFilterVisitor extends BaseVisitor<Filter> {
         HBaseColumn column = this.extractColumn(ctx.column());
         HydraQLParser.ConditionValListContext conditionValListContext = ctx.conditionValList();
         List<Object> constantValList = this.extractConstantValList(conditionValListContext, column,
-                this.getQueryParams());
+                this.queryParams);
         if (ctx.NOT() != null) {
             return constructFilterForContain(column, CompareFilter.CompareOp.NOT_EQUAL,
                     constantValList, FilterList.Operator.MUST_PASS_ALL);
@@ -124,8 +120,8 @@ public class QueryFilterVisitor extends BaseVisitor<Filter> {
     public Filter visitColConditionBetweenOrNot(HydraQLParser.ColConditionBetweenOrNotContext ctx) {
         HBaseColumn column = this.extractColumn(ctx.column());
         List<HydraQLParser.ConditionValContext> conditionValContextList = ctx.conditionVal();
-        Object start = this.extractConditionVal(conditionValContextList.get(0), column, this.getQueryParams(), false);
-        Object end = this.extractConditionVal(conditionValContextList.get(1), column, this.getQueryParams(), false);
+        Object start = this.extractConditionVal(conditionValContextList.get(0), column, this.queryParams, false);
+        Object end = this.extractConditionVal(conditionValContextList.get(1), column, this.queryParams, false);
 
         if (ctx.NOT() != null) {
             Filter startFilter = constructFilter(column, CompareFilter.CompareOp.LESS, start);

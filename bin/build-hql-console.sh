@@ -14,7 +14,9 @@ elif [ "$version" == "1.4" ]; then
   mvn  clean package  -Dmaven.test.skip=true  -Dhbase.profile=1.4  -pl hydraql-console -am
 elif [ "$version" == "2.2" ]; then
   mvn  clean package  -Dmaven.test.skip=true  -Dhbase.profile=2.2  -pl hydraql-console -am
+elif [ "$version" == "2.5" ]; then
+  mvn  clean package  -Dmaven.test.skip=true  -Dhbase.profile=2.5  -pl hydraql-console -am
 else
-  echo "The temporarily supported HBase profile versions are [1.2, 1.4, 2.2]"
+  echo "The temporarily supported HBase profile versions are [1.2, 1.4, 2.2, 2.5]"
 fi
 
