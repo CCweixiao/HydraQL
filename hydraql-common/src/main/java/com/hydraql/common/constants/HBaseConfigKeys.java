@@ -34,7 +34,12 @@ public class HBaseConfigKeys {
     public static final String HEDGED_READ_CONF_SUFFIX = ".hedged.read";
     public static final String HEDGED_READ_ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum".concat(HEDGED_READ_CONF_SUFFIX);
     public static final String HEDGED_READ_ZOOKEEPER_CLIENT_PORT = "hbase.zookeeper.property.clientPort".concat(HEDGED_READ_CONF_SUFFIX);
+    public static final String HBASE_CLIENT_SCANNER_CACHE = "hbase.client.scanner.cache";
+    public static final boolean HBASE_CLIENT_DEFAULT_SCANNER_CACHE = false;
     public static final String HBASE_CLIENT_SCANNER_CACHING = "hbase.client.scanner.caching";
-    public static final String HBASE_CLIENT_BLOCK_CACHE = "hbase.client.block.cache";
     public static final int HBASE_CLIENT_DEFAULT_SCANNER_CACHING = 1000;
+    public static final String HBASE_CLIENT_SCANNER_BATCH = "hbase.client.scan.batch";
+    public static final int HBASE_CLIENT_DEFAULT_SCANNER_BATCH = 100;
+    public static final String HBASE_CLIENT_DELETE_BATCH = "hbase.client.delete.batch";
+    public static final int HBASE_CLIENT_DEFAULT_DELETE_BATCH = 100;
 }

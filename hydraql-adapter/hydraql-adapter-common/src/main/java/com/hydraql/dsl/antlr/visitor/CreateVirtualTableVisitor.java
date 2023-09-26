@@ -51,16 +51,24 @@ public class CreateVirtualTableVisitor extends BaseVisitor<HBaseTableSchema> {
         if (tableOptionsContext != null) {
             List<HydraQLParser.OptionContext> optionContextList = tableOptionsContext.options_().option();
             for (HydraQLParser.OptionContext optionContext : optionContextList) {
-                String optionName = getText(optionContext.name());
-                if (HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHING.equals(optionName)) {
-                    String optionValue = extractLiteralVal(optionContext.literal());
-                    tableSchemaBuilder.scanCaching(Integer.parseInt(optionValue));
-                } else if (HBaseConfigKeys.HBASE_CLIENT_BLOCK_CACHE.equals(optionName)) {
-                    String optionValue = extractLiteralVal(optionContext.literal());
-                    tableSchemaBuilder.scanCacheBlocks(Boolean.parseBoolean(optionValue));
-                } else {
-                    throw new HBaseSqlAnalysisException(String.format("Unsupported table property option [%s].",
-                            optionName));
+                String optionName = getText(optionContext.name()).trim();
+                String optionValue = extractLiteralVal(optionContext.literal());
+                switch (optionName) {
+                    case HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHING:
+                        tableSchemaBuilder.scanCaching(Integer.parseInt(optionValue));
+                        break;
+                    case HBaseConfigKeys.HBASE_CLIENT_SCANNER_BATCH:
+                        tableSchemaBuilder.scanBatch(Integer.parseInt(optionValue));
+                        break;
+                    case HBaseConfigKeys.HBASE_CLIENT_DELETE_BATCH:
+                        tableSchemaBuilder.deleteBatch(Integer.parseInt(optionValue));
+                        break;
+                    case HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHE:
+                        tableSchemaBuilder.scanCacheBlocks(Boolean.parseBoolean(optionValue));
+                        break;
+                    default:
+                        throw new HBaseSqlAnalysisException(String.format("Unsupported table property option [%s].",
+                                optionName));
                 }
             }
         }

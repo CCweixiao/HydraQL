@@ -42,6 +42,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
 
@@ -406,9 +407,8 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
         final int deleteBatch = getDeleteBatch(tableName);
         while (true) {
-            List<QueryHBaseColumn> queryHBaseColumns =
-                    Collections.singletonList(QueryHBaseColumn.column(deleteColumns.get(0)));
-            Scan firstScan = constructScan(tableName, rowKeyRange, null, filter, queryHBaseColumns);
+            Scan firstScan = constructScan(tableName, rowKeyRange, null, filter, null);
+            firstScan.setFilter(new FirstKeyOnlyFilter());
             List<Mutation> deletes = new ArrayList<>(deleteBatch);
             try {
                 this.execute(tableName, table -> {

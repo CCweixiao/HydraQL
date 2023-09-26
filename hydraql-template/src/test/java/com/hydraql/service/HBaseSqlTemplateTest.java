@@ -77,19 +77,21 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
     @Test
     public void testCreateVirtualTable() {
         sqlTemplate.dropVirtualTable("drop virtual table if exists test:test_sql;");
-        String hql = "create virtual table if not exists " +
-                "test:test_sql ( " +
-                "row_key varchar(100) not null primary key, " +
-                "f1:id varchar(200) not null , " +
-                "f1:name varchar(200) not null, " +
-                "f1:age smallint null," +
-                "f1:job varchar(200) not null, " +
-                "f1:pay float," +
-                "f2:address varchar(200) not null, " +
-                "f2:commuter varchar(200) not null " +
-                ") with properties " +
-                "( \"hbase.client.scanner.caching\"=100 ," +
-                " \"hbase.client.block.cache\"=false);";
+        String hql = "create virtual table if not exists \n" +
+                "  test:test_sql ( \n" +
+                "  row_key varchar(100) not null primary key, \n" +
+                "  f1:id varchar(200) not null , \n" +
+                "  f1:name varchar(200) not null, \n" +
+                "  f1:age smallint null,\n" +
+                "  f1:job varchar(200) not null, \n" +
+                "  f1:pay float,\n" +
+                "  f2:address varchar(200) not null, \n" +
+                "  f2:commuter varchar(200) not null \n" +
+                "  ) with properties \n" +
+                "  ( \"hbase.client.scanner.caching\"=1000,\n" +
+                "    \"hbase.client.scan.batch\"=100,\n" +
+                "    \"hbase.client.delete.batch\"=5,\n" +
+                "   \"hbase.client.scanner.cache\"=false);";
         sqlTemplate.createVirtualTable(hql);
         List<String> tables = sqlTemplate.showVirtualTables("show virtual tables;");
         Assert.assertTrue(tables.contains("test:test_sql"));
@@ -291,6 +293,12 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
         String sql2 = "delete f1:age from test:test_sql where rowKey = 'row_10001' and ts = 1670579504803";
         sqlTemplate.delete(sql2);
+    }
+
+    @Test
+    public void testDeleteByStartKey() {
+        String hql = "delete from test:test_sql where startKey >= 'b1000' and endKey <= 'd1009'";
+        sqlTemplate.delete(hql);
     }
 
     @Test
