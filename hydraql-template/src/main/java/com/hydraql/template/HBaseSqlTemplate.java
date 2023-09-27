@@ -2,7 +2,6 @@ package com.hydraql.template;
 
 import com.hydraql.HBaseSqlAdapter;
 import com.hydraql.adapter.IHBaseSqlAdapter;
-import com.hydraql.common.model.HQLType;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;
 import org.apache.hadoop.conf.Configuration;
@@ -63,16 +62,6 @@ public class HBaseSqlTemplate implements BaseHBaseSqlTemplate {
     }
 
     @Override
-    public String parseTableNameFromHql(String hql) {
-        return sqlAdapter.parseTableNameFromHql(hql);
-    }
-
-    @Override
-    public HQLType parseHQLType(String hql) {
-        return sqlAdapter.parseHQLType(hql);
-    }
-
-    @Override
     public void registerTableSchema(HBaseTableSchema tableSchema) {
         sqlAdapter.registerTableSchema(tableSchema);
     }
@@ -99,10 +88,6 @@ public class HBaseSqlTemplate implements BaseHBaseSqlTemplate {
 
     public static HBaseSqlTemplate of(String zkQuorum, String zkClientPort) {
         return new Builder().configuration(zkQuorum, zkClientPort).build();
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public Configuration getConfiguration() {

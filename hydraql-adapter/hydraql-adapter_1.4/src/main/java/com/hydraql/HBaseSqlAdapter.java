@@ -39,7 +39,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected void checkAndCreateHqlMetaTable() {
+    public void checkAndCreateHqlMetaTable() {
         this.execute(admin -> {
             if (admin.tableExists(HQL_META_DATA_TABLE_NAME)) {
                 return true;
@@ -53,7 +53,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists) {
+    public boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists) {
         String tableName = HMHBaseConstants.getFullTableName(tableSchema.getTableName());
         Boolean oriTableExists = this.execute(admin -> admin.tableExists(TableName.valueOf(tableName)));
         if (!oriTableExists) {
@@ -81,20 +81,20 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected Filter parseFilter(HydraQLParser.WhereColContext whereColContext, HBaseTableSchema tableSchema) {
+    public Filter parseFilter(HydraQLParser.WhereColContext whereColContext, HBaseTableSchema tableSchema) {
         QueryFilterVisitor filterVisitor = new QueryFilterVisitor(tableSchema, new HashMap<>(0));
         return filterVisitor.extractFilter(whereColContext);
     }
 
     @Override
-    protected Filter parseFilter(HydraQLParser.WhereColContext whereColContext, Map<String, Object> queryParams,
+    public Filter parseFilter(HydraQLParser.WhereColContext whereColContext, Map<String, Object> queryParams,
                                  HBaseTableSchema tableSchema) {
         QueryFilterVisitor filterVisitor = new QueryFilterVisitor(tableSchema, queryParams);
         return filterVisitor.extractFilter(whereColContext);
     }
 
     @Override
-    protected Get constructGet(RowKey<?> rowKey, QueryExtInfo queryExtInfo, Filter filter,
+    public Get constructGet(RowKey<?> rowKey, QueryExtInfo queryExtInfo, Filter filter,
                                List<QueryHBaseColumn> columnList) {
         Util.checkRowKey(rowKey);
         Get get = new Get(rowKey.toBytes());
@@ -130,7 +130,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected Scan constructScan(String tableName, RowKeyRange rowKeyRange, QueryExtInfo queryExtInfo, Filter filter,
+    public Scan constructScan(String tableName, RowKeyRange rowKeyRange, QueryExtInfo queryExtInfo, Filter filter,
                                  List<QueryHBaseColumn> columnList) {
         Scan scan = new Scan();
         RowKey<?> startRowKey = rowKeyRange.getStart();
@@ -177,13 +177,13 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected Scan setScanRowPrefixFilter(Scan scan, RowKey<?> rowPrefixKey) {
+    public Scan setScanRowPrefixFilter(Scan scan, RowKey<?> rowPrefixKey) {
         scan.setRowPrefixFilter(rowPrefixKey.toBytes());
         return scan;
     }
 
     @Override
-    protected Put constructPut(InsertRowData rowData, long ts) {
+    public Put constructPut(InsertRowData rowData, long ts) {
         Put put = new Put(rowData.getRows());
         for (InsertColData colData : rowData.getColDataList()) {
             if (ts > 0) {
@@ -196,12 +196,12 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     }
 
     @Override
-    protected Delete constructDelete(RowKey<?> rowKey, List<HBaseColumn> columnSchemaList, long ts) {
+    public Delete constructDelete(RowKey<?> rowKey, List<HBaseColumn> columnSchemaList, long ts) {
         return constructDelete(rowKey.toBytes(), columnSchemaList, ts);
     }
 
     @Override
-    protected Delete constructDelete(Result result, List<HBaseColumn> columnSchemaList, long ts) {
+    public Delete constructDelete(Result result, List<HBaseColumn> columnSchemaList, long ts) {
         return constructDelete(result.getRow(), columnSchemaList, ts);
     }
 

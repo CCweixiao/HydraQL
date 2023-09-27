@@ -25,13 +25,13 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
     }
 
     @Override
-    public void execute() {
+    public List<String> execute() {
         this.checkParsedHqlTypeMatched(this.getHqlType());
         List<String> allRegisteredVirtualTables = HBaseSqlContext.getInstance().getAllRegisteredVirtualTables();
         List<String> allVirtualTables = queryAllVirtualTables();
         Set<String> tableNames = new HashSet<>(allRegisteredVirtualTables);
         tableNames.addAll(allVirtualTables);
-        this.setResult(new ArrayList<>(tableNames));
+        return new ArrayList<>(tableNames);
     }
 
     @Override

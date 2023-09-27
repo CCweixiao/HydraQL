@@ -1,6 +1,5 @@
 package com.hydraql.adapter;
 
-import com.hydraql.common.model.HQLType;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;
 
@@ -26,10 +25,6 @@ public interface IHBaseSqlAdapter {
     void insert(String hql);
 
     void delete(String hql);
-
-    String parseTableNameFromHql(String hql);
-
-    HQLType parseHQLType(String hql);
 
     void registerTableSchema(HBaseTableSchema tableSchema);
     void printTableSchema(String tableName);

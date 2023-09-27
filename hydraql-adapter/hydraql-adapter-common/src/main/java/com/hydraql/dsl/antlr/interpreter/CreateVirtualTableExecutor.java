@@ -24,7 +24,7 @@ public class CreateVirtualTableExecutor extends BaseHqlExecutor<Boolean> impleme
     }
 
     @Override
-    public void execute() {
+    public Boolean execute() {
         this.checkParsedHqlTypeMatched(this.getHqlType());
         HydraQLParser.Create_virtual_table_commandContext virtualTableCommand
                 = this.getSqlCommandContext().ddl_command().create_virtual_table_command();
@@ -39,7 +39,7 @@ public class CreateVirtualTableExecutor extends BaseHqlExecutor<Boolean> impleme
         if (res) {
             sqlAdapter.registerTableSchema(tableSchema);
         }
-        this.setResult(true);
+        return true;
     }
 
     private static class ExecutorBuilder extends Builder<CreateVirtualTableExecutor, Boolean> {

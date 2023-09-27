@@ -18,7 +18,7 @@ public class ShowCreateVirtualTableExecutor extends BaseHqlExecutor<String> impl
     }
 
     @Override
-    public void execute() {
+    public String execute() {
         this.checkParsedHqlTypeMatched(this.getHqlType());
         HydraQLParser.Show_table_commandContext showTableCommandContext =
                 this.getSqlCommandContext().ddl_command().show_table_command();
@@ -27,7 +27,7 @@ public class ShowCreateVirtualTableExecutor extends BaseHqlExecutor<String> impl
         String schema = tableSchema.toString();
         String createSql = tableSchema.getCreateSql();
         createSql = createSql.replaceAll("\n", "").replaceAll(",", ",\n");
-        this.setResult(createSql + "\n\n" + schema);
+        return createSql + "\n\n" + schema;
     }
 
     @Override

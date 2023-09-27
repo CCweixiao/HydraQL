@@ -25,7 +25,7 @@ public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implement
     }
 
     @Override
-    public void execute() {
+    public Boolean execute() {
         this.checkParsedHqlTypeMatched(this.getHqlType());
         HydraQLParser.Drop_table_commandContext dropTableCommandContext =
                 this.getSqlCommandContext().ddl_command().drop_table_command();
@@ -56,7 +56,7 @@ public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implement
             throw new HBaseSqlAnalysisException(String.format("The virtual table %s failed to be deleted.", virtualTableName));
         }
         removeTableSchema(virtualTableName);
-        this.setResult(true);
+        return true;
     }
 
     @Override

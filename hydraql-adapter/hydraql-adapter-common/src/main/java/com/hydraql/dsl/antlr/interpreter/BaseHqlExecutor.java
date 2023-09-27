@@ -17,14 +17,13 @@ import java.util.List;
 public abstract class BaseHqlExecutor<T> {
     private final String hql;
     private HydraQLParser.Sql_commandContext sqlCommandContext;
-    private T result;
 
     protected BaseHqlExecutor(String hql) {
         this.hql = hql;
         this.parseSqlCommandContext();
     }
 
-    public abstract void execute();
+    public abstract T execute();
 
     private void parseSqlCommandContext() {
         if (StringUtil.isBlank(hql)) {
@@ -83,14 +82,6 @@ public abstract class BaseHqlExecutor<T> {
         } else {
             throw new HBaseSqlAnalysisException("Illegal hql statement.");
         }
-    }
-
-    public T getResult() {
-        return result;
-    }
-
-    public void setResult(T result) {
-        this.result = result;
     }
 
     public String getHql() {
