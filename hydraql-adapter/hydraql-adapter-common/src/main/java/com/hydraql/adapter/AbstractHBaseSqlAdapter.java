@@ -11,13 +11,13 @@ import com.hydraql.common.model.row.HBaseDataRow;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.connection.HBaseConnectionUtil;
-import com.hydraql.dsl.antlr.HBaseSQLErrorListener;
-import com.hydraql.dsl.antlr.HBaseSQLStatementsLexer;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.data.InsertRowData;
 import com.hydraql.dsl.antlr.data.RowKeyRange;
+import com.hydraql.dsl.antlr.interpreter.BaseHqlExecutor;
+import com.hydraql.dsl.antlr.interpreter.Interpreter;
+import com.hydraql.dsl.antlr.interpreter.InterpreterFactory;
 import com.hydraql.dsl.antlr.parser.QueryExplainPlan;
-import com.hydraql.dsl.antlr.visitor.CreateVirtualTableVisitor;
 import com.hydraql.dsl.antlr.visitor.RowKeyRangeVisitor;
 import com.hydraql.dsl.antlr.visitor.UpsertValuesVisitor;
 import com.hydraql.dsl.client.QueryExtInfo;
@@ -28,8 +28,6 @@ import com.hydraql.dsl.model.HBaseTableSchema;
 import com.hydraql.dsl.model.QueryHBaseColumn;
 import com.hydraql.dsl.model.TableQueryProperties;
 import com.hydraql.dsl.util.Util;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -48,12 +46,9 @@ import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -61,10 +56,10 @@ import java.util.stream.Collectors;
  */
 @InterfaceAudience.Private
 public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter implements IHBaseSqlAdapter {
-    protected static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
-    protected static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
-    protected static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
-    protected static final byte[] HQL_META_DATA_CREATE_HQL_QUALIFIER = Bytes.toBytes( "create_hql");
+    public static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
+    public static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
+    public static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
+    public static final byte[] HQL_META_DATA_CREATE_HQL_QUALIFIER = Bytes.toBytes( "create_hql");
 
     public AbstractHBaseSqlAdapter(Configuration configuration) {
         super(configuration);
@@ -72,97 +67,34 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
 
     @Override
     public List<String> showVirtualTables(String hql) {
-        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
-        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
-        HQLType hqlType = explainPlan.getSqlCommandParser().getHqlType();
-        if (hqlType == HQLType.SHOW_VIRTUAL_TABLES) {
-            List<String> allRegisteredVirtualTables = HBaseSqlContext.getInstance().getAllRegisteredVirtualTables();
-            List<String> allVirtualTables = queryAllVirtualTables();
-            Set<String> tableNames = new HashSet<>(allRegisteredVirtualTables);
-            tableNames.addAll(allVirtualTables);
-            return new ArrayList<>(tableNames);
-        }
-        return new ArrayList<>(0);
+        BaseHqlExecutor<List<String>> hqlContext = BaseHqlExecutor.of(hql);
+        Interpreter<List<String>> interpreter = InterpreterFactory.of(hqlContext).generate(this);
+        interpreter.interpret(hqlContext);
+        return hqlContext.getResult();
     }
 
     @Override
     public String showCreateVirtualTable(String hql) {
-        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
-        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
-        String tableName = explainPlan.getSqlCommandParser().getTableName();
-        HBaseTableSchema tableSchema = getTableSchema(tableName);
-        String schema = tableSchema.toString();
-        String createSql = tableSchema.getCreateSql();
-        createSql = createSql.replaceAll("\n", "").replaceAll(",", ",\n");
-        return createSql + "\n\n" + schema;
+
     }
 
     @Override
     public void createVirtualTable(String hql) {
-        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
-        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
-        HydraQLParser.Create_virtual_table_commandContext virtualTableCommand
-                = explainPlan.getDdlCommandContext().create_virtual_table_command();
-        HydraQLParser.If_not_existsContext ifNotExistsContext = virtualTableCommand.if_not_exists();
-        boolean ifNotExists = ifNotExistsContext != null;
-        CreateVirtualTableVisitor createVirtualTableVisitor = new CreateVirtualTableVisitor();
-        HBaseTableSchema tableSchema = createVirtualTableVisitor.extractHBaseTableSchema(virtualTableCommand);
-        tableSchema.setCreateSql(hql);
-        checkAndCreateHqlMetaTable();
-        boolean res = saveTableSchemaMeta(tableSchema, hql, ifNotExists);
-        if (res) {
-            registerTableSchema(tableSchema);
-        }
+
     }
 
     @Override
     public void dropVirtualTable(String hql) {
-        HydraQLParser.Sql_commandContext sqlCommandContext = parseSqlCommandContext(hql);
-        QueryExplainPlan explainPlan = new QueryExplainPlan(sqlCommandContext);
-        HydraQLParser.Drop_table_commandContext dropTableCommandContext =
-                explainPlan.getDdlCommandContext().drop_table_command();
-        String virtualTableName = explainPlan.getTableName();
-        Get get = new Get(Bytes.toBytes(virtualTableName));
-        boolean virtualTableExists = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
-            Result result = table.get(get);
-            if (result == null) {
-                return false;
-            }
-            byte[] value = result.getValue(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER);
-            return value != null && StringUtil.isNotBlank(Bytes.toString(value));
-        });
-        HydraQLParser.If_existsContext ifExistsContext = dropTableCommandContext.if_exists();
-        if (!virtualTableExists && ifExistsContext == null) {
-            throw new HBaseSqlAnalysisException(String.format("The virtual table %s does not exist.", virtualTableName));
-        }
-        Delete delete = new Delete(Bytes.toBytes(virtualTableName));
-        boolean deleteRes = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
-            table.delete(delete);
-            return true;
-        });
-        if (!deleteRes) {
-            throw new HBaseSqlAnalysisException(String.format("The virtual table %s failed to be deleted.", virtualTableName));
-        }
-        removeTableSchema(virtualTableName);
+
     }
 
-    protected abstract void checkAndCreateHqlMetaTable();
+    public abstract void checkAndCreateHqlMetaTable();
 
-    protected abstract boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists);
+    public abstract boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists);
 
-    protected List<String> queryAllVirtualTables() {
-        Scan scan = new Scan();
-        return this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
-            ResultScanner scanner = table.getScanner(scan);
-            List<String> tables = new ArrayList<>();
-            for (Result result : scanner) {
-                tables.add(Bytes.toString(result.getRow()));
-            }
-            return tables;
-        });
-    }
 
-    protected HBaseTableSchema getTableSchema(String tableName) {
+
+    public HBaseTableSchema getTableSchema(String tableName) {
         String uniqueKey = HBaseConnectionUtil.generateUniqueConnectionKey(this.getConfiguration());
         uniqueKey = uniqueKey + "#" + HMHBaseConstants.getFullTableName(tableName);
         HBaseTableSchema tableSchema = HBaseSqlContext.getInstance().getTableSchema(uniqueKey);
@@ -525,25 +457,7 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
     }
 
     protected HydraQLParser.Sql_commandContext parseSqlCommandContext(String hql) {
-        if (StringUtil.isBlank(hql)) {
-            throw new HBaseSqlAnalysisException("Please enter hql.");
-        }
-        try {
-            HBaseSQLStatementsLexer lexer = new HBaseSQLStatementsLexer(CharStreams.fromString(hql));
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            HydraQLParser parser = new HydraQLParser(tokens);
-            parser.removeErrorListeners();
-            parser.addErrorListener(new HBaseSQLErrorListener());
-            HydraQLParser.RootContext root = parser.root();
-            List<HydraQLParser.BatchContext> batchList = root.batch();
-            if (batchList.size() > 1) {
-                throw new HBaseSqlAnalysisException("The execution of multi-segment SQL is not currently supported.");
-            }
-            HydraQLParser.BatchContext batchContext = batchList.get(0);
-            return batchContext.sql_command();
-        } catch (Exception e) {
-            throw new HBaseSqlAnalysisException(String.format("The hql %s was parsed failed.", hql), e);
-        }
+
     }
 
     public String parseTableNameFromHql(String hql) {
