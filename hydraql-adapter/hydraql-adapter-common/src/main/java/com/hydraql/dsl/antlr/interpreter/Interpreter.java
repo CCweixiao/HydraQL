@@ -6,7 +6,7 @@ import com.hydraql.common.model.HQLType;
 /**
  * @author leojie 2023/9/27 13:49
  */
-public interface Interpreter<T> {
+public interface Interpreter {
 
     HQLType expectHqlType();
 

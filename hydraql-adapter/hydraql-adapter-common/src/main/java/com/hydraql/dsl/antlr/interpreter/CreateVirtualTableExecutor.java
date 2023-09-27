@@ -9,7 +9,7 @@ import com.hydraql.dsl.model.HBaseTableSchema;
 /**
  * @author leojie 2023/9/27 15:07
  */
-public class CreateVirtualTableExecutor extends BaseHqlExecutor<Boolean> implements Interpreter<Boolean> {
+public class CreateVirtualTableExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
     private final AbstractHBaseSqlAdapter sqlAdapter;
 
     private CreateVirtualTableExecutor(ExecutorBuilder builder) {

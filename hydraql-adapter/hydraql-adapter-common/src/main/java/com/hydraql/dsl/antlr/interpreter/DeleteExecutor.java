@@ -6,7 +6,7 @@ import com.hydraql.common.model.HQLType;
 /**
  * @author leojie 2023/9/27 19:22
  */
-public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpreter<Boolean> {
+public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
 
     private final AbstractHBaseSqlAdapter sqlAdapter;
 

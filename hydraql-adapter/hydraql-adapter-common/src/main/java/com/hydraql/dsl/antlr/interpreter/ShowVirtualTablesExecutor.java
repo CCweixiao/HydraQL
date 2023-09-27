@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author leojie 2023/9/27 14:57
  */
-public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> implements Interpreter<List<String>> {
+public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> implements Interpreter {
     private final AbstractHBaseSqlAdapter sqlAdapter;
 
     private ShowVirtualTablesExecutor(ExecutorBuilder builder) {

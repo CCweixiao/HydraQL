@@ -16,7 +16,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * @author leojie 2023/9/27 15:13
  */
-public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implements Interpreter<Boolean> {
+public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
     private final AbstractHBaseSqlAdapter sqlAdapter;
 
     private DropVirtualTableExecutor(ExecutorBuilder builder) {
