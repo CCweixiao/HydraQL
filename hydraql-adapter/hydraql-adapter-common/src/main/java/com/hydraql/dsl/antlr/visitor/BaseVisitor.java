@@ -54,32 +54,24 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
         return getText(columnNameContext.name());
     }
 
-    protected HBaseColumn extractColumn(HydraQLParser.Column_refContext columnRefContext) {
+    protected HBaseColumn extractColumn(HydraQLParser.Family_nameContext familyNameContext,
+                                        HydraQLParser.Column_nameContext columnNameContext) {
         String family = "";
         String column = "";
-        HydraQLParser.Family_nameContext familyNameContext = columnRefContext.family_name();
-        HydraQLParser.Column_nameContext columnNameContext = columnRefContext.column_name();
-        if (familyNameContext != null && !familyNameContext.isEmpty()) {
+        if (familyNameContext != null) {
             family = getText(familyNameContext.name());
         }
-        if (columnNameContext != null && !columnNameContext.isEmpty()) {
+        if (columnNameContext != null) {
             column = getText(columnNameContext.name());
         }
         return this.getTableSchema().findColumn(family, column);
+
     }
 
     protected HBaseColumn extractColumn(HydraQLParser.ColumnContext columnContext) {
-        String family = "";
-        String column = "";
         HydraQLParser.Family_nameContext familyNameContext = columnContext.family_name();
-        if (familyNameContext != null && !familyNameContext.isEmpty()) {
-            family = getText(familyNameContext.name());
-        }
         HydraQLParser.Column_nameContext columnNameContext = columnContext.column_name();
-        if (columnNameContext != null && !columnNameContext.isEmpty()) {
-            column = getText(columnNameContext.name());
-        }
-        return this.getTableSchema().findColumn(family, column);
+        return this.extractColumn(familyNameContext,  columnNameContext);
     }
 
     protected Object extractConditionVal(HydraQLParser.ConditionValContext conditionValContext,

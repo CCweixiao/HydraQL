@@ -32,6 +32,12 @@ public class UpsertColListVisitor extends BaseVisitor<List<HBaseColumn>> {
         return columns;
     }
 
+    private HBaseColumn extractColumn(HydraQLParser.Column_refContext columnRefContext) {
+        HydraQLParser.Family_nameContext familyNameContext = columnRefContext.family_name();
+        HydraQLParser.Column_nameContext columnNameContext = columnRefContext.column_name();
+        return extractColumn(familyNameContext, columnNameContext);
+    }
+
     public List<HBaseColumn> extractUpsertColumns(HydraQLParser.Upsert_column_def_listContext ctx) {
         return ctx.accept(this);
     }

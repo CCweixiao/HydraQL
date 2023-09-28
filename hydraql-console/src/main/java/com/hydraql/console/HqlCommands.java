@@ -28,7 +28,7 @@ public class HqlCommands extends BaseCommands {
         commandExecute.put("createVirtualTable", new CommandMethods(this::create, this::defaultCompleter));
         commandExecute.put("dropVirtualTable", new CommandMethods(this::dropVirtualTable, this::defaultCompleter));
         commandExecute.put("select", new CommandMethods(this::select, this::defaultCompleter));
-        commandExecute.put("insert", new CommandMethods(this::insert, this::defaultCompleter));
+        commandExecute.put("upsert", new CommandMethods(this::upsert, this::defaultCompleter));
         commandExecute.put("delete", new CommandMethods(this::delete, this::defaultCompleter));
         registerCommands(commandExecute);
     }
@@ -124,7 +124,7 @@ public class HqlCommands extends BaseCommands {
         println("OK," + " cost: " + TimeConverter.humanReadableCost(System.currentTimeMillis() - start));
     }
 
-    private void insert(CommandInput input) {
+    private void upsert(CommandInput input) {
         HBaseSqlTemplate sqlTemplate = HBaseSqlTemplate.of(HClusterContext.getInstance().getCurrentClusterProperties());
         long start = System.currentTimeMillis();
         String hql = parseSql(input);

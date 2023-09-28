@@ -1,10 +1,24 @@
 package com.hydraql.service;
 
 import com.hydraql.common.model.row.HBaseDataSet;
+import com.hydraql.template.HBaseSqlTemplate;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -144,12 +158,109 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
     @Test
     public void testSelectFilter() {
-        String sql = "select * from test:test_sql where startkey > 'a1000' and endkey <= 'g1005' and " +
-                "f1:age > 18 and ( (f1:pay > 10000 and f1:job is not null) and (f2:commuter is null " +
-                "or f2:commuter != 'subway' ))";
+        Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", "myhbase");
+        conf.set("hbase.zookeeper.property.clientPort", "2181");
+        HBaseSqlTemplate hqlTemplate = HBaseSqlTemplate.of(conf);
+        String sql = "select * from test:test_sql \n" +
+                "where startkey > 'a1000' and endkey <= 'g1005' \n" +
+                "and f1:age >= 18 and ((f1:pay > 10000 or f1:job is not null) \n" +
+                "and (f2:commuter is not null and f2:commuter not in ('Bus','bike','subway')))";
 
-        HBaseDataSet dataSet = sqlTemplate.select(sql);
+        HBaseDataSet dataSet = hqlTemplate.select(sql);
         dataSet.show();
+    }
+
+    @Test
+    public void testSelectOneOri() throws IOException {
+        sqlTemplate.select("select f1:name from test:test_sql where rowkey = 'a1002';").show();
+        Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", "myhbase");
+        conf.set("hbase.zookeeper.property.clientPort", "2181");
+        Connection connection = ConnectionFactory.createConnection(conf);
+        Table table = connection.getTable(TableName.valueOf("test:test_sql"));
+        Get get = new Get(Bytes.toBytes("a1002"));
+        Result result = table.get(get);
+        byte[] name = result.getValue(Bytes.toBytes("f1"), Bytes.toBytes("name"));
+        System.out.println(Bytes.toString(name));
+        table.close();
+        connection.close();
+    }
+
+    @Test
+    public void testSelectFilterOri() throws IOException {
+        // 连接HBase
+        Configuration conf = HBaseConfiguration.create();
+        conf.set("hbase.zookeeper.quorum", "myhbase");
+        conf.set("hbase.zookeeper.property.clientPort", "2181");
+        Connection connection = ConnectionFactory.createConnection(conf);
+
+        Table table = connection.getTable(TableName.valueOf("test:test_sql"));
+
+        // 构造Scan对象，指定查询的起止rowKey
+        Scan scan = new Scan();
+        scan.withStartRow(Bytes.toBytes("a1000"), false);
+        scan.withStopRow(Bytes.toBytes("g1005"), true);
+
+        // f1:age >= 18
+        SingleColumnValueFilter ageFilter = new SingleColumnValueFilter(Bytes.toBytes("f1"),
+                Bytes.toBytes("age"), CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(18));
+
+        // f1:pay > 10000
+        SingleColumnValueFilter payFilter = new SingleColumnValueFilter(Bytes.toBytes("f1"),
+                Bytes.toBytes("pay"), CompareFilter.CompareOp.GREATER, Bytes.toBytes(10000));
+
+        // f1:job is not null
+        SingleColumnValueFilter jobFilter = new SingleColumnValueFilter(Bytes.toBytes("f1"),
+                Bytes.toBytes("job"), CompareFilter.CompareOp.NOT_EQUAL, new byte[0]);
+
+        // (f1:pay > 10000 or f1:job is not null)
+        FilterList payOrJobFilter = new FilterList(FilterList.Operator.MUST_PASS_ONE,
+                Arrays.asList(payFilter, jobFilter));
+
+        // f2:commuter is not null
+        SingleColumnValueFilter commuterNotEqFilter = new SingleColumnValueFilter(Bytes.toBytes("f2"),
+                Bytes.toBytes("commuter"), CompareFilter.CompareOp.NOT_EQUAL, new byte[0]);
+
+        // f2:commuter not in ('Bus','bike','subway')
+        String[] commuters = new String[]{"Bus", "bike", "subway"};
+        List<Filter> filters = new ArrayList<>(3);
+        for (String commuter : commuters) {
+            filters.add(new SingleColumnValueFilter(Bytes.toBytes("f2"),
+                    Bytes.toBytes("commuter"), CompareFilter.CompareOp.NOT_EQUAL, Bytes.toBytes(commuter)));
+        }
+        FilterList notInCommuterValFilter = new FilterList(FilterList.Operator.MUST_PASS_ALL, filters);
+
+        // (f2:commuter is not null and f2:commuter not in ('Bus','bike','subway'))
+        FilterList commuterConditionFilter =  new FilterList(FilterList.Operator.MUST_PASS_ALL,
+                Arrays.asList(commuterNotEqFilter, notInCommuterValFilter));
+
+        // 组合所有条件
+        FilterList totalFilter = new FilterList(FilterList.Operator.MUST_PASS_ALL,
+                Arrays.asList(ageFilter, payOrJobFilter, commuterConditionFilter));
+
+        scan.setFilter(totalFilter);
+
+        // 创建ResultScanner，遍历Result，根据对应字段值类型，包装出来具体的数据
+        ResultScanner scanner = table.getScanner(scan);
+        for (Result result : scanner) {
+            byte[] row = result.getRow();
+            byte[] id = result.getValue(Bytes.toBytes("f1"), Bytes.toBytes("id"));
+            byte[] name = result.getValue(Bytes.toBytes("f1"), Bytes.toBytes("name"));
+            byte[] age = result.getValue(Bytes.toBytes("f1"), Bytes.toBytes("age"));
+            byte[] job = result.getValue(Bytes.toBytes("f1"), Bytes.toBytes("job"));
+            byte[] pay = result.getValue(Bytes.toBytes("f1"), Bytes.toBytes("pay"));
+            byte[] address = result.getValue(Bytes.toBytes("f2"), Bytes.toBytes("address"));
+            byte[] commuter = result.getValue(Bytes.toBytes("f2"), Bytes.toBytes("commuter"));
+
+            System.out.printf("row_key: %s\tid: %s\tname: %s\tage: %s\tjob: %s\tpay: %s\taddress: %s\tcommuter: %s%n",
+                    Bytes.toString(row), Bytes.toString(id), Bytes.toString(name), Bytes.toInt(age),
+                    Bytes.toString(job), Bytes.toFloat(pay), Bytes.toString(address), Bytes.toString(commuter));
+        }
+
+        // 释放资源
+        table.close();
+        connection.close();
     }
 
     @Test

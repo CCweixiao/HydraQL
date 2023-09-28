@@ -33,17 +33,9 @@ public class DeleteColListVisitor extends BaseVisitor<List<HBaseColumn>> {
 
     @Override
     public List<HBaseColumn> visitDeleteFamilyAndCol(HydraQLParser.DeleteFamilyAndColContext ctx) {
-        String family = "";
-        String column = "";
         HydraQLParser.Family_nameContext familyNameContext = ctx.family_name();
         HydraQLParser.Column_nameContext columnNameContext = ctx.column_name();
-        if (familyNameContext != null && !familyNameContext.isEmpty()) {
-            family = getText(familyNameContext.name());
-        }
-        if (columnNameContext != null && !columnNameContext.isEmpty()) {
-            column = getText(columnNameContext.name());
-        }
-        HBaseColumn hBaseColumn = this.getTableSchema().findColumn(family, column);
+        HBaseColumn hBaseColumn = this.extractColumn(familyNameContext, columnNameContext);
         return Collections.singletonList(hBaseColumn);
     }
 
