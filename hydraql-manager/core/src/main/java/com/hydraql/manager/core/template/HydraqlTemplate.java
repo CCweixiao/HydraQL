@@ -2,6 +2,7 @@ package com.hydraql.manager.core.template;
 
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
+import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
 import com.hydraql.manager.core.model.HBaseRowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,18 @@ public interface HydraqlTemplate {
     }
 
     boolean tableExists(String tableName);
+
+    boolean createNamespace(NamespaceDesc namespaceDesc);
+
+    boolean namespaceIsExists(String namespaceName);
+
+    boolean deleteNamespace(String namespaceName);
+
+    List<NamespaceDesc> listNamespaceDesc();
+
+    List<String> listNamespaceNames();
+
+    boolean createTable(HTableDesc tableDesc);
 
     List<HTableDesc> listTableDesc(boolean includeSysTables);
 

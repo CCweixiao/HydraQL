@@ -6,8 +6,10 @@ import com.hydraql.connection.HBaseConnectionManager;
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
 import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
+import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
 import com.hydraql.manager.core.template.HydraqlTemplate;
 import com.hydraql.schema.BaseColumnFamilyDesc;
+import com.hydraql.schema.BaseHTableDesc;
 import com.hydraql.template.HBaseAdminTemplate;
 import com.hydraql.template.HBaseTableTemplate;
 import org.apache.hadoop.conf.Configuration;
@@ -43,6 +45,37 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
     }
 
     @Override
+    public boolean createNamespace(NamespaceDesc namespaceDesc) {
+        return adminTemplate.createNamespace(convertTo(namespaceDesc), false);
+    }
+
+    @Override
+    public boolean namespaceIsExists(String namespaceName) {
+        return adminTemplate.namespaceIsExists(namespaceName);
+    }
+
+    @Override
+    public boolean deleteNamespace(String namespaceName) {
+        return adminTemplate.deleteNamespace(namespaceName, false);
+    }
+
+    @Override
+    public List<NamespaceDesc> listNamespaceDesc() {
+        List<com.hydraql.common.model.NamespaceDesc> namespaceDescList = adminTemplate.listNamespaceDesc();
+        return namespaceDescList.stream().map(this::convertFrom).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> listNamespaceNames() {
+        return adminTemplate.listNamespaceNames();
+    }
+
+    @Override
+    public boolean createTable(HTableDesc tableDesc) {
+        return adminTemplate.createTable(convertTo(tableDesc));
+    }
+
+    @Override
     public List<HTableDesc> listTableDesc(boolean includeSysTables) {
         List<com.hydraql.schema.HTableDesc> tableDescList = adminTemplate.listTableDesc(includeSysTables);
         if (tableDescList.isEmpty()) {
@@ -64,6 +97,71 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
             data.setData(k, v.getValue());
         });
         return data;
+    }
+
+    private com.hydraql.common.model.NamespaceDesc convertTo(NamespaceDesc ns) {
+        com.hydraql.common.model.NamespaceDesc namespaceDesc = new com.hydraql.common.model.NamespaceDesc();
+        namespaceDesc.setNamespaceName(ns.getNamespaceName());
+        namespaceDesc.setNamespaceProps(ns.getNamespaceProps());
+        return namespaceDesc;
+    }
+
+    private com.hydraql.schema.HTableDesc convertTo(HTableDesc hd) {
+        List<com.hydraql.schema.BaseColumnFamilyDesc> cfList =
+                new ArrayList<>(hd.getColumnFamilyDescList().size());
+        for (ColumnFamilyDesc cf : hd.getColumnFamilyDescList()) {
+            cfList.add(convertTo(cf));
+        }
+
+        BaseHTableDesc.Builder<com.hydraql.schema.HTableDesc> builder =
+                com.hydraql.schema.HTableDesc.newBuilder()
+                .name(hd.getName())
+                .maxFileSize(hd.getMaxFileSize())
+                .readOnly(hd.isReadOnly())
+                .memStoreFlushSize(hd.getMemStoreFlushSize())
+                .compactionEnabled(hd.isCompactionEnabled())
+                .regionSplitPolicyClassName(hd.getRegionSplitPolicyClassName())
+                .columnFamilyDescList(cfList);
+        if (!hd.getConfiguration().isEmpty()) {
+            hd.getConfiguration().forEach(builder::setConfiguration);
+        }
+        if (!hd.getValues().isEmpty()) {
+            hd.getValues().forEach(builder::setValue);
+        }
+        return builder.build();
+    }
+
+    private com.hydraql.schema.BaseColumnFamilyDesc convertTo(ColumnFamilyDesc cf) {
+        return com.hydraql.schema.ColumnFamilyDesc.newBuilder()
+                .name(cf.getName())
+                .replicationScope(cf.getReplicationScope())
+                .maxVersions(cf.getMaxVersions())
+                .minVersions(cf.getMinVersions())
+                .compressionType(cf.getCompressionType())
+                .storagePolicy(cf.getStoragePolicy())
+                .bloomFilterType(cf.getBloomFilterType())
+                .timeToLive(cf.getTimeToLive())
+                .blockSize(cf.getBlockSize())
+                .blockCacheEnabled(cf.isBlockCacheEnabled())
+                .inMemory(cf.isInMemory())
+                .keepDeletedCells(cf.getKeepDeletedCells())
+                .dataBlockEncoding(cf.getDataBlockEncoding())
+                .cacheDataOnWrite(cf.isCacheDataOnWrite())
+                .cacheDataInL1(cf.isCacheDataInL1())
+                .cacheIndexesOnWrite(cf.isCacheIndexesOnWrite())
+                .cacheBloomsOnWrite(cf.isCacheBloomsOnWrite())
+                .evictBlocksOnClose(cf.isEvictBlocksOnClose())
+                .prefetchBlocksOnOpen(cf.isPrefetchBlocksOnOpen())
+                .setConfiguration(cf.getConfiguration())
+                .setValue(cf.getValues())
+                .build();
+    }
+
+    private NamespaceDesc convertFrom(com.hydraql.common.model.NamespaceDesc ns) {
+        NamespaceDesc namespaceDesc = new NamespaceDesc();
+        namespaceDesc.setNamespaceName(ns.getNamespaceName());
+        namespaceDesc.setNamespaceProps(ns.getNamespaceProps());
+        return namespaceDesc;
     }
 
     private HTableDesc convertFrom(com.hydraql.schema.HTableDesc hd) {

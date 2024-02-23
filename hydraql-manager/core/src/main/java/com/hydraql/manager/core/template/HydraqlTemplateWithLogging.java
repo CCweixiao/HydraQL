@@ -1,6 +1,7 @@
 package com.hydraql.manager.core.template;
 
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
+import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
 import com.hydraql.manager.core.model.HBaseRowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,36 @@ public class HydraqlTemplateWithLogging implements HydraqlTemplate {
     @Override
     public boolean tableExists(String tableName) {
         return template.tableExists(tableName);
+    }
+
+    @Override
+    public boolean createNamespace(NamespaceDesc namespaceDesc) {
+        return template.createNamespace(namespaceDesc);
+    }
+
+    @Override
+    public boolean namespaceIsExists(String namespaceName) {
+        return template.namespaceIsExists(namespaceName);
+    }
+
+    @Override
+    public boolean deleteNamespace(String namespaceName) {
+        return template.deleteNamespace(namespaceName);
+    }
+
+    @Override
+    public List<NamespaceDesc> listNamespaceDesc() {
+        return template.listNamespaceDesc();
+    }
+
+    @Override
+    public List<String> listNamespaceNames() {
+        return template.listNamespaceNames();
+    }
+
+    @Override
+    public boolean createTable(HTableDesc tableDesc) {
+        return template.createTable(tableDesc);
     }
 
     @Override

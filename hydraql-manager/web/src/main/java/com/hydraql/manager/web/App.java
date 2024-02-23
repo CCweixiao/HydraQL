@@ -1,6 +1,7 @@
 package com.hydraql.manager.web;
 
 import com.hydraql.manager.core.conf.PropertyKey;
+import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
 import com.hydraql.manager.core.template.HydraqlTemplate;
@@ -21,7 +22,13 @@ public class App {
 
         HydraqlTemplate hydraqlTemplate = HydraqlTemplate.Factory.create(conf);
 
+//        hydraqlTemplate.createTable(HTableDesc.of("test_leo_jie_table")
+//                .addFamilyDesc(ColumnFamilyDesc.of("f").build())
+//                .build());
+
         List<HTableDesc> tableDescs = hydraqlTemplate.listTableDesc(true);
+
+        boolean testLeoJieTable = hydraqlTemplate.tableExists("test_leo_jie_table");
 
         System.out.println(tableDescs);
 //        System.out.println(hydraqlTemplate.listTableNames());
