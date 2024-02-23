@@ -7,6 +7,7 @@ import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -21,6 +22,11 @@ import java.util.*;
  */
 @InterfaceAudience.Private
 public class HBaseTableAdapter extends BaseHBaseTableAdapter {
+
+    public HBaseTableAdapter(Connection connection) {
+        super(connection);
+    }
+
     public HBaseTableAdapter(Configuration configuration) {
         super(configuration);
     }

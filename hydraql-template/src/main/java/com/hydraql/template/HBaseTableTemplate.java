@@ -8,6 +8,7 @@ import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 
@@ -20,11 +21,17 @@ import java.util.Properties;
  */
 public class HBaseTableTemplate extends BaseHBaseTableTemplate {
     private final Configuration configuration;
+    private final Connection connection;
     private final HBaseTableAdapter tableOpAdapter;
 
     private HBaseTableTemplate(Builder builder) {
         this.configuration = builder.configuration;
-        this.tableOpAdapter = new HBaseTableAdapter(this.configuration);
+        this.connection = builder.connection;
+        if (this.connection != null) {
+            this.tableOpAdapter = new HBaseTableAdapter(this.connection);
+        } else {
+            this.tableOpAdapter = new HBaseTableAdapter(this.configuration);
+        }
     }
 
     @Override
@@ -239,6 +246,10 @@ public class HBaseTableTemplate extends BaseHBaseTableTemplate {
         }
     }
 
+    public static HBaseTableTemplate of (Connection connection) {
+        return new HBaseTableTemplate.Builder().connection(connection).build();
+    }
+
     public static HBaseTableTemplate of(Configuration configuration) {
         return new HBaseTableTemplate.Builder().configuration(configuration).build();
     }
@@ -253,5 +264,9 @@ public class HBaseTableTemplate extends BaseHBaseTableTemplate {
 
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 }

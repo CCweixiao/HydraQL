@@ -85,7 +85,12 @@
     <Match>
         <Bug pattern="RV_RETURN_VALUE_IGNORED_INFERRED"/>
     </Match>
-
+    <Match>
+        <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
+    </Match>
+    <Match>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
 
     <Match>
         <!--

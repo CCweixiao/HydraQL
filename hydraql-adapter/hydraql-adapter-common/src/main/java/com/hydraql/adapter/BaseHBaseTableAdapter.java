@@ -11,13 +11,7 @@ import com.hydraql.common.reflect.HBaseTableMeta;
 import com.hydraql.common.reflect.ReflectFactory;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Mutation;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.yetus.audience.InterfaceAudience;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +26,10 @@ import java.util.stream.Collectors;
  */
 @InterfaceAudience.Private
 public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter implements IHBaseTableOpAdapter, IHBaseTableGetAdapter, IHBaseTablePutAdapter, IHBaseTableDeleteAdapter, IHBaseTableScanAdapter {
+    public BaseHBaseTableAdapter(Connection connection) {
+        super(connection);
+    }
+
     public BaseHBaseTableAdapter(Configuration configuration) {
         super(configuration);
     }

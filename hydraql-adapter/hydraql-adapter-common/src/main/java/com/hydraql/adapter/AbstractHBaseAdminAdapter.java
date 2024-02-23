@@ -7,6 +7,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
 
@@ -22,6 +23,10 @@ import java.util.stream.Collectors;
 public abstract class AbstractHBaseAdminAdapter extends AbstractHBaseBaseAdapter implements IHBaseAdminAdapter {
     public AbstractHBaseAdminAdapter(Configuration configuration) {
         super(configuration);
+    }
+
+    public AbstractHBaseAdminAdapter(Connection connection) {
+        super(connection);
     }
 
     @Override

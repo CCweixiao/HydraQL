@@ -24,11 +24,7 @@ import com.hydraql.dsl.model.QueryHBaseColumn;
 import com.hydraql.dsl.model.TableQueryProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
@@ -45,6 +41,10 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
     public static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
     public static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
     public static final byte[] HQL_META_DATA_CREATE_HQL_QUALIFIER = Bytes.toBytes( "create_hql");
+
+    public AbstractHBaseSqlAdapter(Connection connection) {
+        super(connection);
+    }
 
     public AbstractHBaseSqlAdapter(Configuration configuration) {
         super(configuration);

@@ -24,6 +24,7 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-server</artifactId>
+            <version>${hydraql.hbase.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jcodings</artifactId>

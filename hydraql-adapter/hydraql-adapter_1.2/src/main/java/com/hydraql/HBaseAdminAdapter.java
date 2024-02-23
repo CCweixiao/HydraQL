@@ -27,6 +27,7 @@ import com.hydraql.util.RegionSplitter;
 import com.hydraql.util.SplitKeyUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
@@ -45,6 +46,10 @@ import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_S
 @InterfaceAudience.Private
 public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBaseMetricOperations {
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
+
+    public HBaseAdminAdapter(Connection connection) {
+        super(connection);
+    }
 
     public HBaseAdminAdapter(Configuration configuration) {
         super(configuration);

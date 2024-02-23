@@ -60,7 +60,7 @@
         <module>spring-boot-starter-hydraql</module>
         <module>hydraql-examples</module>
         <module>hydraql-console</module>
-        <module>hydraql-tests</module>
+        <module>hydraql-manager</module>
     </modules>
 
     <properties>
@@ -68,12 +68,12 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <build.path>build</build.path>
+        <build.checkstyle.path>build/checkstyle</build.checkstyle.path>
+        <build.findbugs.path>build/findbugs</build.findbugs.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot-2.version>2.1.7.RELEASE</spring-boot-2.version>
         <hbase1.2.version>1.2.0</hbase1.2.version>
         <hbase1.4.version>1.4.3</hbase1.4.version>
-        <hbase2.1.version>2.1.3</hbase2.1.version>
         <hbase2.2.version>2.2.6</hbase2.2.version>
         <hbase2.5.version>2.5.3</hbase2.5.version>
         <hbase.thrift.1.4.version>1.4.3</hbase.thrift.1.4.version>
@@ -97,6 +97,7 @@
         <log4j.version>2.17.1</log4j.version>
         <hydraql.hbase.adapter.default.version>1.2</hydraql.hbase.adapter.default.version>
         <hydraql.hbase.adapter.version>${hydraql.hbase.adapter.default.version}</hydraql.hbase.adapter.version>
+        <hydraql.hbase.version>${hbase1.2.version}</hydraql.hbase.version>
     </properties>
 
     <repositories>
@@ -200,94 +201,58 @@
 
     <profiles>
         <profile>
-            <id>hbase-1.2</id>
+            <id>hydraql-hbase-1.2</id>
             <activation>
                 <property>
-                    <name>!hbase.profile</name>
+                    <name>!hydraql.hbase.profile</name>
                 </property>
             </activation>
             <properties>
-                <profiles.active>hbase-1.2</profiles.active>
                 <hydraql.hbase.adapter.version>1.2</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>${hbase1.2.version}</hydraql.hbase.version>
             </properties>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.hbase</groupId>
-                        <artifactId>hbase-server</artifactId>
-                        <version>${hbase1.2.version}</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
         </profile>
 
         <profile>
-            <id>hbase-1.4</id>
+            <id>hydraql-hbase-1.4</id>
             <activation>
                 <property>
-                    <name>hbase.profile</name>
+                    <name>hydraql.hbase.profile</name>
                     <value>1.4</value>
                 </property>
             </activation>
             <properties>
-                <profiles.active>hbase-1.4</profiles.active>
                 <hydraql.hbase.adapter.version>1.4</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>${hbase1.4.version}</hydraql.hbase.version>
             </properties>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.hbase</groupId>
-                        <artifactId>hbase-server</artifactId>
-                        <version>${hbase1.4.version}</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
         </profile>
 
         <profile>
-            <id>hbase-2.2</id>
+            <id>hydraql-hbase-2.2</id>
             <activation>
                 <property>
-                    <name>hbase.profile</name>
+                    <name>hydraql.hbase.profile</name>
                     <value>2.2</value>
                 </property>
             </activation>
             <properties>
-                <profiles.active>hbase-2.2</profiles.active>
                 <hydraql.hbase.adapter.version>2.2</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>${hbase2.2.version}</hydraql.hbase.version>
             </properties>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.hbase</groupId>
-                        <artifactId>hbase-server</artifactId>
-                        <version>${hbase2.2.version}</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
         </profile>
 
         <profile>
-            <id>hbase-2.5</id>
+            <id>hydraql-hbase-2.5</id>
             <activation>
                 <property>
-                    <name>hbase.profile</name>
+                    <name>hydraql.hbase.profile</name>
                     <value>2.5</value>
                 </property>
             </activation>
             <properties>
-                <profiles.active>hbase-2.5</profiles.active>
                 <hydraql.hbase.adapter.version>2.5</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>${hbase2.5.version}</hydraql.hbase.version>
             </properties>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.hbase</groupId>
-                        <artifactId>hbase-server</artifactId>
-                        <version>${hbase2.5.version}</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
         </profile>
 
         <profile>
@@ -392,7 +357,7 @@
                     <configuration>
                         <effort>Low</effort>
                         <threshold>Medium</threshold>
-                        <excludeFilterFile>${build.path}/findbugs/findbugs-exclude.xml</excludeFilterFile>
+                        <excludeFilterFile>${build.findbugs.path}/findbugs-exclude.xml</excludeFilterFile>
                         <findbugsXmlOutput>true</findbugsXmlOutput>
                         <xmlOutput>true</xmlOutput>
                         <findbugsXmlOutputDirectory>target/findbugs</findbugsXmlOutputDirectory>
@@ -423,8 +388,8 @@
                         </dependency>
                     </dependencies>
                     <configuration>
-                        <configLocation>${build.path}/checkstyle/checkstyle.xml</configLocation>
-                        <suppressionsLocation>${build.path}/checkstyle/suppressions.xml</suppressionsLocation>
+                        <configLocation>${build.checkstyle.path}/checkstyle.xml</configLocation>
+                        <suppressionsLocation>${build.checkstyle.path}/suppressions.xml</suppressionsLocation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                         <consoleOutput>true</consoleOutput>
                     </configuration>
@@ -451,8 +416,9 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1</version>
+                <version>3.2.1</version>
                 <configuration>
                     <attach>true</attach>
                 </configuration>

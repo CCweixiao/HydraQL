@@ -19,15 +19,27 @@ import static com.hydraql.common.constants.HBaseConfigKeys.*;
 @InterfaceAudience.Private
 public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
     private final Configuration configuration;
+    private final Connection connection;
     private Configuration hedgedConfiguration = null;
 
     public AbstractHBaseBaseAdapter(Configuration configuration) {
         this.configuration = configuration;
+        this.connection = HBaseConnectionManager.getInstance().getConnection(this.configuration);
+        initHedgedReadConfiguration();
+    }
+
+    public AbstractHBaseBaseAdapter(Connection connection) {
+        this.connection = connection;
+        this.configuration = connection.getConfiguration();
+        initHedgedReadConfiguration();
+    }
+
+    private void initHedgedReadConfiguration() {
         if (hedgedReadIsOpen()) {
             String zkQuorum = this.configuration.get(HEDGED_READ_ZOOKEEPER_QUORUM);
             if (StringUtil.isBlank(zkQuorum)) {
                 throw new IllegalArgumentException(String.format("When the configuration %s is true, " +
-                        "you need to specify the value of configuration %s.", HBASE_CLIENT_HEDGED_READ_SWITCH,
+                                "you need to specify the value of configuration %s.", HBASE_CLIENT_HEDGED_READ_SWITCH,
                         HEDGED_READ_ZOOKEEPER_QUORUM));
             }
             String zkClientPort = this.configuration.get(HEDGED_READ_ZOOKEEPER_CLIENT_PORT, "2181");
@@ -39,7 +51,7 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
 
     @Override
     public Connection getConnection() {
-        return HBaseConnectionManager.getInstance().getConnection(this.getConfiguration());
+        return connection;
     }
 
     @Override

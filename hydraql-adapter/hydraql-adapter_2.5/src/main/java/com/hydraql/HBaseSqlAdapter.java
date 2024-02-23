@@ -31,6 +31,10 @@ import java.util.*;
 @InterfaceAudience.Private
 public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
 
+    public HBaseSqlAdapter(Connection connection) {
+        super(connection);
+    }
+
     public HBaseSqlAdapter(Configuration configuration) {
         super(configuration);
     }
