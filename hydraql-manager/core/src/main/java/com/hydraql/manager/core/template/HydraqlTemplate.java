@@ -1,6 +1,7 @@
 package com.hydraql.manager.core.template;
 
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
+import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.hydraql.manager.core.model.HBaseRowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,10 @@ public interface HydraqlTemplate {
             throw e;
         }
     }
+
+    boolean tableExists(String tableName);
+
+    List<HTableDesc> listTableDesc(boolean includeSysTables);
 
     List<String> listTableNames();
 

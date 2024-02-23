@@ -1,5 +1,6 @@
 package com.hydraql.manager.core.template;
 
+import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.hydraql.manager.core.model.HBaseRowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,16 @@ public class HydraqlTemplateWithLogging implements HydraqlTemplate {
 
     HydraqlTemplateWithLogging(HydraqlTemplate template) {
         this.template = template;
+    }
+
+    @Override
+    public boolean tableExists(String tableName) {
+        return template.tableExists(tableName);
+    }
+
+    @Override
+    public List<HTableDesc> listTableDesc(boolean includeSysTables) {
+        return template.listTableDesc(includeSysTables);
     }
 
     @Override
