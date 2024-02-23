@@ -1,9 +1,12 @@
 package com.hydraql.manager.core.template;
 
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
+import com.hydraql.manager.core.hbase.SplitGoEnum;
+import com.hydraql.manager.core.hbase.model.SnapshotDesc;
+import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
-import com.hydraql.manager.core.model.HBaseRowData;
+import com.hydraql.manager.core.hbase.model.HBaseRowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +63,61 @@ public interface HydraqlTemplate {
 
     List<NamespaceDesc> listNamespaceDesc();
 
+    NamespaceDesc getNamespaceDesc(String namespaceName);
+
     List<String> listNamespaceNames();
 
     boolean createTable(HTableDesc tableDesc);
 
+    boolean createTable(HTableDesc tableDesc, String startKey, String endKey, int numRegions, boolean isAsync);
+
+    boolean createTable(HTableDesc tableDesc, String[] splitKeys, boolean isAsync);
+
+    boolean createTable(HTableDesc tableDesc, SplitGoEnum splitGoEnum, int numRegions, boolean isAsync);
+
     List<HTableDesc> listTableDesc(boolean includeSysTables);
 
     List<String> listTableNames();
+
+    List<String> listTableNamesByNamespace(String namespaceName);
+
+    boolean enableTable(String tableName);
+
+    boolean disableTable(String tableName);
+
+    boolean deleteTable(String tableName);
+
+    boolean truncatePreserve(String tableName);
+
+    HTableDesc getHTableDesc(String tableName);
+
+    List<ColumnFamilyDesc> getColumnFamilyDesc(String tableName);
+
+    boolean addFamily(String tableName, ColumnFamilyDesc familyDesc);
+
+    boolean deleteFamily(String tableName, String familyName);
+
+    boolean modifyFamily(String tableName, ColumnFamilyDesc familyDesc);
+
+    boolean enableReplication(String tableName, List<String> families);
+
+    boolean disableReplication(String tableName, List<String> families);
+
+    boolean modifyTable(HTableDesc tableDesc);
+
+    boolean modifyTableProps(HTableDesc tableDesc);
+
+    int totalHRegionServerNum();
+
+    boolean isTableDisabled(String tableName);
+
+    boolean tableIsExists(String tableName);
+
+    boolean createSnapshot(SnapshotDesc snapshotDesc);
+
+    boolean removeSnapshot(String snapshotName);
+
+    List<SnapshotDesc> listAllSnapshotDesc();
 
     HBaseRowData getRow(String tableName, String rowKey);
 }

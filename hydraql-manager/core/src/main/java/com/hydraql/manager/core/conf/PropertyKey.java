@@ -166,6 +166,9 @@ public class PropertyKey implements Comparable<PropertyKey> {
         public static final String HBASE_KERBEROS_PROXY_USER = "kerberos.proxy.user";
         public static final String HBASE_KERBEROS_PRINCIPAL = "kerberos.principal";
         public static final String HBASE_KERBEROS_KEYTAB_FILE = "keytab.file";
+
+        public static final String FILTER_NAMESPACE_PREFIX = "filter.namespace.prefix";
+        public static final String FILTER_TABLE_NAME_PREFIX = "filter.table.name.prefix";
     }
 
     public static final PropertyKey HYDRAQL_MANAGER_PLUGINS_DIR =
