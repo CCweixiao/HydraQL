@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hydraql</groupId>
         <artifactId>hydraql</artifactId>
-        <version>${revision}</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -60,7 +60,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <finalName>${project.artifactId}-${revision}</finalName>
+                    <finalName>${project.artifactId}-${project.version}</finalName>
                 </configuration>
             </plugin>
 
@@ -139,10 +139,10 @@
                         <configuration>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>${project.artifactId}</artifactId>
-                            <version>${revision}</version>
+                            <version>1.0.1-SNAPSHOT</version>
                             <packaging>${project.packaging}</packaging>
                             <file>
-                                ${project.build.directory}/${project.artifactId}-${revision}.jar
+                                ${project.build.directory}/${project.artifactId}-${project.version}.jar
                             </file>
                             <pomFile>${project.build.directory}/${hydraql.hbase.adapter.version}/replacer/pom.xml</pomFile>
                         </configuration>

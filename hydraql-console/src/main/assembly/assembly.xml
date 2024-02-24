@@ -3,7 +3,7 @@
     <formats>
         <format>tar.gz</format><!--打包格式-->
     </formats>
-    <baseDirectory>hydraql-console_${hydraql.hbase.adapter.version}-${revision}</baseDirectory>
+    <baseDirectory>hydraql-console_${hydraql.hbase.adapter.version}-${project.version}</baseDirectory>
     <!--如果为false，不会额外产生根目录，否则，在tar.gz包中会产生以pom.xml中artifactId和version命名的根目录-->
     <includeBaseDirectory>true</includeBaseDirectory>
     <!--是对依赖包的设置-->

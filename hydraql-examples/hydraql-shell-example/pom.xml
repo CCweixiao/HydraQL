@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hydraql</groupId>
         <artifactId>hydraql</artifactId>
-        <version>${revision}</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.hydraql</groupId>
             <artifactId>hydraql-shell_2.5</artifactId>
-            <version>${revision}</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

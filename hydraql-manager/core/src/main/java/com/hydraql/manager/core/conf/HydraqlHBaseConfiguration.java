@@ -1,6 +1,7 @@
 package com.hydraql.manager.core.conf;
 
 import com.hydraql.manager.core.util.Preconditions;
+import com.hydraql.manager.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +105,10 @@ public class HydraqlHBaseConfiguration implements HydraqlConfiguration {
     public Properties toProp() {
         Properties prop = new Properties();
         keySet().forEach(key -> {
-            prop.setProperty(key.getName(), getOrDefault(key, "").toString());
+            Object value = getOrDefault(key, "");
+            if (StringUtil.isNotBlank(value.toString())) {
+                prop.setProperty(key.getName(), value.toString());
+            }
         });
         return prop;
     }

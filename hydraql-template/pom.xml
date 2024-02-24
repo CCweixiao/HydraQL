@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hydraql</groupId>
         <artifactId>hydraql</artifactId>
-        <version>${revision}</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.hydraql</groupId>
             <artifactId>hydraql-adapter_${hydraql.hbase.adapter.version}</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -36,7 +36,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <finalName>${project.artifactId}-${revision}</finalName>
+                    <finalName>${project.artifactId}-${project.version}</finalName>
                 </configuration>
             </plugin>
 
@@ -115,10 +115,10 @@
                         <configuration>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>${project.artifactId}</artifactId>
-                            <version>${revision}</version>
+                            <version>${project.version}</version>
                             <packaging>${project.packaging}</packaging>
                             <file>
-                                ${project.build.directory}/${project.artifactId}-${revision}.jar
+                                ${project.build.directory}/${project.artifactId}-${project.version}.jar
                             </file>
                             <pomFile>${project.build.directory}/${hydraql.hbase.adapter.version}/replacer/pom.xml</pomFile>
                         </configuration>
@@ -141,7 +141,7 @@
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <finalName>${artifactId}-${revision}</finalName>
+                            <finalName>${artifactId}-${project.version}</finalName>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <artifactSet>
                                 <excludes>

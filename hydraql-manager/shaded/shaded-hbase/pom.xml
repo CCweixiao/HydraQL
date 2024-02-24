@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hydraql</groupId>
         <artifactId>hydraql</artifactId>
-        <version>${revision}</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -17,7 +17,7 @@
     <properties>
         <shaded.prefix>hydraql.shaded.hbase</shaded.prefix>
         <!-- Composite jar name with both hadoop version and project version included -->
-        <lib.jar.name>${project.artifactId}-hbase-${hydraql.hbase.version}-${revision}.jar</lib.jar.name>
+        <lib.jar.name>${project.artifactId}-hbase-${hydraql.hbase.version}-${project.version}.jar</lib.jar.name>
     </properties>
 
     <dependencies>

@@ -6,7 +6,7 @@
 
     <groupId>com.hydraql</groupId>
     <artifactId>hydraql</artifactId>
-    <version>${revision}</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hydraql</name>
@@ -64,7 +64,6 @@
     </modules>
 
     <properties>
-        <revision>1.0.1-SNAPSHOT</revision>
         <compiler.version>1.8</compiler.version>
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -100,7 +99,7 @@
         <hydraql.hbase.adapter.version>${hydraql.hbase.adapter.default.version}</hydraql.hbase.adapter.version>
         <hydraql.hbase.version>${hbase1.2.version}</hydraql.hbase.version>
         <!--hydraql-manager依赖-->
-        <hydraql-manager.version>${revision}</hydraql-manager.version>
+        <hydraql-manager.version>${project.version}</hydraql-manager.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
@@ -638,14 +637,6 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>findbugs-maven-plugin</artifactId>-->
-<!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 
