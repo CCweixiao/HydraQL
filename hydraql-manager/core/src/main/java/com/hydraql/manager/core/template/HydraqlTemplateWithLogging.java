@@ -1,6 +1,7 @@
 package com.hydraql.manager.core.template;
 
 import com.hydraql.manager.core.hbase.SplitGoEnum;
+import com.hydraql.manager.core.hbase.model.Result;
 import com.hydraql.manager.core.hbase.model.SnapshotDesc;
 import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
@@ -186,6 +187,21 @@ public class HydraqlTemplateWithLogging implements HydraqlTemplate {
     @Override
     public List<SnapshotDesc> listAllSnapshotDesc() {
         return template.listAllSnapshotDesc();
+    }
+
+    @Override
+    public boolean shellSessionIsConnected() {
+        return template.shellSessionIsConnected();
+    }
+
+    @Override
+    public Result executeShellCommand(String command) {
+        return template.executeShellCommand(command);
+    }
+
+    @Override
+    public List<String> getAllShellCommands() {
+        return template.getAllShellCommands();
     }
 
     @Override

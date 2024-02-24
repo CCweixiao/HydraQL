@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>hydraql-parent</artifactId>
-        <groupId>com.hydraql</groupId>
-        <version>1.0.1-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.hydraql</groupId>
+        <artifactId>hydraql</artifactId>
+        <version>${revision}</version>
+    </parent>
 
     <artifactId>hydraql-shell</artifactId>
     <packaging>pom</packaging>
@@ -19,15 +19,5 @@
         <module>hydraql-shell_2.2</module>
         <module>hydraql-shell_2.5</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.hydraql</groupId>
-                <artifactId>hydraql-shell-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
 </project>

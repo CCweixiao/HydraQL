@@ -1,7 +1,7 @@
 package com.leo.hbase.manager.web.controller.query;
 
-import com.github.CCweixiao.hbase.sdk.common.util.StringUtil;
 import com.leo.hbase.manager.common.core.text.Convert;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTable;
 import com.leo.hbase.manager.system.domain.SysHbaseTag;
 
@@ -99,7 +99,7 @@ public class QueryHBaseTableForm implements Serializable {
         sysHbaseTable.setDisableFlag(this.getDisableFlag());
         sysHbaseTable.setStatus(this.getStatus());
         String tagIdStr = this.getQueryHBaseTagIdStr();
-        if (StringUtil.isNotBlank(tagIdStr)) {
+        if (StringUtils.isNotBlank(tagIdStr)) {
             Long[] tagIds = Convert.toLongArray(tagIdStr);
             List<SysHbaseTag> tags = new ArrayList<>(tagIds.length);
             for (Long tagId : tagIds) {

@@ -1,10 +1,5 @@
 package com.leo.hbase.manager.web.controller.system;
 
-import com.github.CCweixiao.hbase.sdk.common.exception.HBaseOperationsException;
-import com.github.CCweixiao.hbase.sdk.common.model.HQLType;
-import com.github.CCweixiao.hbase.sdk.common.model.row.HBaseDataSet;
-import com.github.CCwexiao.hbase.sdk.dsl.context.HBaseSqlContext;
-import com.github.CCwexiao.hbase.sdk.dsl.model.HBaseTableSchema;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTableSchema;
@@ -12,7 +7,6 @@ import com.leo.hbase.manager.system.dto.QueryHBaseSqlDto;
 import com.leo.hbase.manager.system.dto.TableSchemaDto;
 import com.leo.hbase.manager.system.service.ISysHbaseTableSchemaService;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
-import com.leo.hbase.manager.web.service.IMultiHBaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,8 +27,6 @@ public class SysHbaseTableSqlController extends SysHbaseBaseController {
 
     @Autowired
     private IMultiHBaseAdminService multiHBaseAdminService;
-    @Autowired
-    private IMultiHBaseService multiHBaseService;
 
     @Autowired
     private ISysHbaseTableSchemaService sysHbaseTableSchemaService;
@@ -53,7 +45,8 @@ public class SysHbaseTableSqlController extends SysHbaseBaseController {
     @PostMapping("/query")
     @ResponseBody
     public TableDataInfo query(@Validated QueryHBaseSqlDto hBaseSqlDto) {
-        String hql = hBaseSqlDto.getHql();
+        //todo fix query
+        /*String hql = hBaseSqlDto.getHql();
         HBaseDataSet dataSet = null;
         String clusterCode = clusterCodeOfCurrentSession();
 
@@ -83,6 +76,7 @@ public class SysHbaseTableSqlController extends SysHbaseBaseController {
             return getDataTable(dataSet.getRowSet());
         } else {
             return getDataTable(new ArrayList<>(0));
-        }
+        }*/
+        return getDataTable(new ArrayList<>(0));
     }
 }

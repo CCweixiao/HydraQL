@@ -1,10 +1,9 @@
 package com.leo.hbase.manager.web.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.github.CCweixiao.hbase.sdk.common.util.StringUtil;
-import com.github.CCweixiao.hbase.sdk.shell.HBaseShellCommands;
-import com.github.CCweixiao.hbase.sdk.shell.HBaseShellSession;
-import com.github.CCweixiao.hbase.sdk.shell.Result;
+import com.hydraql.manager.core.hbase.model.Result;
+import com.hydraql.manager.core.template.HydraqlTemplate;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.dto.HBaseShellCommand;
 import com.leo.hbase.manager.system.dto.HBaseShellCommandModel;
 import com.leo.hbase.manager.web.hds.HBaseClusterDSConfig;
@@ -29,29 +28,25 @@ public class HBaseShellServiceImpl implements IHBaseShellService {
     @Override
     public Result execute(HBaseShellCommand command) {
         String clusterId = command.getClusterId();
-        if (StringUtil.isBlank(clusterId)) {
+        if (StringUtils.isBlank(clusterId)) {
             return Result.failed("接收命令的集群ID不能为空～");
         }
         String commandContent = command.getCommand();
-        if (StringUtil.isBlank(commandContent)) {
+        if (StringUtils.isBlank(commandContent)) {
             return Result.failed("待执行命令不能为空～");
         }
 
-        HBaseShellSession hBaseShellSession = hBaseClusterDSConfig.getHBaseShellSession(clusterId);
-        if (!hBaseShellSession.isConnected()) {
+        HydraqlTemplate template = hBaseClusterDSConfig.getHydraqlTemplate(clusterId);
+        if (!template.shellSessionIsConnected()) {
             return Result.failed(String.format("与集群[%s]的连接已断开～", clusterId));
         }
-        return hBaseShellSession.execute(commandContent);
+        return template.executeShellCommand(commandContent);
     }
 
     @Override
-    public  Map<String, Map<String, List<String>>> getAllCommands() {
-        try {
-            Set<String> allCommands = HBaseShellCommands.getAllCommands();
-            return HBaseShellCommandModel.generateHBaseShellCommand(new ArrayList<>(allCommands));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return HBaseShellCommandModel.generateDefaultHBaseShellCommand();
-        }
+    public  Map<String, Map<String, List<String>>> getAllCommands(String clusterCode) {
+        HydraqlTemplate template = hBaseClusterDSConfig.getHydraqlTemplate(clusterCode);
+        List<String> allCommands = template.getAllShellCommands();
+        return HBaseShellCommandModel.generateHBaseShellCommand(new ArrayList<>(allCommands));
     }
 }

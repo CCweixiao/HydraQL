@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import com.github.CCweixiao.hbase.sdk.schema.HTableDesc;
 import com.google.common.collect.Lists;
+import com.hydraql.manager.core.hbase.schema.HTableDesc;
+import com.hydraql.manager.core.util.HConstants;
 import com.leo.hbase.manager.common.core.domain.StrZtree;
 import com.leo.hbase.manager.system.domain.*;
 import com.leo.hbase.manager.system.mapper.*;
@@ -484,8 +485,8 @@ public class SysUserServiceImpl implements ISysUserService {
      * @return 树结构列表
      */
     public List<StrZtree> initStrZtree(List<HTableDesc> tableDescList, List<String> checkedTables) {
-        final Map<String, List<String>> namespaceTables = tableDescList.stream().collect(Collectors.toMap(HTableDesc::getNamespaceName,
-                tableDesc -> Lists.newArrayList(tableDesc.getTableNameWithNamespace()),
+        final Map<String, List<String>> namespaceTables = tableDescList.stream().collect(Collectors.toMap(ht -> HConstants.getNamespaceName(ht.getName()),
+                tableDesc -> Lists.newArrayList(tableDesc.getName()),
                 (List<String> newValueList, List<String> oldValueList) -> {
                     oldValueList.addAll(newValueList);
                     return oldValueList;

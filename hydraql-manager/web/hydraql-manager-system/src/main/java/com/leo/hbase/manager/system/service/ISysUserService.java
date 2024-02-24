@@ -2,7 +2,7 @@ package com.leo.hbase.manager.system.service;
 
 import java.util.List;
 
-import com.github.CCweixiao.hbase.sdk.schema.HTableDesc;
+import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.leo.hbase.manager.common.core.domain.StrZtree;
 import com.leo.hbase.manager.system.domain.SysUser;
 import com.leo.hbase.manager.system.domain.SysUserRole;

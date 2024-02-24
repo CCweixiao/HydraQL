@@ -5,6 +5,7 @@ import com.hydraql.common.query.GetRowParam;
 import com.hydraql.connection.HBaseConnectionManager;
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
 import com.hydraql.manager.core.hbase.SplitGoEnum;
+import com.hydraql.manager.core.hbase.model.Result;
 import com.hydraql.manager.core.hbase.model.SnapshotDesc;
 import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
@@ -12,13 +13,18 @@ import com.hydraql.manager.core.hbase.schema.NamespaceDesc;
 import com.hydraql.manager.core.template.HydraqlTemplate;
 import com.hydraql.schema.BaseColumnFamilyDesc;
 import com.hydraql.schema.BaseHTableDesc;
+import com.hydraql.shell.HBaseShellCommands;
+import com.hydraql.shell.HBaseShellSession;
+import com.hydraql.shell.HBaseShellSessionManager;
 import com.hydraql.template.HBaseAdminTemplate;
 import com.hydraql.template.HBaseTableTemplate;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,11 +35,14 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
     private final HBaseAdminTemplate adminTemplate;
     private final HBaseTableTemplate tableTemplate;
 
+    private final HydraqlHBaseConfiguration conf;
+
     public static HydraqlTemplateImpl createInstance(HydraqlHBaseConfiguration conf) {
         return new HydraqlTemplateImpl(conf);
     }
 
     public HydraqlTemplateImpl(HydraqlHBaseConfiguration conf) {
+        this.conf = conf;
         Configuration hbaseConf = new Configuration();
         conf.toMap().forEach((k, v) -> hbaseConf.set(k, v.toString()));
         Connection connection = HBaseConnectionManager.getInstance().getConnection(hbaseConf);
@@ -219,6 +228,29 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
     }
 
     @Override
+    public boolean shellSessionIsConnected() {
+        HBaseShellSession shellSession = HBaseShellSessionManager.getHBaseShellSession(this.getConf().toProp());
+        return shellSession.isConnected();
+    }
+
+    @Override
+    public Result executeShellCommand(String command) {
+        HBaseShellSession shellSession = HBaseShellSessionManager.getHBaseShellSession(this.getConf().toProp());
+        com.hydraql.shell.Result result = shellSession.execute(command);
+        return Result.of(result.isSuccess(), result.getResult());
+    }
+
+    @Override
+    public List<String> getAllShellCommands() {
+        try {
+            Set<String> allCommands = HBaseShellCommands.getAllCommands();
+            return new ArrayList<>(allCommands);
+        } catch (IOException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
     public com.hydraql.manager.core.hbase.model.HBaseRowData getRow(String tableName, String rowKey) {
         HBaseRowData rowData = tableTemplate.getRow(tableName, GetRowParam.of(rowKey).build());
         com.hydraql.manager.core.hbase.model.HBaseRowData data = new com.hydraql.manager.core.hbase.model.HBaseRowData(rowKey);
@@ -353,5 +385,9 @@ public class HydraqlTemplateImpl implements HydraqlTemplate {
                 .setConfiguration(cf.getConfiguration())
                 .setValue(cf.getValues())
                 .build();
+    }
+
+    public HydraqlHBaseConfiguration getConf() {
+        return conf;
     }
 }

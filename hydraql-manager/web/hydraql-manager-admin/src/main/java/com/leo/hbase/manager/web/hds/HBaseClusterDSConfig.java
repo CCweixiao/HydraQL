@@ -64,6 +64,7 @@ public class HBaseClusterDSConfig {
                 PropertyDto propObj = propArr.getObject(i, PropertyDto.class);
                 properties.put(propObj.getPropertyName(), propObj.getPropertyValue());
             }
+            properties.put(PropertyKey.HYDRAQL_HBASE_VERSION.getName(), sysHbaseCluster.getClusterVersion());
             String zkHost = properties.get(PropertyKey.HYDRAQL_HBASE_ZOOKEEPER_QUORUM.getName());
             if (StringUtils.isBlank(zkHost)) {
                 zkHost = "localhost";

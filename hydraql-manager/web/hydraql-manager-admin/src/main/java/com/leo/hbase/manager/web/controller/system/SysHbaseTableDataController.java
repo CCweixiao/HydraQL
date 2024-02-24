@@ -1,21 +1,20 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import com.alibaba.fastjson2.JSON;
-import com.github.CCweixiao.hbase.sdk.common.constants.HMHBaseConstants;
-import com.github.CCweixiao.hbase.sdk.common.exception.HBaseOperationsException;
-import com.github.CCweixiao.hbase.sdk.common.model.data.HBaseRowData;
-import com.github.CCweixiao.hbase.sdk.common.util.StringUtil;
-import com.github.CCweixiao.hbase.sdk.schema.BaseColumnFamilyDesc;
-import com.github.CCweixiao.hbase.sdk.schema.HTableDesc;
+import com.hydraql.manager.core.hbase.model.HBaseRowData;
+import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
+import com.hydraql.manager.core.hbase.schema.HTableDesc;
+import com.hydraql.manager.core.util.HConstants;
 import com.leo.hbase.manager.common.annotation.Log;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.core.domain.CxSelect;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.system.domain.SysHbaseTableData;
 import com.leo.hbase.manager.web.service.IMultiHBaseAdminService;
-import com.leo.hbase.manager.web.service.IMultiHBaseService;
+//import com.leo.hbase.manager.web.service.IMultiHBaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,8 +36,8 @@ import java.util.stream.Collectors;
 public class SysHbaseTableDataController extends SysHbaseBaseController {
     private String prefix = "system/data";
 
-    @Autowired
-    private IMultiHBaseService multiHBaseService;
+//    @Autowired
+//    private IMultiHBaseService multiHBaseService;
 
     @Autowired
     private IMultiHBaseAdminService multiHBaseAdminService;
@@ -63,18 +62,19 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         final List<SysHbaseTableData> list = new ArrayList<>();
 
 
-        if (StringUtil.isBlank(sysHbaseTableData.getTableName())) {
+        if (StringUtils.isBlank(sysHbaseTableData.getTableName())) {
             return getDataTable(list);
         }
 
         if (multiHBaseAdminService.isTableDisabled(clusterCode, sysHbaseTableData.getTableName())) {
-            throw new HBaseOperationsException("表[" + sysHbaseTableData.getTableName() + "]处于禁用状态，无法被查询！");
+            throw new BusinessException("表[" + sysHbaseTableData.getTableName() + "]处于禁用状态，无法被查询！");
         }
 
-        if (StringUtil.isNotBlank(sysHbaseTableData.getRowKey())) {
+        /*if (StringUtils.isNotBlank(sysHbaseTableData.getRowKey())) {
             final HBaseRowData rowData = multiHBaseService.get(clusterCode, sysHbaseTableData.getTableName(),
                     sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName());
-            if (rowData.getColDataContainer() == null || rowData.getColDataContainer() .isEmpty()) {
+
+            if (rowData.getData() == null || rowData.getData() .isEmpty()) {
                 return getDataTable(list);
             }
             List<SysHbaseTableData> hbaseTableDataList = mapToHBaseTableDataList(sysHbaseTableData.getTableName(), rowData);
@@ -90,6 +90,7 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         rowDataList.stream().map(rowData ->
                 mapToHBaseTableDataList(sysHbaseTableData.getTableName(), rowData)).forEach(list::addAll);
 
+        return getDataTable(list);*/
         return getDataTable(list);
     }
 
@@ -103,8 +104,8 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
 
         SysHbaseTableData sysHbaseTableData = new SysHbaseTableData();
         if (familyAndQualifierName != null && StringUtils.isNotBlank(rowKey)) {
-            HBaseRowData rowData = multiHBaseService.get(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
-            sysHbaseTableData = mapToHBaseTableDataList(tableName, rowData).get(0);
+            //HBaseRowData rowData = multiHBaseService.get(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
+            // sysHbaseTableData = mapToHBaseTableDataList(tableName, rowData).get(0);
         }
         mmap.put("sysHbaseTableData", sysHbaseTableData);
         return prefix + "/detail";
@@ -145,10 +146,12 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         String clusterCode = clusterCodeOfCurrentSession();
         String tableName = sysHbaseTableData.getTableName();
         if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
-            throw new HBaseOperationsException("表[" + tableName + "]处于禁用状态！");
+            throw new BusinessException("表[" + tableName + "]处于禁用状态！");
         }
-        String familyName = sysHbaseTableData.getFamilyName() + HMHBaseConstants.TABLE_NAME_SPLIT_CHAR + sysHbaseTableData.getFieldName();
-        multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(), familyName, sysHbaseTableData.getValue());
+        String familyName = sysHbaseTableData.getFamilyName() +
+                HConstants.TABLE_NAME_SPLIT_CHAR + sysHbaseTableData.getFieldName();
+        //multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(),
+        //        familyName, sysHbaseTableData.getValue());
         return success("数据新增成功！");
     }
 
@@ -162,8 +165,8 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         String[] familyAndQualifierName = parseFamilyAndQualifierName(familyName);
         SysHbaseTableData sysHbaseTableData = new SysHbaseTableData();
         if (familyAndQualifierName != null && StringUtils.isNotBlank(rowKey)) {
-            HBaseRowData rowData = multiHBaseService.get(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
-            sysHbaseTableData = mapToHBaseTableDataList(tableName, rowData).get(0);
+            //HBaseRowData rowData = multiHBaseService.get(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
+            //sysHbaseTableData = mapToHBaseTableDataList(tableName, rowData).get(0);
         }
         mmap.put("sysHbaseTableData", sysHbaseTableData);
         return prefix + "/edit";
@@ -180,9 +183,9 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
         String clusterCode = clusterCodeOfCurrentSession();
         String tableName = sysHbaseTableData.getTableName();
         if (multiHBaseAdminService.isTableDisabled(clusterCode, tableName)) {
-            throw new HBaseOperationsException("表[" + tableName + "]处于禁用状态！");
+            throw new BusinessException("表[" + tableName + "]处于禁用状态！");
         }
-        multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getValue());
+        // multiHBaseService.saveOrUpdate(clusterCode, tableName, sysHbaseTableData.getRowKey(), sysHbaseTableData.getFamilyName(), sysHbaseTableData.getValue());
         return success("数据修改成功");
     }
 
@@ -195,19 +198,20 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
     @ResponseBody
     public AjaxResult remove(@RequestParam String tableName, @RequestParam String familyName, @RequestParam String rowKey) {
         String[] familyAndQualifierName = parseFamilyAndQualifierName(familyName);
-        multiHBaseService.delete(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
+        //multiHBaseService.delete(clusterCodeOfCurrentSession(), tableName, rowKey, familyAndQualifierName[0], familyAndQualifierName[1]);
         return success("数据删除成功！");
     }
 
     private List<SysHbaseTableData> mapToHBaseTableDataList(String tableName, HBaseRowData rowData) {
         List<SysHbaseTableData> hbaseTableDataList = new ArrayList<>();
-        rowData.getColDataContainer().forEach((key, value) -> {
+        rowData.getData().forEach((key, value) -> {
             SysHbaseTableData sysHbaseTableData = new SysHbaseTableData();
-            sysHbaseTableData.setTableName(HMHBaseConstants.getFullTableName(tableName));
-            sysHbaseTableData.setRowKey(rowData.getRowKey());
+            sysHbaseTableData.setTableName(HConstants.getFullTableName(tableName));
+            sysHbaseTableData.setRowKey(rowData.getRow());
             sysHbaseTableData.setFamilyName(key);
-            sysHbaseTableData.setTimestamp(String.valueOf(value.getTimestamp()));
-            sysHbaseTableData.setValue(value.getValue());
+            //todo fix timestamp
+            sysHbaseTableData.setTimestamp("0");
+            sysHbaseTableData.setValue(value);
             hbaseTableDataList.add(sysHbaseTableData);
         });
 
@@ -230,7 +234,7 @@ public class SysHbaseTableDataController extends SysHbaseBaseController {
             cxSelectTable.setN(tableName);
             cxSelectTable.setV(tableName);
 
-            List<String> families = tableDesc.getColumnFamilyDescList().stream().map(BaseColumnFamilyDesc::getNameAsString).collect(Collectors.toList());
+            List<String> families = tableDesc.getColumnFamilyDescList().stream().map(ColumnFamilyDesc::getName).collect(Collectors.toList());
             List<CxSelect> tempFamilyList = new ArrayList<>();
             for (String family : families) {
                 CxSelect cxSelectFamily = new CxSelect();

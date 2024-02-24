@@ -1,7 +1,6 @@
 package com.leo.hbase.manager.web.controller.system;
 
-import com.github.CCweixiao.hbase.sdk.common.exception.HBaseOperationsException;
-import com.github.CCweixiao.hbase.sdk.schema.HTableDesc;
+import com.hydraql.manager.core.hbase.schema.HTableDesc;
 import com.leo.hbase.manager.common.annotation.Log;
 import com.leo.hbase.manager.common.constant.UserConstants;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
@@ -9,6 +8,7 @@ import com.leo.hbase.manager.common.core.domain.StrZtree;
 import com.leo.hbase.manager.common.core.page.TableDataInfo;
 import com.leo.hbase.manager.common.core.text.Convert;
 import com.leo.hbase.manager.common.enums.BusinessType;
+import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.poi.ExcelUtil;
 import com.leo.hbase.manager.framework.shiro.service.SysPasswordService;
@@ -301,7 +301,7 @@ public class SysUserController extends SysHbaseBaseController {
     @ResponseBody
     public AjaxResult authTableForUser(Long userId, String tableIds) {
         if (userId == null || userId < 0) {
-            throw new HBaseOperationsException("请传入有效的用户ID");
+            throw new BusinessException("请传入有效的用户ID");
         }
         if (StringUtils.isBlank(tableIds)) {
             return toAjax(userHbaseTableService.batchAddSysHbaseUserTable(null));

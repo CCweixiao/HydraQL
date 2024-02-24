@@ -1,9 +1,9 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import com.alibaba.fastjson2.JSON;
-import com.github.CCweixiao.hbase.sdk.common.util.StringUtil;
-import com.github.CCweixiao.hbase.sdk.shell.Result;
+import com.hydraql.manager.core.hbase.model.Result;
 import com.leo.hbase.manager.common.exception.BusinessException;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.common.utils.spring.SpringUtils;
 import com.leo.hbase.manager.system.dto.HBaseShellCommand;
 import com.leo.hbase.manager.web.service.impl.HBaseShellServiceImpl;
@@ -67,7 +67,7 @@ public class SysHbaseWebSocketController {
     public void onMessage(String message, Session session) {
         LOG.info("收到来自shell回话：" + sessionId + "的信息:" + message);
         Result result = null;
-        if (StringUtil.isBlank(message)) {
+        if (StringUtils.isBlank(message)) {
             result = Result.failed("请输入需要执行的命令～");
         } else {
             HBaseShellServiceImpl shellService = SpringUtils.getBean(HBaseShellServiceImpl.class);

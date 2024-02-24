@@ -1,6 +1,6 @@
 package com.leo.hbase.manager.web.service;
 
-import com.github.CCweixiao.hbase.sdk.shell.Result;
+import com.hydraql.manager.core.hbase.model.Result;
 import com.leo.hbase.manager.system.dto.HBaseShellCommand;
 
 import java.util.List;
@@ -12,5 +12,5 @@ import java.util.Map;
 public interface IHBaseShellService {
     Result execute(HBaseShellCommand command);
 
-    Map<String, Map<String, List<String>>> getAllCommands();
+    Map<String, Map<String, List<String>>> getAllCommands(String clusterCode);
 }

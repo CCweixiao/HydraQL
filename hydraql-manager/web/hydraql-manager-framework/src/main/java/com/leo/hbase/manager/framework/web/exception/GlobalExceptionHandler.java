@@ -2,7 +2,6 @@ package com.leo.hbase.manager.framework.web.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.CCweixiao.hbase.sdk.common.exception.HBaseOperationsException;
 import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,11 +49,11 @@ public class GlobalExceptionHandler {
         return AjaxResult.error("不支持' " + e.getMethod() + "'请求");
     }
 
-    @ExceptionHandler(HBaseOperationsException.class)
-    public AjaxResult hbaseOperationException(HBaseOperationsException e) {
-        log.error("HBase操作异常：", e);
-        return AjaxResult.error("HBase异常：" + e.getCause().getMessage());
-    }
+//    @ExceptionHandler(HBaseOperationsException.class)
+//    public AjaxResult hbaseOperationException(HBaseOperationsException e) {
+//        log.error("HBase操作异常：", e);
+//        return AjaxResult.error("HBase异常：" + e.getCause().getMessage());
+//    }
 
     /**
      * 拦截未知的运行时异常

@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>hydraql-parent</artifactId>
-        <groupId>com.hydraql</groupId>
-        <version>1.0.1-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.hydraql</groupId>
+        <artifactId>hydraql</artifactId>
+        <version>${revision}</version>
+    </parent>
 
     <packaging>jar</packaging>
     <artifactId>spring-boot-starter-hydraql_${hydraql.hbase.adapter.version}</artifactId>
@@ -60,7 +60,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
+                    <finalName>${project.artifactId}-${revision}</finalName>
                 </configuration>
             </plugin>
 
@@ -139,10 +139,10 @@
                         <configuration>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>${project.artifactId}</artifactId>
-                            <version>${project.version}</version>
+                            <version>${revision}</version>
                             <packaging>${project.packaging}</packaging>
                             <file>
-                                ${project.build.directory}/${project.artifactId}-${project.version}.jar
+                                ${project.build.directory}/${project.artifactId}-${revision}.jar
                             </file>
                             <pomFile>${project.build.directory}/${hydraql.hbase.adapter.version}/replacer/pom.xml</pomFile>
                         </configuration>

@@ -2,6 +2,7 @@ package com.hydraql.manager.core.template;
 
 import com.hydraql.manager.core.conf.HydraqlHBaseConfiguration;
 import com.hydraql.manager.core.hbase.SplitGoEnum;
+import com.hydraql.manager.core.hbase.model.Result;
 import com.hydraql.manager.core.hbase.model.SnapshotDesc;
 import com.hydraql.manager.core.hbase.schema.ColumnFamilyDesc;
 import com.hydraql.manager.core.hbase.schema.HTableDesc;
@@ -118,6 +119,12 @@ public interface HydraqlTemplate {
     boolean removeSnapshot(String snapshotName);
 
     List<SnapshotDesc> listAllSnapshotDesc();
+
+    boolean shellSessionIsConnected();
+
+    Result executeShellCommand(String command);
+
+    List<String> getAllShellCommands();
 
     HBaseRowData getRow(String tableName, String rowKey);
 }

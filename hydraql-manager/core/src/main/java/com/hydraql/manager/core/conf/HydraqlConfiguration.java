@@ -2,6 +2,7 @@ package com.hydraql.manager.core.conf;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -29,5 +30,7 @@ public interface HydraqlConfiguration {
     List<String> getList(PropertyKey key);
 
     Map<String, Object> toMap();
+
+    Properties toProp();
 
 }

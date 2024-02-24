@@ -2,10 +2,6 @@ package com.leo.hbase.manager.web.controller.system;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONException;
-import com.github.CCweixiao.hbase.sdk.common.exception.HBaseOperationsException;
-import com.github.CCweixiao.hbase.sdk.common.type.ColumnType;
-import com.github.CCweixiao.hbase.sdk.common.util.StringUtil;
-import com.github.CCwexiao.hbase.sdk.dsl.model.HBaseTableSchema;
 import com.leo.hbase.manager.common.core.controller.BaseController;
 import com.leo.hbase.manager.common.exception.BusinessException;
 import com.leo.hbase.manager.common.utils.StringUtils;
@@ -47,7 +43,7 @@ public class SysHbaseBaseController extends BaseController {
     public String parseTableNameFromTableId(String tableId) {
         final String tableName = StrEnDeUtils.decrypt(tableId);
         if (StringUtils.isBlank(tableName)) {
-            throw new HBaseOperationsException("从加密的tableId[" + tableId + "]中无法解析出表名称");
+            throw new BusinessException("从加密的tableId[" + tableId + "]中无法解析出表名称");
         }
         return tableName;
     }
@@ -72,7 +68,7 @@ public class SysHbaseBaseController extends BaseController {
             throw new BusinessException("当前会话已经过期，请登录重试");
         }
         final String cluster = onlineSession.getCluster();
-        if (StringUtil.isBlank(cluster)) {
+        if (StringUtils.isBlank(cluster)) {
             return sysHbaseClusterService.getAllOnlineClusterIds().get(0);
         }
         LOG.info("当前用户{},拥有的sessionID是{},操作的集群是{}", onlineSession.getLoginName(), sessionId, cluster);
@@ -183,7 +179,7 @@ public class SysHbaseBaseController extends BaseController {
         return new String[]{tableName, rowName, familyName, qualifier};
     }
 
-    public HBaseTableSchema parseHBaseTableSchema(String tableSchemaJson) {
+    /*public HBaseTableSchema parseHBaseTableSchema(String tableSchemaJson) {
         if (StringUtils.isBlank(tableSchemaJson)) {
             throw new HBaseOperationsException("定义HBase表schema的json字符串不能为空！");
         }
@@ -199,10 +195,10 @@ public class SysHbaseBaseController extends BaseController {
         }
 
         HBaseTableSchema.Builder tableSchemaBuilder = HBaseTableSchema.of(tableSchema.getTableName())
-                /*.scanBatch(100)
+                *//*.scanBatch(100)
                 .scanCaching(1000)
                 .deleteBatch(100)
-                .scanCacheBlocks(false)*/;
+                .scanCacheBlocks(false)*//*;
 
         List<HTableColumn> columnList = tableSchema.getColumnList();
         if (columnList == null || columnList.isEmpty()) {
@@ -239,7 +235,7 @@ public class SysHbaseBaseController extends BaseController {
             throw new HBaseOperationsException("row key的数量不能大于1！");
         }
         return tableSchemaBuilder.build();
-    }
+    }*/
 
     private String defaultTableSchemaJsonFormat() {
         return "{\n" +
@@ -259,14 +255,14 @@ public class SysHbaseBaseController extends BaseController {
                 "}";
     }
 
-    private ColumnType getColumnType(String columnType) {
+/*    private ColumnType getColumnType(String columnType) {
         for (ColumnType value : ColumnType.values()) {
             if (value.getTypeName().equalsIgnoreCase(columnType)) {
                 return value;
             }
         }
         throw new HBaseOperationsException(String.format("未支持的列类型[%s]！", columnType));
-    }
+    }*/
 
     protected void checkSysHbaseTableExists(SysHbaseTable sysHbaseTable) {
         if (sysHbaseTable == null || sysHbaseTable.getTableId() == null || sysHbaseTable.getTableId() < 1) {

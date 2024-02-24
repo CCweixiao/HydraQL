@@ -199,8 +199,8 @@ public class HBaseSqlTemplateTest extends AbstractHBaseTemplateTest {
 
         // 构造Scan对象，指定查询的起止rowKey
         Scan scan = new Scan();
-        scan.withStartRow(Bytes.toBytes("a1000"), false);
-        scan.withStopRow(Bytes.toBytes("g1005"), true);
+        //scan.withStartRow(Bytes.toBytes("a1000"), false);
+        // scan.withStopRow(Bytes.toBytes("g1005"), true);
 
         // f1:age >= 18
         SingleColumnValueFilter ageFilter = new SingleColumnValueFilter(Bytes.toBytes("f1"),

@@ -1,6 +1,5 @@
 package com.leo.hbase.manager.web.controller.system.api;
 
-import com.github.CCweixiao.hbase.sdk.schema.HTableDesc;
 import com.leo.hbase.manager.common.core.domain.AjaxResult;
 import com.leo.hbase.manager.common.enums.HBaseDisabledFlag;
 import com.leo.hbase.manager.common.enums.HBaseTableStatus;

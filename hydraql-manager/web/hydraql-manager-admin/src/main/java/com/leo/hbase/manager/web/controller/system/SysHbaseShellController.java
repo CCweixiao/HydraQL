@@ -22,7 +22,7 @@ public class SysHbaseShellController extends SysHbaseBaseController {
     public String detail(ModelMap mmap) {
         List<String> clusterIds = sysHbaseClusterService.getAllOnlineClusterIds();
         HBaseShellServiceImpl shellService = SpringUtils.getBean(HBaseShellServiceImpl.class);
-        Map<String, Map<String, List<String>>> allCommands = shellService.getAllCommands();
+        Map<String, Map<String, List<String>>> allCommands = shellService.getAllCommands(clusterIds.get(0));
         mmap.put("clusterIdList", clusterIds);
         mmap.put("shellSessionId", getSessionId());
         mmap.put("allCommands", allCommands);

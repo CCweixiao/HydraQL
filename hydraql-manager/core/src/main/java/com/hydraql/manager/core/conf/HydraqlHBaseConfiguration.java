@@ -100,4 +100,13 @@ public class HydraqlHBaseConfiguration implements HydraqlConfiguration {
         return map;
     }
 
+    @Override
+    public Properties toProp() {
+        Properties prop = new Properties();
+        keySet().forEach(key -> {
+            prop.setProperty(key.getName(), getOrDefault(key, "").toString());
+        });
+        return prop;
+    }
+
 }

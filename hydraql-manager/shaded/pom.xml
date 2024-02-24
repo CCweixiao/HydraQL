@@ -5,8 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.hydraql</groupId>
-        <artifactId>hydraql-manager</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <artifactId>hydraql</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>hydraql-manager-shaded</artifactId>
@@ -14,9 +15,5 @@
     <modules>
         <module>shaded-hbase</module>
     </modules>
-
-    <properties>
-        <build.path>${project.parent.basedir}/build</build.path>
-    </properties>
 
 </project>

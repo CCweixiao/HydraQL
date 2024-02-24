@@ -1,8 +1,7 @@
 package com.leo.hbase.manager.web.controller.system;
 
 import java.util.List;
-
-import com.github.CCweixiao.hbase.sdk.common.util.StringUtil;
+import com.leo.hbase.manager.common.utils.StringUtils;
 import com.leo.hbase.manager.framework.shiro.session.OnlineSession;
 import com.leo.hbase.manager.framework.shiro.session.OnlineSessionDAO;
 import com.leo.hbase.manager.system.domain.SysHbaseCluster;
@@ -70,7 +69,7 @@ public class SysIndexController extends SysHbaseBaseController {
                 currentHBaseClusterCode = onlineSession.getCluster();
             }
         }
-        if (StringUtil.isBlank(currentHBaseClusterCode)) {
+        if (StringUtils.isBlank(currentHBaseClusterCode)) {
             currentHBaseClusterCode = defaultClusterCode;
         }
         mmap.put("currentHBaseClusterCode", currentHBaseClusterCode);

@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.hydraql</groupId>
-    <artifactId>hydraql-parent</artifactId>
+    <artifactId>hydraql</artifactId>
+    <version>${revision}</version>
     <packaging>pom</packaging>
-    <version>1.0.1-SNAPSHOT</version>
 
     <name>hydraql</name>
     <url>https://github.com/CCweixiao/HydraQL.git</url>
@@ -51,25 +51,26 @@
 
     <modules>
         <!-- 项目模块名称 -->
-        <module>hydraql-common</module>
-        <module>hydraql-dsl</module>
         <module>hydraql-adapter</module>
-        <module>hydraql-thrift</module>
-        <module>hydraql-template</module>
-        <module>hydraql-shell</module>
-        <module>spring-boot-starter-hydraql</module>
-        <module>hydraql-examples</module>
+        <module>hydraql-common</module>
         <module>hydraql-console</module>
+        <module>hydraql-dsl</module>
+        <module>hydraql-examples</module>
         <module>hydraql-manager</module>
+        <module>hydraql-shell</module>
+        <module>hydraql-template</module>
+        <module>hydraql-thrift</module>
+        <module>spring-boot-starter-hydraql</module>
     </modules>
 
     <properties>
+        <revision>1.0.1-SNAPSHOT</revision>
         <compiler.version>1.8</compiler.version>
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <build.checkstyle.path>build/checkstyle</build.checkstyle.path>
-        <build.findbugs.path>build/findbugs</build.findbugs.path>
+        <build.checkstyle.path>${basedir}/build/checkstyle</build.checkstyle.path>
+        <build.findbugs.path>${basedir}/build/findbugs</build.findbugs.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot-2.version>2.1.7.RELEASE</spring-boot-2.version>
         <hbase1.2.version>1.2.0</hbase1.2.version>
@@ -98,6 +99,25 @@
         <hydraql.hbase.adapter.default.version>1.2</hydraql.hbase.adapter.default.version>
         <hydraql.hbase.adapter.version>${hydraql.hbase.adapter.default.version}</hydraql.hbase.adapter.version>
         <hydraql.hbase.version>${hbase1.2.version}</hydraql.hbase.version>
+        <!--hydraql-manager依赖-->
+        <hydraql-manager.version>${revision}</hydraql-manager.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <shiro.version>1.5.3</shiro.version>
+        <thymeleaf.extras.shiro.version>2.0.0</thymeleaf.extras.shiro.version>
+        <mybatis.boot.version>1.3.2</mybatis.boot.version>
+        <druid.version>1.1.14</druid.version>
+        <bitwalker.version>1.19</bitwalker.version>
+        <kaptcha.version>2.3.2</kaptcha.version>
+        <swagger.version>2.9.2</swagger.version>
+        <pagehelper.boot.version>1.2.5</pagehelper.boot.version>
+        <fastjson2.version>2.0.19</fastjson2.version>
+        <oshi.version>3.9.1</oshi.version>
+        <commons.io.version>2.5</commons.io.version>
+        <commons.fileupload.version>1.3.3</commons.fileupload.version>
+        <poi.version>3.17</poi.version>
+        <velocity.version>1.7</velocity.version>
     </properties>
 
     <repositories>
@@ -166,6 +186,172 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- SpringBoot的依赖配置-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.1.1.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!--阿里数据库连接池 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+
+            <!--验证码 -->
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
+            </dependency>
+
+            <!--Shiro核心框架 -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-core</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+
+            <!-- Shiro使用Srping框架 -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-spring</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+
+            <!-- Shiro使用EhCache缓存框架 -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-ehcache</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+
+            <!-- thymeleaf模板引擎和shiro框架的整合 -->
+            <dependency>
+                <groupId>com.github.theborakompanioni</groupId>
+                <artifactId>thymeleaf-extras-shiro</artifactId>
+                <version>${thymeleaf.extras.shiro.version}</version>
+            </dependency>
+
+            <!-- 解析客户端操作系统、浏览器等 -->
+            <dependency>
+                <groupId>eu.bitwalker</groupId>
+                <artifactId>UserAgentUtils</artifactId>
+                <version>${bitwalker.version}</version>
+            </dependency>
+
+            <!-- pagehelper 分页插件 -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.boot.version}</version>
+            </dependency>
+
+            <!-- 获取系统信息 -->
+            <dependency>
+                <groupId>com.github.oshi</groupId>
+                <artifactId>oshi-core</artifactId>
+                <version>${oshi.version}</version>
+            </dependency>
+
+            <!-- swagger2-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-models</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- swagger2-UI-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+
+            <!--io常用工具类 -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+
+            <!--文件上传工具类 -->
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons.fileupload.version}</version>
+            </dependency>
+
+            <!-- excel工具 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!--velocity代码生成使用模板 -->
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${velocity.version}</version>
+            </dependency>
+
+            <!-- 阿里JSON解析器 -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+
+            <!-- 定时任务-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-quartz</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 代码生成-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-generator</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 核心模块-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-framework</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 系统模块-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-system</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
+            <!-- 通用工具-->
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-manager-web-common</artifactId>
+                <version>${hydraql-manager.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.hydraql</groupId>
                 <artifactId>hydraql-common</artifactId>
@@ -452,14 +638,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>findbugs-maven-plugin</artifactId>-->
+<!--            </plugin>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
