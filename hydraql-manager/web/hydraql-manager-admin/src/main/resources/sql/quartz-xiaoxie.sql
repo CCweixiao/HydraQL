@@ -12,7 +12,7 @@ CREATE TABLE `qrtz_blob_triggers`
     `trigger_group` varchar(200) NOT NULL,
     `blob_data`     blob,
     PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`),
-    CONSTRAINT `qrtz_blob_triggers_ibfk_1` FOREIGN KEY (`sched_name`, `trigger_name`, `trigger_group`) REFERENCES `qrtz_triggers` (`sched_name`, `trigger_name`, `trigger_group`)
+    CONSTRAINT `qrtz_blob_triggers_ibfk_11` FOREIGN KEY (`sched_name`, `trigger_name`, `trigger_group`) REFERENCES `qrtz_triggers` (`sched_name`, `trigger_name`, `trigger_group`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 

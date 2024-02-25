@@ -169,6 +169,7 @@ public class PropertyKey implements Comparable<PropertyKey> {
 
         public static final String FILTER_NAMESPACE_PREFIX = "filter.namespace.prefix";
         public static final String FILTER_TABLE_NAME_PREFIX = "filter.table.name.prefix";
+        public static final String HBASE_CLIENT_RETRY = "hbase.client.retries.number";
     }
 
     public static final PropertyKey HYDRAQL_MANAGER_PLUGINS_DIR =
@@ -265,6 +266,12 @@ public class PropertyKey implements Comparable<PropertyKey> {
     public static final PropertyKey HYDRAQL_KRB5_KDC_SERVER_ADDR =
             stringBuilder(Name.KRB5_KDC_SERVER_ADDR)
                     .setDefaultValue("")
+                    .setDescription("")
+                    .build();
+
+    public static final PropertyKey HYDRAQL_HBASE_CLIENT_RETRY =
+            stringBuilder(Name.HBASE_CLIENT_RETRY)
+                    .setDefaultValue(3)
                     .setDescription("")
                     .build();
 

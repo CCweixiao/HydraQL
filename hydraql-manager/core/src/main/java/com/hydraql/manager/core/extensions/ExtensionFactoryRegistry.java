@@ -61,7 +61,7 @@ public class ExtensionFactoryRegistry<T extends ExtensionFactory<?, S>,
         List<T> factories = new ArrayList<>(mFactories);
         String pluginsDir = conf.getString(PropertyKey.HYDRAQL_MANAGER_PLUGINS_DIR);
         scanExtensions(factories, pluginsDir);
-        LOG.info("Loaded plugin jars from {}.%n"
+        LOG.info("Loaded plugin jars from {}.\n"
                 + "The total number of loaded factory core jars is {}", pluginsDir, factories.size());
         if (conf.isSet(PropertyKey.HYDRAQL_HBASE_VERSION)) {
             LOG.info("hydraql.hbase.version is set by user, target version is {}",
@@ -128,7 +128,6 @@ public class ExtensionFactoryRegistry<T extends ExtensionFactory<?, S>,
                         ClassLoader.getSystemClassLoader());
                 ServiceLoader<T> extensionServiceLoader =
                         ServiceLoader.load(mFactoryClass, extensionsClassLoader);
-
                 for (T factory : extensionServiceLoader) {
                     LOG.debug("Discovered a factory implementation {} - {} in jar {}", factory.getClass(),
                             factory, jarPath);

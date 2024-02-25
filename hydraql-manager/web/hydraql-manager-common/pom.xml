@@ -112,12 +112,6 @@
             <version>24.1-jre</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.hydraql</groupId>
-            <artifactId>hydraql-manager-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
     </dependencies>
 
 </project>
