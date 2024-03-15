@@ -53,7 +53,6 @@
         <!-- 项目模块名称 -->
         <module>hydraql-adapter</module>
         <module>hydraql-common</module>
-        <module>hydraql-console</module>
         <module>hydraql-dsl</module>
         <module>hydraql-examples</module>
         <module>hydraql-shell</module>
