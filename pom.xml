@@ -56,7 +56,6 @@
         <module>hydraql-console</module>
         <module>hydraql-dsl</module>
         <module>hydraql-examples</module>
-        <module>hydraql-manager</module>
         <module>hydraql-shell</module>
         <module>hydraql-template</module>
         <module>hydraql-thrift</module>
