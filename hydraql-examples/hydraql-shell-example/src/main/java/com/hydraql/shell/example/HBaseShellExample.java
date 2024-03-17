@@ -13,7 +13,7 @@ public class HBaseShellExample {
     public static void main(String[] args) throws InterruptedException {
         Properties p = new Properties();
         p.setProperty("hbase.shell.session.debug.log", "true");
-        p.setProperty("hbase.zookeeper.quorum", "myhbase1");
+        p.setProperty("hbase.zookeeper.quorum", "myhbase");
         p.setProperty("hbase.zookeeper.property.clientPort", "2181");
 
         HBaseShellSession shellSession = HBaseShellSessionManager.getHBaseShellSession(p);
