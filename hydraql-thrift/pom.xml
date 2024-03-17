@@ -22,7 +22,6 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-thrift</artifactId>
-            <version>${hydraql.hbase.version}</version>
         </dependency>
 
         <dependency>

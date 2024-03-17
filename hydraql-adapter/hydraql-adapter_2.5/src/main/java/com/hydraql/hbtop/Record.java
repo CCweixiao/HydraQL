@@ -5,8 +5,6 @@ import com.hydraql.hbtop.field.FieldValue;
 import com.hydraql.hbtop.field.FieldValueType;
 import org.apache.hbase.thirdparty.com.google.common.collect.ImmutableMap;
 import org.apache.yetus.audience.InterfaceAudience;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -123,7 +121,7 @@ public final class Record implements Map<Field, FieldValue> {
     }
 
     @Override
-    public void putAll(@NonNull Map<? extends Field, ? extends FieldValue> m) {
+    public void putAll(Map<? extends Field, ? extends FieldValue> m) {
         throw new UnsupportedOperationException();
     }
 
@@ -133,19 +131,16 @@ public final class Record implements Map<Field, FieldValue> {
     }
 
     @Override
-    @NonNull
     public Set<Field> keySet() {
         return values.keySet();
     }
 
     @Override
-    @NonNull
     public Collection<FieldValue> values() {
         return values.values();
     }
 
     @Override
-    @NonNull
     public Set<Map.Entry<Field, FieldValue>> entrySet() {
         return values.entrySet();
     }

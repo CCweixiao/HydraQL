@@ -9,8 +9,8 @@
         <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <packaging>jar</packaging>
     <artifactId>hydraql-template_${hydraql.hbase.adapter.version}</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
         <shading.prefix>hydraql.shaded</shading.prefix>
@@ -21,6 +21,17 @@
             <groupId>com.hydraql</groupId>
             <artifactId>hydraql-adapter_${hydraql.hbase.adapter.version}</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hbase</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-shaded-client</artifactId>
+            <version>${hydraql.hbase.version}</version>
         </dependency>
     </dependencies>
 

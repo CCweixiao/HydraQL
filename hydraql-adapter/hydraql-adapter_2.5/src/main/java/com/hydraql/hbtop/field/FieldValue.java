@@ -19,7 +19,6 @@ package com.hydraql.hbtop.field;
 
 import org.apache.hadoop.hbase.Size;
 import org.apache.yetus.audience.InterfaceAudience;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 
 import java.util.Objects;
@@ -186,7 +185,7 @@ public final class FieldValue implements Comparable<FieldValue> {
     }
 
     @Override
-    public int compareTo(@NonNull FieldValue o) {
+    public int compareTo(FieldValue o) {
         if (type != o.type) {
             throw new IllegalArgumentException("invalid type");
         }
