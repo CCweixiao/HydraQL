@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>hydraql-dsl</artifactId>
+    <description>hydraql dsl</description>
     <packaging>jar</packaging>
 
     <dependencies>
