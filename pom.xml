@@ -571,7 +571,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
-                <inherited>true</inherited>
+                <inherited>false</inherited>
                 <reportSets>
                     <reportSet>
                         <id>aggregate</id>
@@ -583,7 +583,7 @@
                             <charset>${maven.compile.encoding}</charset>
                             <reportOutputDirectory>${project.reporting.outputDirectory}/apidocs</reportOutputDirectory>
                             <!-- Non-public APIs -->
-                            <excludePackageNames>com.hydraql.dsl.antlr*,com.hydraql.example*,com.hydraql*example*</excludePackageNames>
+                            <!--  <excludePackageNames>com.hydraql.dsl.antlr*,com.hydraql.*.example.*</excludePackageNames>-->
                             <groups>
                                 <group>
                                     <title>HydraQLCommon</title>
