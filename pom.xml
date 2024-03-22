@@ -583,7 +583,7 @@
                             <charset>${maven.compile.encoding}</charset>
                             <reportOutputDirectory>${project.reporting.outputDirectory}/apidocs</reportOutputDirectory>
                             <!-- Non-public APIs -->
-                            <!--  <excludePackageNames>com.hydraql.dsl.antlr*,com.hydraql.*.example.*</excludePackageNames>-->
+                            <excludePackageNames>*.example:com.hydraql.dsl.antlr.*:com.hydraql.common.*</excludePackageNames>
                             <groups>
                                 <group>
                                     <title>HydraQLCommon</title>
@@ -609,7 +609,10 @@
                             <useStandardDocletOptions>true</useStandardDocletOptions>
                             <!-- switch on dependency-driven aggregation -->
                             <includeDependencySources>false</includeDependencySources>
-                            <!-- mvn javadoc:aggregate -->
+                            <!-- mvn clean javadoc:aggregate -->
+                            <additionalOptions>
+                                <additionalOption>-Xdoclint:none</additionalOption>
+                            </additionalOptions>
                         </configuration>
                         <reports>
                             <report>aggregate</report>
