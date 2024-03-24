@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hydraql</groupId>
         <artifactId>hydraql</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -21,6 +21,16 @@
         <dependency>
             <groupId>com.hydraql</groupId>
             <artifactId>hydraql-shell_${hydraql.hbase.adapter.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

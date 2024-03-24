@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hydraql</groupId>
         <artifactId>hydraql</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -22,6 +22,11 @@
         <dependency>
             <groupId>com.hydraql</groupId>
             <artifactId>hydraql-template_${hydraql.hbase.adapter.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hydraql.hbase.version}</version>
         </dependency>
     </dependencies>
 

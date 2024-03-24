@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.hydraql</groupId>
         <artifactId>hydraql</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>hydraql-template_${hydraql.hbase.adapter.version}</artifactId>
@@ -21,17 +21,12 @@
             <groupId>com.hydraql</groupId>
             <artifactId>hydraql-adapter_${hydraql.hbase.adapter.version}</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.hbase</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-shaded-client</artifactId>
+            <artifactId>hbase-client</artifactId>
             <version>${hydraql.hbase.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
