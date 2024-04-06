@@ -3,7 +3,6 @@ package com.hydraql.adapter;
 import com.hydraql.common.exception.HBaseSdkTableIsExistsException;
 import com.hydraql.common.exception.HBaseSdkTableIsNotDisabledException;
 import com.hydraql.common.exception.HBaseSdkTableIsNotExistsException;
-import com.hydraql.common.util.StringUtil;
 import com.hydraql.connection.HBaseConnectionManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -11,7 +10,11 @@ import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.yetus.audience.InterfaceAudience;
 
-import static com.hydraql.common.constants.HBaseConfigKeys.*;
+import java.util.Iterator;
+import java.util.Map;
+
+import static com.hydraql.common.constants.HBaseConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHING;
+import static com.hydraql.common.constants.HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHING;
 
 /**
  * @author leojie 2020/11/13 11:52 下午
@@ -19,34 +22,46 @@ import static com.hydraql.common.constants.HBaseConfigKeys.*;
 @InterfaceAudience.Private
 public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
     private final Configuration configuration;
+    private final HBaseClientConf clientConf;
     private final Connection connection;
-    private Configuration hedgedConfiguration = null;
+    private final Configuration hedgedConfiguration;
 
     public AbstractHBaseBaseAdapter(Configuration configuration) {
         this.configuration = configuration;
+        this.clientConf = new HBaseClientConf(configuration);
         this.connection = HBaseConnectionManager.getInstance().getConnection(this.configuration);
-        initHedgedReadConfiguration();
+        this.hedgedConfiguration = createHedgedReadClusterConf(configuration);
     }
 
-    public AbstractHBaseBaseAdapter(Connection connection) {
-        this.connection = connection;
-        this.configuration = connection.getConfiguration();
-        initHedgedReadConfiguration();
-    }
-
-    private void initHedgedReadConfiguration() {
-        if (hedgedReadIsOpen()) {
-            String zkQuorum = this.configuration.get(HEDGED_READ_ZOOKEEPER_QUORUM);
-            if (StringUtil.isBlank(zkQuorum)) {
-                throw new IllegalArgumentException(String.format("When the configuration %s is true, " +
-                                "you need to specify the value of configuration %s.", HBASE_CLIENT_HEDGED_READ_SWITCH,
-                        HEDGED_READ_ZOOKEEPER_QUORUM));
-            }
-            String zkClientPort = this.configuration.get(HEDGED_READ_ZOOKEEPER_CLIENT_PORT, "2181");
-            this.hedgedConfiguration = HBaseConfiguration.create(this.configuration);
-            this.hedgedConfiguration.set(ZOOKEEPER_QUORUM, zkQuorum);
-            this.hedgedConfiguration.set(ZOOKEEPER_CLIENT_PORT, zkClientPort);
+    private Configuration createHedgedReadClusterConf(Configuration conf) {
+        if (conf == null) {
+            throw new NullPointerException("The source cluster configuration cannot be empty.");
         }
+        Configuration hedgedReadConf = HBaseConfiguration.create();
+
+        for (Map.Entry<String, String> entry : conf) {
+            String hedgedReadKey = entry.getKey();
+            if (hedgedReadKey.startsWith(HBaseClientConfigKeys.HedgedRead.PREFIX)) {
+                continue;
+            }
+            if (hedgedReadKey.startsWith(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)) {
+                String clientKey = hedgedReadKey
+                        .substring(hedgedReadKey.indexOf(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)
+                                + HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX.length());
+                if (HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_KEY.equals(clientKey)) {
+                    throw new IllegalStateException("The hedged read cluster can no longer support the hedged read function.");
+                }
+                hedgedReadConf.set(clientKey, entry.getValue());
+            } else {
+                hedgedReadConf.set(entry.getKey(), entry.getValue());
+            }
+        }
+        return hedgedReadConf;
+    }
+
+    @Override
+    public HBaseClientConf getHBaseClientConf() {
+        return this.clientConf;
     }
 
     @Override
@@ -86,30 +101,6 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
         if (!tableIsDisabled) {
             throw new HBaseSdkTableIsNotDisabledException(msg);
         }
-    }
-
-    @Override
-    public boolean hedgedReadIsOpen() {
-        return this.getConfiguration().getBoolean(HBASE_CLIENT_HEDGED_READ_SWITCH,
-                HBASE_CLIENT_HEDGED_READ_SWITCH_DEFAULT);
-    }
-
-    @Override
-    public boolean hedgedReadWriteDisable() {
-        return this.getConfiguration().getBoolean(HEDGED_READ_WRITE_DISABLE,
-                HBASE_CLIENT_HEDGED_READ_WRITE_DISABLE);
-    }
-
-    @Override
-    public long hedgedReadThresholdMillis() {
-        return this.getConfiguration().getLong(HBASE_CLIENT_HEDGED_READ_TIME_OUT,
-                HBASE_CLIENT_HEDGED_READ_TIME_OUT_DEFAULT_MS);
-    }
-
-    @Override
-    public int initHedgedReadPoolSize() {
-        return this.getConfiguration().getInt(HBASE_CLIENT_HEDGED_READ_POOL_SIZE,
-                HBASE_CLIENT_HEDGED_READ_POOL_DEFAULT_SIZE);
     }
 
     protected int getClientScannerCaching() {

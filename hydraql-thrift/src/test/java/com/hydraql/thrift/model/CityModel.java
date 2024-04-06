@@ -9,18 +9,18 @@ import java.util.List;
 /**
  * @author leojie 2022/11/5 13:56
  */
-@HBaseTable(namespaceName = "test", tableName = "t1", defaultFamilyName = "info")
+@HBaseTable(namespace = "test", tableName = "t1", defaultFamily = "info")
 public class CityModel extends Country {
     @HBaseRowKey
     private String cityId;
     private String cityName;
     private String cityAddress;
 
-    @HBaseColumn(familyName = "detail")
+    @HBaseColumn(family = "detail")
     private Integer cityArea;
-    @HBaseColumn(familyName = "detail", toUpperCase = true)
+    @HBaseColumn(family = "detail")
     private Integer totalPopulation;
-    @HBaseColumn(familyName = "detail", columnName = "cityTagList")
+    @HBaseColumn(family = "detail", qualifier = "cityTagList")
     private List<CityTag> cityTagList;
 
     public String getCityId() {

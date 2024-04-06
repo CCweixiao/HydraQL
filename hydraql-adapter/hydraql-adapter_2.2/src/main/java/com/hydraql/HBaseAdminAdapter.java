@@ -50,9 +50,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public static final Logger LOG = LoggerFactory.getLogger(HBaseAdminAdapter.class);
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
 
-    public HBaseAdminAdapter(Connection connection) {
-        super(connection);
-    }
+    
 
     public HBaseAdminAdapter(Configuration configuration) {
         super(configuration);

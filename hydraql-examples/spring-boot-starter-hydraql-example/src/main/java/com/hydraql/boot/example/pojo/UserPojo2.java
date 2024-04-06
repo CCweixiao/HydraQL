@@ -9,7 +9,7 @@ import com.hydraql.common.annotations.HBaseTable;
  *
  * @author leo.jie (leojie1314@gmail.com)
  */
-@HBaseTable(tableName = "user2", defaultFamilyName = "info")
+@HBaseTable(tableName = "user2", defaultFamily = "info")
 public class UserPojo2 {
     @HBaseRowKey
     private String rowKey;

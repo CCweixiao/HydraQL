@@ -21,17 +21,11 @@ import java.util.Properties;
  */
 public class HBaseTableTemplate extends BaseHBaseTableTemplate {
     private final Configuration configuration;
-    private final Connection connection;
     private final HBaseTableAdapter tableOpAdapter;
 
     private HBaseTableTemplate(Builder builder) {
         this.configuration = builder.configuration;
-        this.connection = builder.connection;
-        if (this.connection != null) {
-            this.tableOpAdapter = new HBaseTableAdapter(this.connection);
-        } else {
-            this.tableOpAdapter = new HBaseTableAdapter(this.configuration);
-        }
+        this.tableOpAdapter = new HBaseTableAdapter(this.configuration);
     }
 
     @Override
@@ -246,10 +240,6 @@ public class HBaseTableTemplate extends BaseHBaseTableTemplate {
         }
     }
 
-    public static HBaseTableTemplate of (Connection connection) {
-        return new HBaseTableTemplate.Builder().connection(connection).build();
-    }
-
     public static HBaseTableTemplate of(Configuration configuration) {
         return new HBaseTableTemplate.Builder().configuration(configuration).build();
     }
@@ -258,15 +248,7 @@ public class HBaseTableTemplate extends BaseHBaseTableTemplate {
         return new HBaseTableTemplate.Builder().configuration(properties).build();
     }
 
-    public static HBaseTableTemplate of(String zkQuorum, String zkClientPort) {
-        return new HBaseTableTemplate.Builder().configuration(zkQuorum, zkClientPort).build();
-    }
-
     public Configuration getConfiguration() {
         return configuration;
-    }
-
-    public Connection getConnection() {
-        return connection;
     }
 }

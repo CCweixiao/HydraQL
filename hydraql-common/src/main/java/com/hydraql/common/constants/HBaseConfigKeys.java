@@ -25,15 +25,10 @@ public class HBaseConfigKeys {
 
     public static final String HEDGED_READ_WRITE_DISABLE = "hbase.client.hedged.read.write.disable";
     public static final boolean HBASE_CLIENT_HEDGED_READ_WRITE_DISABLE = true;
-    public static final String HBASE_CLIENT_HEDGED_READ_SWITCH = "hbase.client.hedged.read.open";
-    public static final boolean HBASE_CLIENT_HEDGED_READ_SWITCH_DEFAULT = false;
     public static final String HBASE_CLIENT_HEDGED_READ_TIME_OUT = "hbase.client.hedged.read.timeout";
     public static final long HBASE_CLIENT_HEDGED_READ_TIME_OUT_DEFAULT_MS = 100L;
     public static final String HBASE_CLIENT_HEDGED_READ_POOL_SIZE = "hbase.client.hedged.thread.pool.size";
     public static final int HBASE_CLIENT_HEDGED_READ_POOL_DEFAULT_SIZE = 10;
-    public static final String HEDGED_READ_CONF_SUFFIX = ".hedged.read";
-    public static final String HEDGED_READ_ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum".concat(HEDGED_READ_CONF_SUFFIX);
-    public static final String HEDGED_READ_ZOOKEEPER_CLIENT_PORT = "hbase.zookeeper.property.clientPort".concat(HEDGED_READ_CONF_SUFFIX);
     public static final String HBASE_CLIENT_SCANNER_CACHE = "hbase.client.scanner.cache";
     public static final boolean HBASE_CLIENT_DEFAULT_SCANNER_CACHE = false;
     public static final String HBASE_CLIENT_SCANNER_CACHING = "hbase.client.scanner.caching";

@@ -42,10 +42,6 @@ public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter i
     public static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
     public static final byte[] HQL_META_DATA_CREATE_HQL_QUALIFIER = Bytes.toBytes( "create_hql");
 
-    public AbstractHBaseSqlAdapter(Connection connection) {
-        super(connection);
-    }
-
     public AbstractHBaseSqlAdapter(Configuration configuration) {
         super(configuration);
     }

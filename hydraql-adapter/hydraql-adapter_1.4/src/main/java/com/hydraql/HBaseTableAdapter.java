@@ -21,11 +21,6 @@ import java.util.*;
  */
 @InterfaceAudience.Private
 public class HBaseTableAdapter extends BaseHBaseTableAdapter {
-
-    public HBaseTableAdapter(Connection connection) {
-        super(connection);
-    }
-
     public HBaseTableAdapter(Configuration configuration) {
         super(configuration);
     }

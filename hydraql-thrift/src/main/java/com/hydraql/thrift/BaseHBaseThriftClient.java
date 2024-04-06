@@ -9,9 +9,9 @@ import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.common.reflect.FieldStruct;
-import com.hydraql.common.reflect.HBaseTableMeta;
-import com.hydraql.common.reflect.ReflectFactory;
+import com.hydraql.common.meta.FieldStruct;
+import com.hydraql.common.meta.HBaseTableMeta;
+import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.thrift.generated.*;
@@ -115,7 +115,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
             throw new NullPointerException("The data model class object to be saved cannot be null.");
         }
         Class<?> clazz = t.getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
         Object rowKeyVal = createRowKeyVal(tableMeta, t);
         List<Mutation> mutations = createMutationList(t, tableMeta);
         this.save(tableMeta.getTableName(), rowKeyVal, mutations);
@@ -192,7 +192,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
         if (tmpDataMap.isEmpty()) {
             return t;
         }
-        HBaseTableMeta hBaseTableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
         List<FieldStruct> fieldColStructMap = hBaseTableMeta.getFieldStructList();
 
         fieldColStructMap.forEach(fieldStruct -> {

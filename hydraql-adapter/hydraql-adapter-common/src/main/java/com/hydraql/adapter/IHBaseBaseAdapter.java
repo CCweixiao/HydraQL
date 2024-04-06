@@ -1,6 +1,5 @@
 package com.hydraql.adapter;
 
-import com.hydraql.HBaseHedgedReadExecutor;
 import com.hydraql.common.callback.AdminCallback;
 import com.hydraql.common.callback.MutatorCallback;
 import com.hydraql.common.callback.TableCallback;
@@ -25,6 +24,7 @@ import java.util.concurrent.*;
  */
 @InterfaceAudience.Private
 public interface IHBaseBaseAdapter {
+    HBaseClientConf getHBaseClientConf();
     Connection getConnection();
 
     BufferedMutator getBufferedMutator(String tableName);
@@ -32,14 +32,6 @@ public interface IHBaseBaseAdapter {
     Connection getHedgedReadClusterConnection();
 
     BufferedMutator getHedgedReadClusterBufferedMutator(String tableName);
-
-    boolean hedgedReadIsOpen();
-
-    boolean hedgedReadWriteDisable();
-
-    long hedgedReadThresholdMillis();
-
-    int initHedgedReadPoolSize();
 
     default <T> T execute(AdminCallback<T, Admin> action) {
         try (Admin admin = this.getConnection().getAdmin()) {
@@ -66,17 +58,18 @@ public interface IHBaseBaseAdapter {
     }
 
     default <T> T execute(String tableName, TableCallback<T, Table> action) {
-        if (hedgedReadIsOpen()) {
+        if (getHBaseClientConf().hedgedReadIsOpen()) {
             ArrayList<Future<T>> futures = new ArrayList<>();
             CompletionService<T> hedgedService =
-                    new ExecutorCompletionService<>(HBaseHedgedReadExecutor.getHBaseHedgedReadExecutor(initHedgedReadPoolSize()));
+                    new ExecutorCompletionService<>(HBaseHedgedReadExecutor.create()
+                            .getExecutor(getHBaseClientConf().getHedgedReadThreadpoolSize()));
                 // There is no read request already executing
             Callable<T> executeInSource = () -> executeOnSource(tableName, action);
             Future<T> firstRequest = hedgedService.submit(executeInSource);
             futures.add(firstRequest);
             Future<T> future = null;
             try {
-                long thresholdMillis = hedgedReadThresholdMillis();
+                long thresholdMillis = getHBaseClientConf().getHedgedReadThresholdMillis();
                 future = hedgedService.poll(thresholdMillis, TimeUnit.MICROSECONDS);
                 long start = System.currentTimeMillis();
                 while (future == null && (System.currentTimeMillis() - start) < thresholdMillis) {
@@ -130,10 +123,11 @@ public interface IHBaseBaseAdapter {
     }
 
     default void execute(String tableName, MutatorCallback<BufferedMutator> action) {
-        if (hedgedReadIsOpen() && !hedgedReadWriteDisable()) {
+        if (getHBaseClientConf().hedgedReadIsOpen() && !getHBaseClientConf().isHedgedReadWriteDisable()) {
             ArrayList<Future<Void>> futures = new ArrayList<>();
             CompletionService<Void> hedgedService =
-                    new ExecutorCompletionService<>(HBaseHedgedReadExecutor.getHBaseHedgedReadExecutor(initHedgedReadPoolSize()));
+                    new ExecutorCompletionService<>(HBaseHedgedReadExecutor.create()
+                            .getExecutor(getHBaseClientConf().getHedgedReadThreadpoolSize()));
 
             Callable<Void> executeInSource = () -> {
                 executeOnSource(tableName, action);
@@ -144,7 +138,7 @@ public interface IHBaseBaseAdapter {
             futures.add(firstRequest);
             Future<Void> future = null;
             try {
-                long thresholdMillis = hedgedReadThresholdMillis();
+                long thresholdMillis = getHBaseClientConf().getHedgedReadThresholdMillis();
                 future = hedgedService.poll(thresholdMillis, TimeUnit.MICROSECONDS);
                 long start = System.currentTimeMillis();
                 while (future == null && (System.currentTimeMillis() - start) < thresholdMillis) {
@@ -209,7 +203,7 @@ public interface IHBaseBaseAdapter {
     }
 
     default void executeSave(String tableName, Put put) {
-        if (this.hedgedReadWriteDisable()) {
+        if (getHBaseClientConf().isHedgedReadWriteDisable()) {
             try {
                 this.executeOnSource(tableName, table -> {
                     table.put(put);
@@ -227,7 +221,7 @@ public interface IHBaseBaseAdapter {
     }
 
     default void executeDelete(String tableName, Delete delete) {
-        if (this.hedgedReadWriteDisable()) {
+        if (getHBaseClientConf().isHedgedReadWriteDisable()) {
             try {
                 this.executeOnSource(tableName, table -> {
                     table.delete(delete);

@@ -14,12 +14,12 @@ import java.util.Map;
  *
  * @author leo.jie (leojie1314@gmail.com)
  */
-@HBaseTable(namespaceName = "test", tableName = "user", defaultFamilyName = "info")
+@HBaseTable(namespace = "test", tableName = "user", defaultFamily = "info")
 public class UserPojo extends PeoplePojo {
-    @HBaseColumn(columnName = "userName")
+    @HBaseColumn(qualifier = "userName")
     private String username;
     private int age;
-    @HBaseColumn(columnName = "pay", familyName = "info2", toUpperCase = true)
+    @HBaseColumn(qualifier = "pay", family = "info2")
     private float pay;
     private List<String> address;
     private double cost;
@@ -28,7 +28,7 @@ public class UserPojo extends PeoplePojo {
     private Map<String, Object> info;
     private BigDecimal bigDecimal;
     private String[] roles;
-    @HBaseColumn(columnName = "is_vip", familyName = "info", toUpperCase = false)
+    @HBaseColumn(qualifier = "is_vip", family = "info")
     private boolean isVip;
 
     public String getUsername() {

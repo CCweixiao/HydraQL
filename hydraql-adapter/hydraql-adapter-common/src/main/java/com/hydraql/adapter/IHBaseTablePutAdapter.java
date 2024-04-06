@@ -3,9 +3,9 @@ package com.hydraql.adapter;
 import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseMetaDataException;
 import com.hydraql.common.lang.MyAssert;
-import com.hydraql.common.reflect.FieldStruct;
-import com.hydraql.common.reflect.HBaseTableMeta;
-import com.hydraql.common.reflect.ReflectFactory;
+import com.hydraql.common.meta.FieldStruct;
+import com.hydraql.common.meta.HBaseTableMeta;
+import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.type.TypeHandler;
 import com.hydraql.common.util.StringUtil;
@@ -36,7 +36,7 @@ public interface IHBaseTablePutAdapter {
 
     default <T> Put buildPut(T t) throws HBaseMetaDataException {
         Class<?> clazz = t.getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
         List<FieldStruct> fieldStructList = tableMeta.getFieldStructList();
         FieldStruct rowFieldStruct = fieldStructList.get(0);
         if (!rowFieldStruct.isRowKey()) {

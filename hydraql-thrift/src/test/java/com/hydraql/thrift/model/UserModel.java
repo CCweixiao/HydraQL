@@ -7,15 +7,15 @@ import com.hydraql.common.annotations.HBaseTable;
 /**
  * @author leojie 2022/12/10 17:44
  */
-@HBaseTable(namespaceName = "test", tableName = "t1", defaultFamilyName = "info")
+@HBaseTable(namespace = "test", tableName = "t1", defaultFamily = "info")
 public class UserModel {
     @HBaseRowKey
     private String userId;
     @HBaseColumn()
     private String nickName;
-    @HBaseColumn(familyName = "detail", columnName = "detailAddress")
+    @HBaseColumn(family = "detail", qualifier = "detailAddress")
     private String detailAddress;
-    @HBaseColumn(familyName = "detail", toUpperCase = true)
+    @HBaseColumn(family = "detail")
     private double detailPay;
 
     public String getUserId() {

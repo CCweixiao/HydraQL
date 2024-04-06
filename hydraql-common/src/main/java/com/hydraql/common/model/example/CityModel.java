@@ -12,18 +12,18 @@ import java.util.stream.Collectors;
 /**
  * @author leojie 2022/11/5 13:56
  */
-@HBaseTable(namespaceName = "default", tableName = "t2", defaultFamilyName = "info")
+@HBaseTable(namespace = "default", tableName = "t2", defaultFamily = "info")
 public class CityModel {
     @HBaseRowKey
     private String cityId;
     private String cityName;
     private String cityAddress;
 
-    @HBaseColumn(familyName = "detail")
+    @HBaseColumn(family = "detail")
     private Integer cityArea;
-    @HBaseColumn(familyName = "detail", columnName = "TOTAL_POPULATION",  toUpperCase = true)
+    @HBaseColumn(family = "detail", qualifier = "TOTAL_POPULATION")
     private Integer totalPopulation;
-    @HBaseColumn(familyName = "detail", columnName = "cityTagList")
+    @HBaseColumn(family = "detail", qualifier = "cityTagList")
     private List<CityTag> cityTagList;
 
     public String getCityId() {

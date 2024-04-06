@@ -12,9 +12,9 @@ import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.BaseGetRowParam;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
-import com.hydraql.common.reflect.FieldStruct;
-import com.hydraql.common.reflect.HBaseTableMeta;
-import com.hydraql.common.reflect.ReflectFactory;
+import com.hydraql.common.meta.FieldStruct;
+import com.hydraql.common.meta.HBaseTableMeta;
+import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -61,7 +61,7 @@ public interface IHBaseTableGetAdapter {
     default <T> T mapperRowToT(Result result, Class<T> clazz) throws Exception {
         //TODO 这里的反射调用构造函数是否可以再优化
         T t = clazz.getDeclaredConstructor().newInstance();
-        HBaseTableMeta hBaseTableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
         List<FieldStruct> fieldStructs = hBaseTableMeta.getFieldStructList();
         fieldStructs.forEach(fieldStruct -> {
             if (fieldStruct.isRowKey()) {
@@ -83,7 +83,7 @@ public interface IHBaseTableGetAdapter {
         if (versions == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("You must specify an exact number of versions.");
         }
-        HBaseTableMeta hBaseTableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
         List<FieldStruct> fieldStructs = hBaseTableMeta.getFieldStructList();
         FieldStruct rowKeyField = null;
         Object rowKey = null;

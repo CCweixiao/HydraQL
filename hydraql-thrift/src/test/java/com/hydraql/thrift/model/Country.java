@@ -3,7 +3,7 @@ package com.hydraql.thrift.model;
 import com.hydraql.common.annotations.HBaseColumn;
 
 public class Country {
-    @HBaseColumn(familyName = "info", columnName = "countryName")
+    @HBaseColumn(family = "info", qualifier = "countryName")
     private String countryName;
 
     public String getCountryName() {

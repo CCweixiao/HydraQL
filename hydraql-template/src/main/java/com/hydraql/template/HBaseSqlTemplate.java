@@ -16,17 +16,11 @@ import java.util.Properties;
  */
 public class HBaseSqlTemplate implements BaseHBaseSqlTemplate {
     private final Configuration configuration;
-    private final Connection connection;
     private final IHBaseSqlAdapter sqlAdapter;
 
     private HBaseSqlTemplate(Builder builder) {
         this.configuration = builder.configuration;
-        this.connection = builder.connection;
-        if (this.connection != null) {
-            this.sqlAdapter = new HBaseSqlAdapter(this.connection);
-        } else {
-            this.sqlAdapter = new HBaseSqlAdapter(this.configuration);
-        }
+        this.sqlAdapter = new HBaseSqlAdapter(this.configuration);
     }
 
     @Override
@@ -103,9 +97,5 @@ public class HBaseSqlTemplate implements BaseHBaseSqlTemplate {
 
     public Configuration getConfiguration() {
         return configuration;
-    }
-
-    public Connection getConnection() {
-        return connection;
     }
 }

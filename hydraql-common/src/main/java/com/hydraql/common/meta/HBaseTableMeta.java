@@ -1,4 +1,4 @@
-package com.hydraql.common.reflect;
+package com.hydraql.common.meta;
 
 import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;

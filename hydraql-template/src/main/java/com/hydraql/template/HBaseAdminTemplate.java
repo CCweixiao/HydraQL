@@ -25,17 +25,11 @@ import java.util.Properties;
  */
 public class HBaseAdminTemplate implements BaseHBaseAdminTemplate {
     private final Configuration configuration;
-    private final Connection connection;
     private final HBaseAdminAdapter adminAdapter;
 
     private HBaseAdminTemplate(Builder builder) {
         this.configuration = builder.configuration;
-        this.connection = builder.connection;
-        if (this.connection != null) {
-            this.adminAdapter = new HBaseAdminAdapter(this.connection);
-        } else {
-            this.adminAdapter = new HBaseAdminAdapter(this.configuration);
-        }
+        this.adminAdapter = new HBaseAdminAdapter(this.configuration);
     }
 
     @Override
@@ -390,10 +384,6 @@ public class HBaseAdminTemplate implements BaseHBaseAdminTemplate {
         }
     }
 
-    public static HBaseAdminTemplate of(Connection connection) {
-        return new HBaseAdminTemplate.Builder().connection(connection).build();
-    }
-
     public static HBaseAdminTemplate of(Configuration configuration) {
         return new HBaseAdminTemplate.Builder().configuration(configuration).build();
     }
@@ -402,19 +392,7 @@ public class HBaseAdminTemplate implements BaseHBaseAdminTemplate {
         return new HBaseAdminTemplate.Builder().configuration(properties).build();
     }
 
-    public static HBaseAdminTemplate of(String zkQuorum, String zkClientPort) {
-        return new HBaseAdminTemplate.Builder().configuration(zkQuorum, zkClientPort).build();
-    }
-
-    public static HBaseAdminTemplate.Builder builder() {
-        return new HBaseAdminTemplate.Builder();
-    }
-
     public Configuration getConfiguration() {
         return configuration;
-    }
-
-    public Connection getConnection() {
-        return connection;
     }
 }

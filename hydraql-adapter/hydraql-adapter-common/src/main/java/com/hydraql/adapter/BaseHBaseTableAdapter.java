@@ -7,8 +7,8 @@ import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.common.reflect.HBaseTableMeta;
-import com.hydraql.common.reflect.ReflectFactory;
+import com.hydraql.common.meta.HBaseTableMeta;
+import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.*;
@@ -26,10 +26,6 @@ import java.util.stream.Collectors;
  */
 @InterfaceAudience.Private
 public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter implements IHBaseTableOpAdapter, IHBaseTableGetAdapter, IHBaseTablePutAdapter, IHBaseTableDeleteAdapter, IHBaseTableScanAdapter {
-    public BaseHBaseTableAdapter(Connection connection) {
-        super(connection);
-    }
-
     public BaseHBaseTableAdapter(Configuration configuration) {
         super(configuration);
     }
@@ -42,7 +38,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
     @Override
     public <T> void save(T t) {
         final Class<?> clazz = t.getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
         this.executeSave(tableMeta.getTableName(), new Put(buildPut(t)));
     }
 
@@ -66,7 +62,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
             return;
         }
         final Class<?> clazz = list.get(0).getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
         List<Mutation> putList = new ArrayList<>(list.size());
         for (T t : list) {
             putList.add(new Put(buildPut(t)));
@@ -82,7 +78,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
 
     @Override
     public <T> T get(Get get, Class<T> clazz) {
-        String tableName = ReflectFactory.getHBaseTableMeta(clazz).getTableName();
+        String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
         return this.execute(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
@@ -128,7 +124,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
 
     @Override
     public <T> List<T> getWithMultiVersions(Get get, int versions, Class<T> clazz) {
-        String tableName = ReflectFactory.getHBaseTableMeta(clazz).getTableName();
+        String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
         return this.execute(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
@@ -182,7 +178,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
 
     @Override
     public <T> List<T> getRows(GetRowsParam getRowsParam, Class<T> clazz) {
-        String tableName = ReflectFactory.getHBaseTableMeta(clazz).getTableName();
+        String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
         List<Get> gets = this.buildGets(getRowsParam);
         return this.gets(tableName, gets, clazz);
     }
@@ -251,7 +247,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
 
     @Override
     public <T> List<T> scan(Scan scan, Class<T> clazz) {
-        String tableName = ReflectFactory.getHBaseTableMeta(clazz).getTableName();
+        String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
         return this.execute(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 List<T> rs = new ArrayList<>();
@@ -331,7 +327,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
             return;
         }
         final Class<?> clazz = t.getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
         this.executeDelete(tableMeta.getTableName(), new Delete(buildDelete(t)));
     }
 
@@ -372,7 +368,7 @@ public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter imp
             return;
         }
         final Class<?> clazz0 = list.get(0).getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getHBaseTableMeta(clazz0);
+        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz0);
         List<Mutation> deleteList = new ArrayList<>(list.size());
         for (T t : list) {
             deleteList.add(new Delete(buildDelete(t)));

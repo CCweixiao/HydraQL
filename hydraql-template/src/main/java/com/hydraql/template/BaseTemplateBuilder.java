@@ -2,7 +2,6 @@ package com.hydraql.template;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
 
 import java.util.Properties;
@@ -47,14 +46,6 @@ public abstract class BaseTemplateBuilder<T> {
         }
         this.configuration.set(key, value);
         return this;
-    }
-
-    public BaseTemplateBuilder<T> zookeeperQuorum(String zkQuorum) {
-        return this.configuration(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
-    }
-
-    public BaseTemplateBuilder<T> zookeeperClientPort(String zkClientPort) {
-        return this.configuration(HConstants.ZOOKEEPER_CLIENT_PORT, zkClientPort);
     }
 
     abstract T build();

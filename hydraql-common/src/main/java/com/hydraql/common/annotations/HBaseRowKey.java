@@ -1,6 +1,11 @@
 package com.hydraql.common.annotations;
 
-import java.lang.annotation.*;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * the annotation should be used to define a row key field of one java bean.
@@ -11,10 +16,4 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface HBaseRowKey {
-    /**
-     * Defines whether a property is a row key
-     *
-     * @return Is row key or not.
-     */
-    boolean rowKey() default true;
 }

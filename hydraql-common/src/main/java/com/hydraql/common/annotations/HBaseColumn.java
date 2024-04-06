@@ -1,9 +1,14 @@
 package com.hydraql.common.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * This annotation is used to define some information for HBase fields.
+ * This annotation is used to define the field model in HBase
+ * and contains two parts: family and qualifier.
  *
  * @author leo
  */
@@ -13,27 +18,20 @@ import java.lang.annotation.*;
 public @interface HBaseColumn {
 
     /**
-     * Generic column cluster names are ignored and a column cluster name is specifically
-     * referred to for the field.
+     * Define family name for the field, it will have the highest priority.
+     * if not defined, get the default family in {@link HBaseTable}. <br/>
+     * <p>
+     * If family name is not defined in both places,
+     * exception {@link com.hydraql.common.exception.InvalidTableModelClassException} will be thrown to the user
      *
      * @return family name
      */
-    String familyName() default "";
+    String family() default "";
 
     /**
-     * Name field names separated by _.
-     * For example:
-     * If the pojo bean property name is userStatus,
-     * '_' Splicing a name is user_status.
+     * If qualifier is not defined, the field name of the table model class attribute is taken.
      *
-     * @return filed name
+     * @return qualifier name
      */
-    String columnName() default "";
-
-    /**
-     * If the field name is turned to uppercase, the field name is not capitalized by default.
-     *
-     * @return to upperCase or not
-     */
-    boolean toUpperCase() default false;
+    String qualifier() default "";
 }

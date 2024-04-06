@@ -49,11 +49,6 @@ import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_S
 public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBaseMetricOperations {
     public static final Logger LOG = LoggerFactory.getLogger(HBaseAdminAdapter.class);
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
-
-    public HBaseAdminAdapter(Connection connection) {
-        super(connection);
-    }
-
     public HBaseAdminAdapter(Configuration configuration) {
         super(configuration);
     }

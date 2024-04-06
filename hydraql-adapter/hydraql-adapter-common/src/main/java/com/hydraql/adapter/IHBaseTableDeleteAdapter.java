@@ -3,9 +3,9 @@ package com.hydraql.adapter;
 import com.hydraql.common.exception.HBaseMetaDataException;
 import com.hydraql.common.exception.HBaseOperationsException;
 import com.hydraql.common.lang.MyAssert;
-import com.hydraql.common.reflect.FieldStruct;
-import com.hydraql.common.reflect.HBaseTableMeta;
-import com.hydraql.common.reflect.ReflectFactory;
+import com.hydraql.common.meta.FieldStruct;
+import com.hydraql.common.meta.HBaseTableMeta;
+import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.common.query.FamilyQualifierUtil;
 import org.apache.hadoop.hbase.client.Delete;
@@ -37,7 +37,7 @@ public interface IHBaseTableDeleteAdapter {
 
     default  <T> Delete buildDelete(T t) throws HBaseMetaDataException {
         Class<?> clazz = t.getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getHBaseTableMeta(clazz);
+        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
         List<FieldStruct> fieldStructList = tableMeta.getFieldStructList();
         FieldStruct rowFieldStruct = fieldStructList.get(0);
         if (!rowFieldStruct.isRowKey()) {
