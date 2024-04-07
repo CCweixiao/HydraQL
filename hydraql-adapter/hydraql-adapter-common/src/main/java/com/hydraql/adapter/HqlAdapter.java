@@ -36,13 +36,13 @@ import java.util.Map;
  * @author leojie 2020/11/28 8:34 下午
  */
 @InterfaceAudience.Private
-public abstract class AbstractHBaseSqlAdapter extends AbstractHBaseBaseAdapter implements IHBaseSqlAdapter {
+public abstract class HqlAdapter extends AbstractBaseAdapter implements IHBaseSqlAdapter {
     public static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
     public static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
     public static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
     public static final byte[] HQL_META_DATA_CREATE_HQL_QUALIFIER = Bytes.toBytes( "create_hql");
 
-    public AbstractHBaseSqlAdapter(Configuration configuration) {
+    public HqlAdapter(Configuration configuration) {
         super(configuration);
     }
 

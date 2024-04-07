@@ -1,6 +1,6 @@
 package com.hydraql.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.AbstractHBaseSqlAdapter;
+import com.hydraql.adapter.HqlAdapter;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.dsl.context.HBaseSqlContext;
 import org.apache.hadoop.hbase.client.Result;
@@ -17,7 +17,7 @@ import java.util.Set;
  * @author leojie 2023/9/27 14:57
  */
 public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> implements Interpreter {
-    private final AbstractHBaseSqlAdapter sqlAdapter;
+    private final HqlAdapter sqlAdapter;
 
     private ShowVirtualTablesExecutor(ExecutorBuilder builder) {
         super(builder.hql);
@@ -41,7 +41,7 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
 
     private List<String> queryAllVirtualTables() {
         Scan scan = new Scan();
-        return sqlAdapter.execute(AbstractHBaseSqlAdapter.
+        return sqlAdapter.execute(HqlAdapter.
                 HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             ResultScanner scanner = table.getScanner(scan);
             List<String> tables = new ArrayList<>();
@@ -54,8 +54,8 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
 
     private static class ExecutorBuilder extends Builder<ShowVirtualTablesExecutor, List<String>> {
         private final String hql;
-        private final AbstractHBaseSqlAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+        private final HqlAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, HqlAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -66,7 +66,7 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
         }
     }
 
-    public static ShowVirtualTablesExecutor of(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+    public static ShowVirtualTablesExecutor of(String hql, HqlAdapter sqlAdapter) {
         return new ShowVirtualTablesExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

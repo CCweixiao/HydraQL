@@ -1,6 +1,6 @@
 package com.hydraql.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.AbstractHBaseSqlAdapter;
+import com.hydraql.adapter.HqlAdapter;
 import com.hydraql.common.exception.HBaseSqlExecuteException;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.dsl.antlr.HydraQLParser;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
 
-    private final AbstractHBaseSqlAdapter sqlAdapter;
+    private final HqlAdapter sqlAdapter;
 
     private DeleteExecutor(DeleteExecutor.ExecutorBuilder builder) {
         super(builder.hql);
@@ -158,8 +158,8 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
 
     private static class ExecutorBuilder extends Builder<DeleteExecutor, Boolean> {
         private final String hql;
-        private final AbstractHBaseSqlAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+        private final HqlAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, HqlAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -170,7 +170,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
         }
     }
 
-    public static DeleteExecutor of(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+    public static DeleteExecutor of(String hql, HqlAdapter sqlAdapter) {
         return new DeleteExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

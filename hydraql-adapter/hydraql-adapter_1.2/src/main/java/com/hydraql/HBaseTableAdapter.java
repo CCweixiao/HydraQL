@@ -1,13 +1,12 @@
 package com.hydraql;
 
-import com.hydraql.adapter.BaseHBaseTableAdapter;
+import com.hydraql.adapter.HTableAdapter;
 import com.hydraql.common.exception.HBaseQueryParamsException;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -21,7 +20,7 @@ import java.util.*;
  * @author leo.jie (weixiao.me@aliyun.com)
  */
 @InterfaceAudience.Private
-public class HBaseTableAdapter extends BaseHBaseTableAdapter {
+public class HBaseTableAdapter extends HTableAdapter {
 
     
 

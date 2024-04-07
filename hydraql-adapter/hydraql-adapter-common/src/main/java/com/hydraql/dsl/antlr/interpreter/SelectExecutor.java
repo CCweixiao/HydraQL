@@ -1,6 +1,6 @@
 package com.hydraql.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.AbstractHBaseSqlAdapter;
+import com.hydraql.adapter.HqlAdapter;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.exception.HBaseSqlExecuteException;
 import com.hydraql.common.model.HQLType;
@@ -34,7 +34,7 @@ import java.util.Map;
  * @author leojie 2023/9/27 19:22
  */
 public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Interpreter {
-    private final AbstractHBaseSqlAdapter sqlAdapter;
+    private final HqlAdapter sqlAdapter;
 
     private SelectExecutor(SelectExecutor.ExecutorBuilder builder) {
         super(builder.hql);
@@ -207,8 +207,8 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
 
     private static class ExecutorBuilder extends Builder<SelectExecutor, HBaseDataSet> {
         private final String hql;
-        private final AbstractHBaseSqlAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+        private final HqlAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, HqlAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -219,7 +219,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
         }
     }
 
-    public static SelectExecutor of(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+    public static SelectExecutor of(String hql, HqlAdapter sqlAdapter) {
         return new SelectExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

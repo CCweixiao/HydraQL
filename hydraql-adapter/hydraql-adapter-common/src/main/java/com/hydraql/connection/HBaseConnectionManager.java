@@ -55,6 +55,9 @@ public class HBaseConnectionManager {
     }
 
     public Connection getConnection(Configuration configuration) {
+        if (configuration == null) {
+            throw new HydraQLConnectionException("The configuration of cluster must not be null.");
+        }
         String connKey = HBaseConnectionUtil.generateUniqueConnectionKey(configuration);
         LOG.info("Start to get connection for unique key: {}.", connKey);
         Connection conn = connections.get(connKey);

@@ -1,6 +1,6 @@
 package com.hydraql;
 
-import com.hydraql.adapter.AbstractHBaseAdminAdapter;
+import com.hydraql.adapter.AdminAdapter;
 import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseFamilyHasExistsException;
 import com.hydraql.common.exception.HBaseFamilyNotFoundException;
@@ -27,7 +27,6 @@ import com.hydraql.util.RegionSplitter;
 import com.hydraql.util.SplitKeyUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
@@ -44,7 +43,7 @@ import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_S
  * @author leojie 2020/9/25 11:11 下午
  */
 @InterfaceAudience.Private
-public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBaseMetricOperations {
+public class HBaseAdminAdapter extends AdminAdapter implements HBaseMetricOperations {
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
 
     public HBaseAdminAdapter(Configuration configuration) {

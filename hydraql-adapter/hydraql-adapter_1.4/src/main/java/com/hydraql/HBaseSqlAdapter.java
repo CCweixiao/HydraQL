@@ -1,6 +1,6 @@
 package com.hydraql;
 
-import com.hydraql.adapter.AbstractHBaseSqlAdapter;
+import com.hydraql.adapter.HqlAdapter;
 import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseOperationsException;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
@@ -32,7 +32,7 @@ import java.util.*;
  * @author leojie 2020/11/28 8:36 下午
  */
 @InterfaceAudience.Private
-public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
+public class HBaseSqlAdapter extends HqlAdapter {
     public HBaseSqlAdapter(Configuration configuration) {
         super(configuration);
     }

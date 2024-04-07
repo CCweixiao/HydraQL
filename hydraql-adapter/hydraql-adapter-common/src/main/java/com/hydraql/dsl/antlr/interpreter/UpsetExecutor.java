@@ -1,6 +1,6 @@
 package com.hydraql.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.AbstractHBaseSqlAdapter;
+import com.hydraql.adapter.HqlAdapter;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.data.InsertRowData;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class UpsetExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
 
-    private final AbstractHBaseSqlAdapter sqlAdapter;
+    private final HqlAdapter sqlAdapter;
 
     private UpsetExecutor(UpsetExecutor.ExecutorBuilder builder) {
         super(builder.hql);
@@ -68,8 +68,8 @@ public class UpsetExecutor extends BaseHqlExecutor<Boolean> implements Interpret
 
     private static class ExecutorBuilder extends Builder<UpsetExecutor, Boolean> {
         private final String hql;
-        private final AbstractHBaseSqlAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+        private final HqlAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, HqlAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -80,7 +80,7 @@ public class UpsetExecutor extends BaseHqlExecutor<Boolean> implements Interpret
         }
     }
 
-    public static UpsetExecutor of(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
+    public static UpsetExecutor of(String hql, HqlAdapter sqlAdapter) {
         return new UpsetExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

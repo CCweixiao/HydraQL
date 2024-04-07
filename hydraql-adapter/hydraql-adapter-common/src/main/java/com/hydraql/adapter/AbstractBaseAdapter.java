@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.yetus.audience.InterfaceAudience;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import static com.hydraql.common.constants.HBaseConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHING;
@@ -20,14 +19,14 @@ import static com.hydraql.common.constants.HBaseConfigKeys.HBASE_CLIENT_SCANNER_
  * @author leojie 2020/11/13 11:52 下午
  */
 @InterfaceAudience.Private
-public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
+public abstract class AbstractBaseAdapter implements BaseAdapter {
     private final Configuration configuration;
     private final HBaseClientConf clientConf;
     private final Connection connection;
     private Configuration hedgedConfiguration;
     private Connection hedgedConnection;
 
-    public AbstractHBaseBaseAdapter(Configuration configuration) {
+    public AbstractBaseAdapter(Configuration configuration) {
         this.configuration = configuration;
         this.clientConf = new HBaseClientConf(configuration);
         this.connection = HBaseConnectionManager.getInstance().getConnection(this.configuration);
@@ -38,33 +37,7 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
     }
 
     private Configuration createHedgedReadClusterConf(Configuration conf) {
-        if (conf == null) {
-            throw new NullPointerException("The source cluster configuration cannot be empty.");
-        }
-        Configuration hedgedReadConf = HBaseConfiguration.create();
 
-        for (Map.Entry<String, String> entry : conf) {
-            String hedgedReadKey = entry.getKey();
-            if (hedgedReadKey.startsWith(HBaseClientConfigKeys.HedgedRead.PREFIX) ||
-                    hedgedReadKey.startsWith(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)) {
-                continue;
-            }
-            hedgedReadConf.set(entry.getKey(), entry.getValue());
-        }
-
-        for (Map.Entry<String, String> entry : conf) {
-            String hedgedReadKey = entry.getKey();
-            if (hedgedReadKey.startsWith(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)) {
-                String clientKey = hedgedReadKey
-                        .substring(hedgedReadKey.indexOf(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)
-                                + HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX.length());
-                if (HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_KEY.equals(clientKey)) {
-                    throw new IllegalStateException("The hedged read cluster can no longer support the hedged read function.");
-                }
-                hedgedReadConf.set(clientKey, entry.getValue());
-            }
-        }
-        return hedgedReadConf;
     }
 
     @Override
@@ -98,8 +71,7 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
 
     @Override
     public BufferedMutator getHedgedReadBufferedMutator(String tableName) {
-        return HBaseConnectionManager.getInstance().getBufferedMutator(tableName, this.getHedgedConfiguration(),
-                this.getHedgedReadConnection());
+
     }
 
 

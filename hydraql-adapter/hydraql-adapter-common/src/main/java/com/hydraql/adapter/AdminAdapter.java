@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
  * @author leojie 2020/11/14 2:26 下午
  */
 @InterfaceAudience.Private
-public abstract class AbstractHBaseAdminAdapter extends AbstractHBaseBaseAdapter implements IHBaseAdminAdapter {
-    public AbstractHBaseAdminAdapter(Configuration configuration) {
+public abstract class AdminAdapter extends AbstractBaseAdapter implements IHBaseAdminAdapter {
+    public AdminAdapter(Configuration configuration) {
         super(configuration);
     }
 

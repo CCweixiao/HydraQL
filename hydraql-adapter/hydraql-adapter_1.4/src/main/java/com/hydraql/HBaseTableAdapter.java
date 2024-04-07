@@ -1,6 +1,6 @@
 package com.hydraql;
 
-import com.hydraql.adapter.BaseHBaseTableAdapter;
+import com.hydraql.adapter.HTableAdapter;
 import com.hydraql.common.exception.HBaseQueryParamsException;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
@@ -20,7 +20,7 @@ import java.util.*;
  * @author leo.jie (weixiao.me@aliyun.com)
  */
 @InterfaceAudience.Private
-public class HBaseTableAdapter extends BaseHBaseTableAdapter {
+public class HBaseTableAdapter extends HTableAdapter {
     public HBaseTableAdapter(Configuration configuration) {
         super(configuration);
     }

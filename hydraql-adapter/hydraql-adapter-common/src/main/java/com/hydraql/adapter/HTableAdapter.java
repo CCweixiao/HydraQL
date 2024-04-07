@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
  * @author leo.jie (leojie1314@gmail.com)
  */
 @InterfaceAudience.Private
-public abstract class BaseHBaseTableAdapter extends AbstractHBaseBaseAdapter implements IHBaseTableOpAdapter, IHBaseTableGetAdapter, IHBaseTablePutAdapter, IHBaseTableDeleteAdapter, IHBaseTableScanAdapter {
-    public BaseHBaseTableAdapter(Configuration configuration) {
+public abstract class HTableAdapter extends AbstractBaseAdapter implements IHBaseTableOpAdapter, IHBaseTableGetAdapter, IHBaseTablePutAdapter, IHBaseTableDeleteAdapter, IHBaseTableScanAdapter {
+    public HTableAdapter(Configuration configuration) {
         super(configuration);
     }
 
