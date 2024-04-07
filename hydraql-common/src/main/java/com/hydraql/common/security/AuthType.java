@@ -33,4 +33,11 @@ public enum AuthType {
         }
         throw new HBaseSdkUnsupportedAuthTypeException(String.format("Unsupported auth type %s", authType));
     }
+
+    public static boolean isKerberos(String authType) {
+        if (StringUtil.isBlank(authType)) {
+            return false;
+        }
+        return KERBEROS.getAuthType().equalsIgnoreCase(authType);
+    }
 }

@@ -18,25 +18,21 @@ public class HBaseConnectionUtil {
     public static String generateUniqueConnectionKey(Configuration configuration) {
         String zkQuorum = configuration.get(HConstants.ZOOKEEPER_QUORUM);
         String zkClientPort = configuration.get(HConstants.ZOOKEEPER_CLIENT_PORT);
-        String proxyUser = "";
+        String uniqueKey = generateUniqueConnectionKey(zkQuorum, zkClientPort);
         if (isProxyUserEnabled(configuration)) {
-            proxyUser = proxyUser(configuration);
-        }
-        return generateUniqueConnectionKey(zkQuorum, zkClientPort, proxyUser);
-    }
-
-    private static String generateUniqueConnectionKey(String zkQuorum, String zkClientPort, String proxyUser) {
-        if (StringUtil.isBlank(zkQuorum)) {
-            throw new IllegalArgumentException("The zkQuorum must be specified.");
-        }
-        if (StringUtil.isBlank(zkClientPort)) {
-            throw new IllegalArgumentException("The zkClientPort must be specified.");
-        }
-        String uniqueKey = DigestUtil.md5Hex(zkQuorum.concat(zkClientPort));
-        if (StringUtil.isNotBlank(proxyUser)) {
-            uniqueKey = uniqueKey + "#" + proxyUser;
+            uniqueKey = uniqueKey + "#" + proxyUser(configuration);
         }
         return uniqueKey;
+    }
+
+    private static String generateUniqueConnectionKey(String zkQuorum, String zkClientPort) {
+        if (StringUtil.isBlank(zkQuorum)) {
+            throw new IllegalArgumentException("hbase.zookeeper.quorum must be set.");
+        }
+        if (StringUtil.isBlank(zkClientPort)) {
+            throw new IllegalArgumentException("hbase.zookeeper.property.clientPort must be set.");
+        }
+        return DigestUtil.md5Hex(zkQuorum.concat(zkClientPort));
     }
 
     public static boolean isProxyUserEnabled(Configuration configuration) {

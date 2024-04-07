@@ -24,13 +24,17 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
     private final Configuration configuration;
     private final HBaseClientConf clientConf;
     private final Connection connection;
-    private final Configuration hedgedConfiguration;
+    private Configuration hedgedConfiguration;
+    private Connection hedgedConnection;
 
     public AbstractHBaseBaseAdapter(Configuration configuration) {
         this.configuration = configuration;
         this.clientConf = new HBaseClientConf(configuration);
         this.connection = HBaseConnectionManager.getInstance().getConnection(this.configuration);
-        this.hedgedConfiguration = createHedgedReadClusterConf(configuration);
+        if (this.clientConf.hedgedReadIsOpen()) {
+            this.hedgedConfiguration = createHedgedReadClusterConf(configuration);
+            this.hedgedConnection = HBaseConnectionManager.getInstance().getConnection(this.hedgedConfiguration);
+        }
     }
 
     private Configuration createHedgedReadClusterConf(Configuration conf) {
@@ -41,9 +45,15 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
 
         for (Map.Entry<String, String> entry : conf) {
             String hedgedReadKey = entry.getKey();
-            if (hedgedReadKey.startsWith(HBaseClientConfigKeys.HedgedRead.PREFIX)) {
+            if (hedgedReadKey.startsWith(HBaseClientConfigKeys.HedgedRead.PREFIX) ||
+                    hedgedReadKey.startsWith(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)) {
                 continue;
             }
+            hedgedReadConf.set(entry.getKey(), entry.getValue());
+        }
+
+        for (Map.Entry<String, String> entry : conf) {
+            String hedgedReadKey = entry.getKey();
             if (hedgedReadKey.startsWith(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)) {
                 String clientKey = hedgedReadKey
                         .substring(hedgedReadKey.indexOf(HBaseClientConfigKeys.HEDGED_READ_CLUSTER_CONF_PREFIX)
@@ -52,8 +62,6 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
                     throw new IllegalStateException("The hedged read cluster can no longer support the hedged read function.");
                 }
                 hedgedReadConf.set(clientKey, entry.getValue());
-            } else {
-                hedgedReadConf.set(entry.getKey(), entry.getValue());
             }
         }
         return hedgedReadConf;
@@ -64,6 +72,10 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
         return this.clientConf;
     }
 
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
     @Override
     public Connection getConnection() {
         return connection;
@@ -71,17 +83,23 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
 
     @Override
     public BufferedMutator getBufferedMutator(String tableName) {
-        return HBaseConnectionManager.getInstance().getBufferedMutator(tableName, this.getConfiguration());
+        return HBaseConnectionManager.getInstance().getBufferedMutator(tableName,
+                this.getConfiguration(), this.getConnection());
+    }
+
+    public Configuration getHedgedConfiguration() {
+        return hedgedConfiguration;
     }
 
     @Override
-    public Connection getHedgedReadClusterConnection() {
-        return HBaseConnectionManager.getInstance().getConnection(this.getHedgedConfiguration());
+    public Connection getHedgedReadConnection() {
+        return hedgedConnection;
     }
 
     @Override
-    public BufferedMutator getHedgedReadClusterBufferedMutator(String tableName) {
-        return HBaseConnectionManager.getInstance().getBufferedMutator(tableName, this.getHedgedConfiguration());
+    public BufferedMutator getHedgedReadBufferedMutator(String tableName) {
+        return HBaseConnectionManager.getInstance().getBufferedMutator(tableName, this.getHedgedConfiguration(),
+                this.getHedgedReadConnection());
     }
 
 
@@ -109,13 +127,5 @@ public abstract class AbstractHBaseBaseAdapter implements IHBaseBaseAdapter {
             return HBASE_CLIENT_DEFAULT_SCANNER_CACHING;
         }
         return configuration.getInt(HBASE_CLIENT_SCANNER_CACHING, HBASE_CLIENT_DEFAULT_SCANNER_CACHING);
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public Configuration getHedgedConfiguration() {
-        return hedgedConfiguration;
     }
 }

@@ -1,7 +1,7 @@
 package com.hydraql.connection;
 
 import com.hydraql.common.constants.HBaseConfigKeys;
-import com.hydraql.common.exception.HBaseSdkConnectionException;
+import com.hydraql.common.exception.HydraQLConnectionException;
 import com.hydraql.common.security.AuthType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -62,7 +62,7 @@ public class HBaseConnectionManagerRuby {
                 return value;
             }
         }
-        throw new HBaseSdkConnectionException("Auth type " + auth + " is not supported.");
+        throw new HydraQLConnectionException("Auth type " + auth + " is not supported.");
     }
 }
 

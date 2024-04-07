@@ -1,5 +1,6 @@
 package com.hydraql.adapter;
 
+import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.common.callback.AdminCallback;
 import com.hydraql.common.callback.MutatorCallback;
 import com.hydraql.common.callback.TableCallback;
@@ -25,13 +26,18 @@ import java.util.concurrent.*;
 @InterfaceAudience.Private
 public interface IHBaseBaseAdapter {
     HBaseClientConf getHBaseClientConf();
+
     Connection getConnection();
 
     BufferedMutator getBufferedMutator(String tableName);
 
-    Connection getHedgedReadClusterConnection();
+    WrapperBufferedMutator getWrapperBufferedMutator(HTableContext tableContext);
 
-    BufferedMutator getHedgedReadClusterBufferedMutator(String tableName);
+    Connection getHedgedReadConnection();
+
+    BufferedMutator getHedgedReadBufferedMutator(String tableName);
+
+    WrapperBufferedMutator getHedgedReadWrapperBufferedMutator(HTableContext tableContext);
 
     default <T> T execute(AdminCallback<T, Admin> action) {
         try (Admin admin = this.getConnection().getAdmin()) {
@@ -50,7 +56,7 @@ public interface IHBaseBaseAdapter {
     }
 
     default <T> T executeOnTarget(String tableName, TableCallback<T, Table> action) throws IOException {
-        try (Table table = this.getHedgedReadClusterConnection().getTable(TableName.valueOf(tableName))) {
+        try (Table table = this.getHedgedReadConnection().getTable(TableName.valueOf(tableName))) {
             return action.doInTable(table);
         } catch (Throwable throwable) {
             throw new IOException(throwable);
@@ -104,9 +110,9 @@ public interface IHBaseBaseAdapter {
 
     }
 
-    default void executeOnSource(String tableName, MutatorCallback<BufferedMutator> action) throws IOException {
+    default void executeOnSource(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) throws IOException {
         try {
-            BufferedMutator mutator = this.getBufferedMutator(tableName);
+            WrapperBufferedMutator mutator = this.getWrapperBufferedMutator(tableContext);
             action.doInMutator(mutator);
         } catch (Throwable throwable) {
             throw new HBaseOperationsException(throwable);
@@ -115,7 +121,7 @@ public interface IHBaseBaseAdapter {
 
     default void executeOnTarget(String tableName, MutatorCallback<BufferedMutator> action) throws IOException {
         try {
-            BufferedMutator mutator = this.getHedgedReadClusterBufferedMutator(tableName);
+            BufferedMutator mutator = this.getHedgedReadBufferedMutator(tableName);
             action.doInMutator(mutator);
         } catch (Throwable throwable) {
             throw new HBaseOperationsException(throwable);
