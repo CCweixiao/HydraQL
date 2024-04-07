@@ -23,4 +23,7 @@ public interface HBaseClientConfigKeys {
 
         int THREADPOOL_SIZE_DEFAULT = 0;
     }
+
+    String HBASE_CLIENT_SCANNER_CACHING = PREFIX + "scanner.caching";
+    int HBASE_CLIENT_SCANNER_CACHING_DEFAULT = 1000;
 }

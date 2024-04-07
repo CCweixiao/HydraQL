@@ -3,8 +3,9 @@ package com.hydraql.adapter;
 import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.SplitGoEnum;
-import com.hydraql.schema.BaseColumnFamilyDesc;
-import com.hydraql.schema.BaseHTableDesc;
+import com.hydraql.adapter.schema.BaseColumnFamilyDesc;
+import com.hydraql.adapter.schema.BaseHTableDesc;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.List;
@@ -24,6 +25,8 @@ public interface IHBaseAdminAdapter {
      * @return 是否存在
      */
     boolean tableExists(String tableName);
+
+    boolean tableExists(TableName tableName);
 
     /**
      * 获取所有的HBase表及其描述

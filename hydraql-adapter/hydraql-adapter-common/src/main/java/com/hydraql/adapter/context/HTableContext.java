@@ -1,5 +1,6 @@
 package com.hydraql.adapter.context;
 
+import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.TableName;
 
 /**
@@ -33,7 +34,14 @@ public class HTableContext {
     }
 
     public static HTableContext.Builder builder(String tableName) {
+        if (StringUtil.isBlank(tableName)) {
+            throw new IllegalStateException("The table name cannot be empty.");
+        }
         return new Builder(tableName);
+    }
+
+    public static HTableContext createDefault(String tableName) {
+        return builder(tableName).batchSaveOptions(BatchSaveOptions.builder().build()).build();
     }
 
     public TableName getTableName() {

@@ -2,7 +2,7 @@ package com.hydraql.adapter.context;
 
 import com.hydraql.adapter.HBaseClientConf;
 import com.hydraql.adapter.HBaseClientConfigKeys;
-import com.hydraql.connection.HBaseConnectionManager;
+import com.hydraql.adapter.connection.HBaseConnectionManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.BufferedMutator;
@@ -20,8 +20,8 @@ public interface ConnectionContext {
         return HBaseConnectionManager.getInstance().getConnection(this.getConfiguration());
     }
 
-    default BufferedMutator getBufferedMutator(String tableName) {
-        return HBaseConnectionManager.getInstance().getBufferedMutator(tableName,
+    default BufferedMutator getBufferedMutator(HTableContext tableContext) {
+        return HBaseConnectionManager.getInstance().getBufferedMutator(tableContext,
                 this.getConfiguration(), this.getConnection());
     }
 
@@ -63,9 +63,9 @@ public interface ConnectionContext {
         return HBaseConnectionManager.getInstance().getConnection(this.getHedgedReadConfiguration());
     }
 
-    default BufferedMutator getHedgedReadBufferedMutator(String tableName) {
-        return HBaseConnectionManager.getInstance().getBufferedMutator(tableName, this.getHedgedReadConfiguration(),
-                this.getHedgedReadConnection());
+    default BufferedMutator getHedgedReadBufferedMutator(HTableContext tableContext) {
+        return HBaseConnectionManager.getInstance().getBufferedMutator(tableContext,
+                this.getHedgedReadConfiguration(), this.getHedgedReadConnection());
     }
 
     default HBaseClientConf getHBaseClientConf() {

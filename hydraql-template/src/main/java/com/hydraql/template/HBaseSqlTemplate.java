@@ -1,6 +1,6 @@
 package com.hydraql.template;
 
-import com.hydraql.HBaseSqlAdapter;
+import com.hydraql.adapter.HBaseSqlAdapter;
 import com.hydraql.adapter.IHBaseSqlAdapter;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;

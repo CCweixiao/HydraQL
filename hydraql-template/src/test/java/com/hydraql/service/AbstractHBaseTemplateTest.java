@@ -2,8 +2,8 @@ package com.hydraql.service;
 
 
 import com.hydraql.common.type.ColumnType;
-import com.hydraql.schema.ColumnFamilyDesc;
-import com.hydraql.schema.HTableDesc;
+import com.hydraql.adapter.schema.ColumnFamilyDesc;
+import com.hydraql.adapter.schema.HTableDesc;
 import com.hydraql.template.*;
 import com.hydraql.service.model.CityModel;
 import com.hydraql.service.model.CityTag;

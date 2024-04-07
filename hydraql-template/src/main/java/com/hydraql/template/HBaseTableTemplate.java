@@ -1,6 +1,6 @@
 package com.hydraql.template;
 
-import com.hydraql.HBaseTableAdapter;
+import com.hydraql.adapter.HBaseTableAdapter;
 import com.hydraql.common.mapper.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
@@ -8,7 +8,6 @@ import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 

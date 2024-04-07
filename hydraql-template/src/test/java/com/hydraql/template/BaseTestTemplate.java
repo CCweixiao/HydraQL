@@ -1,7 +1,7 @@
 package com.hydraql.template;
 
-import com.hydraql.schema.ColumnFamilyDesc;
-import com.hydraql.schema.HTableDesc;
+import com.hydraql.adapter.schema.ColumnFamilyDesc;
+import com.hydraql.adapter.schema.HTableDesc;
 import com.hydraql.service.model.CityModel;
 import com.hydraql.service.model.CityTag;
 import org.junit.AfterClass;

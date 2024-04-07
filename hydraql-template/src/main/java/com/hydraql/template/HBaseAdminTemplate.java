@@ -1,20 +1,19 @@
 package com.hydraql.template;
 
-import com.hydraql.HBaseAdminAdapter;
+import com.hydraql.adapter.HBaseAdminAdapter;
 import com.hydraql.common.model.HBaseRegionRecord;
 import com.hydraql.common.model.HBaseTableRecord;
 import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.SplitGoEnum;
-import com.hydraql.hbtop.Record;
-import com.hydraql.hbtop.RecordFilter;
-import com.hydraql.hbtop.Summary;
-import com.hydraql.hbtop.field.Field;
-import com.hydraql.hbtop.mode.Mode;
-import com.hydraql.schema.ColumnFamilyDesc;
-import com.hydraql.schema.HTableDesc;
+import com.hydraql.adapter.hbtop.Record;
+import com.hydraql.adapter.hbtop.RecordFilter;
+import com.hydraql.adapter.hbtop.Summary;
+import com.hydraql.adapter.hbtop.field.Field;
+import com.hydraql.adapter.hbtop.mode.Mode;
+import com.hydraql.adapter.schema.ColumnFamilyDesc;
+import com.hydraql.adapter.schema.HTableDesc;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.Connection;
 
 import java.util.List;
 import java.util.Map;

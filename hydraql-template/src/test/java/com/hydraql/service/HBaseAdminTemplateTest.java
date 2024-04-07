@@ -1,8 +1,8 @@
 package com.hydraql.service;
 
 import com.hydraql.common.model.NamespaceDesc;
-import com.hydraql.schema.ColumnFamilyDesc;
-import com.hydraql.schema.HTableDesc;
+import com.hydraql.adapter.schema.ColumnFamilyDesc;
+import com.hydraql.adapter.schema.HTableDesc;
 import org.junit.Before;
 import org.junit.Test;
 

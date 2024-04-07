@@ -3,9 +3,9 @@ package com.hydraql.template;
 import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.SplitGoEnum;
-import com.hydraql.hbtop.HBaseMetricOperations;
-import com.hydraql.schema.ColumnFamilyDesc;
-import com.hydraql.schema.HTableDesc;
+import com.hydraql.adapter.hbtop.HBaseMetricOperations;
+import com.hydraql.adapter.schema.ColumnFamilyDesc;
+import com.hydraql.adapter.schema.HTableDesc;
 
 import java.util.List;
 import java.util.Map;
