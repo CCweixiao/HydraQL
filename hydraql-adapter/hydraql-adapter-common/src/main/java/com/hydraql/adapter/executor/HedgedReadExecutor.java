@@ -1,6 +1,5 @@
 package com.hydraql.adapter.executor;
 
-import org.apache.hadoop.util.Daemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,19 +11,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author leojie 2023/6/30 18:49
  */
-public class HBaseHedgedReadExecutor {
-    private static final Logger LOG = LoggerFactory.getLogger(HBaseHedgedReadExecutor.class);
-    private static volatile HBaseHedgedReadExecutor executor;
+public class HedgedReadExecutor {
+    private static final Logger LOG = LoggerFactory.getLogger(HedgedReadExecutor.class);
+    private static volatile HedgedReadExecutor executor;
     private static ThreadPoolExecutor HEDGED_READ_THREAD_POOL;
 
-    private HBaseHedgedReadExecutor() {
+    private HedgedReadExecutor() {
     }
 
-    public static HBaseHedgedReadExecutor create() {
+    public static HedgedReadExecutor create() {
         if (executor == null) {
-            synchronized (HBaseHedgedReadExecutor.class) {
+            synchronized (HedgedReadExecutor.class) {
                 if (executor == null) {
-                    executor = new HBaseHedgedReadExecutor();
+                    executor = new HedgedReadExecutor();
                 }
             }
         }
@@ -32,7 +31,9 @@ public class HBaseHedgedReadExecutor {
     }
 
     public synchronized ThreadPoolExecutor getExecutor(int num) {
-        if (HEDGED_READ_THREAD_POOL != null) return HEDGED_READ_THREAD_POOL;
+        if (HEDGED_READ_THREAD_POOL != null) {
+            return HEDGED_READ_THREAD_POOL;
+        }
 
         HEDGED_READ_THREAD_POOL = new ThreadPoolExecutor(1, num, 60,
                 TimeUnit.SECONDS, new SynchronousQueue<>(),
@@ -50,7 +51,7 @@ public class HBaseHedgedReadExecutor {
                     @Override
                     public void rejectedExecution(Runnable runnable,
                                                   ThreadPoolExecutor e) {
-                        LOG.info("Execution rejected, Executing in current thread");
+                        LOG.warn("Execution rejected, Executing in current thread");
                         // will run in the current thread
                         super.rejectedExecution(runnable, e);
                     }

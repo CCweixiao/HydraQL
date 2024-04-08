@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.client.Admin;
 /**
  * @author leojie 2024/4/7 20:43
  */
-public interface AdminOpExecutor extends ConnectionContext {
+public interface AdminActionExecutor extends ConnectionContext {
 
     default <T> T execute(AdminCallback<T, Admin> action) {
         try (Admin admin = this.getConnection().getAdmin()) {

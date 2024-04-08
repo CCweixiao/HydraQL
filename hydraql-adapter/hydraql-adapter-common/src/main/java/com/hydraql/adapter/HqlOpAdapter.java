@@ -1,6 +1,6 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.executor.HTableBatchOpExecutor;
+import com.hydraql.adapter.executor.HTableMutatorExecutor;
 import com.hydraql.common.constants.HBaseConfigKeys;
 import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseSqlTableSchemaMissingException;
@@ -37,7 +37,7 @@ import java.util.Map;
  * @author leojie 2020/11/28 8:34 下午
  */
 @InterfaceAudience.Private
-public abstract class HqlOpAdapter implements HTableBatchOpExecutor, IHBaseSqlAdapter {
+public abstract class HqlOpAdapter implements HTableMutatorExecutor, IHBaseSqlAdapter {
     public static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
     public static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
     public static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");

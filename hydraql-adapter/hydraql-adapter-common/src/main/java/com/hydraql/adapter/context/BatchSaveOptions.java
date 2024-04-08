@@ -7,34 +7,42 @@ import org.apache.hadoop.hbase.client.BufferedMutator;
  */
 public class BatchSaveOptions {
     private static final int UNSET = -1;
+    private final int maxKeyValueSize;
     private final long writeBufferSize;
-    private final long writeBufferPeriodicFlushMs;
+    private final long writeBufferPeriodicFlushTimerTickMs;
     private final long writeBufferPeriodicFlushTimeoutMs;
     private final boolean autoFlush;
     private final BufferedMutator.ExceptionListener exceptionListener;
 
     public BatchSaveOptions(Builder builder) {
+        this.maxKeyValueSize = builder.maxKeyValueSize;
         this.writeBufferSize = builder.writeBufferSize;
-        this.writeBufferPeriodicFlushMs = builder.writeBufferPeriodicFlushMs;
+        this.writeBufferPeriodicFlushTimerTickMs = builder.writeBufferPeriodicFlushTimerTickMs;
         this.writeBufferPeriodicFlushTimeoutMs = builder.writeBufferPeriodicFlushTimeoutMs;
         this.autoFlush = builder.autoFlush;
         this.exceptionListener = builder.exceptionListener;
     }
 
     public static class Builder {
+        private int maxKeyValueSize = UNSET;
         private long writeBufferSize = UNSET;
-        private long writeBufferPeriodicFlushMs = UNSET;
+        private long writeBufferPeriodicFlushTimerTickMs = UNSET;
         private long writeBufferPeriodicFlushTimeoutMs = UNSET;
         private boolean autoFlush;
         private BufferedMutator.ExceptionListener exceptionListener;
+
+        public Builder maxKeyValueSize(int maxKeyValueSize) {
+            this.maxKeyValueSize = maxKeyValueSize;
+            return this;
+        }
 
         public Builder writeBufferSize(long writeBufferSize) {
             this.writeBufferSize = writeBufferSize;
             return this;
         }
 
-        public Builder writeBufferPeriodicFlushMs(long writeBufferPeriodicFlushMs) {
-            this.writeBufferPeriodicFlushMs = writeBufferPeriodicFlushMs;
+        public Builder writeBufferPeriodicFlushTimerTickMs(long writeBufferPeriodicFlushTimerTickMs) {
+            this.writeBufferPeriodicFlushTimerTickMs = writeBufferPeriodicFlushTimerTickMs;
             return this;
         }
 
@@ -62,23 +70,27 @@ public class BatchSaveOptions {
         return new Builder();
     }
 
-    public long getWriteBufferSize() {
+    int getMaxKeyValueSize() {
+        return maxKeyValueSize;
+    }
+
+    long getWriteBufferSize() {
         return writeBufferSize;
     }
 
-    public long getWriteBufferPeriodicFlushMs() {
-        return writeBufferPeriodicFlushMs;
+    long getWriteBufferPeriodicFlushTimerTickMs() {
+        return writeBufferPeriodicFlushTimerTickMs;
     }
 
-    public long getWriteBufferPeriodicFlushTimeoutMs() {
+    long getWriteBufferPeriodicFlushTimeoutMs() {
         return writeBufferPeriodicFlushTimeoutMs;
     }
 
-    public boolean isAutoFlush() {
+    boolean isAutoFlush() {
         return autoFlush;
     }
 
-    public BufferedMutator.ExceptionListener getExceptionListener() {
+    BufferedMutator.ExceptionListener getExceptionListener() {
         return exceptionListener;
     }
 }

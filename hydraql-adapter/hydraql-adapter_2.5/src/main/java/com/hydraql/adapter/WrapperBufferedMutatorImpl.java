@@ -1,6 +1,5 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.WrapperBufferedMutator;
 import com.hydraql.adapter.context.HTableContext;
 import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Mutation;
@@ -23,24 +22,13 @@ public class WrapperBufferedMutatorImpl implements WrapperBufferedMutator {
 
     private void init() {
         this.bufferedMutator.setWriteBufferPeriodicFlush(
-                tableContext.getBatchSaveOptions().getWriteBufferPeriodicFlushTimeoutMs(),
-                tableContext.getBatchSaveOptions().getWriteBufferPeriodicFlushMs());
-    }
-
-    public HTableContext getTableContext() {
-        return tableContext;
-    }
-
-    public BufferedMutator getBufferedMutator() {
-        return bufferedMutator;
+                tableContext.getWriteBufferPeriodicFlushTimeoutMs(),
+                tableContext.getWriteBufferPeriodicFlushTimerTickMs());
     }
 
     @Override
-    public void mutate(Mutation mutation) throws IOException {
-        bufferedMutator.mutate(mutation);
-        if (autoFlush()) {
-            bufferedMutator.flush();
-        }
+    public HTableContext getTableContext() {
+        return tableContext;
     }
 
     @Override
@@ -59,9 +47,5 @@ public class WrapperBufferedMutatorImpl implements WrapperBufferedMutator {
     @Override
     public void close() throws IOException {
         bufferedMutator.close();
-    }
-
-    public boolean autoFlush() {
-        return this.getTableContext().getBatchSaveOptions().isAutoFlush();
     }
 }

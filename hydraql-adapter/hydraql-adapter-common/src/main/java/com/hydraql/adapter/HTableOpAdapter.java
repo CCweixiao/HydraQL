@@ -1,6 +1,6 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.executor.HTableBatchOpExecutor;
+import com.hydraql.adapter.executor.HTableMutatorExecutor;
 import com.hydraql.common.IHBaseTableOpAdapter;
 import com.hydraql.common.mapper.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
@@ -29,7 +29,7 @@ import static com.hydraql.adapter.HBaseClientConfigKeys.HBASE_CLIENT_SCANNER_CAC
  * @author leo.jie (leojie1314@gmail.com)
  */
 @InterfaceAudience.Private
-public abstract class HTableOpAdapter implements HTableBatchOpExecutor, IHBaseTableOpAdapter,
+public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTableOpAdapter,
         IHBaseTableGetAdapter, IHBaseTablePutAdapter, IHBaseTableDeleteAdapter, IHBaseTableScanAdapter {
     private final Configuration configuration;
     public HTableOpAdapter(Configuration configuration) {

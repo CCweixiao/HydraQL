@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author leojie 2024/4/7 19:51
  */
-public interface HTableBatchOpExecutor extends HTableOpExecutor {
+public interface HTableMutatorExecutor extends HTableSingleExecutor {
     WrapperBufferedMutator getWrapperBufferedMutator(HTableContext tableContext);
 
     WrapperBufferedMutator getHedgedReadWrapperBufferedMutator(HTableContext tableContext);
@@ -46,7 +46,7 @@ public interface HTableBatchOpExecutor extends HTableOpExecutor {
         if (this.hedgedReadIsOpen() && !this.hedgedReadWriteDisable()) {
             ArrayList<Future<Void>> futures = new ArrayList<>();
             CompletionService<Void> hedgedService =
-                    new ExecutorCompletionService<>(HBaseHedgedReadExecutor.create()
+                    new ExecutorCompletionService<>(HedgedReadExecutor.create()
                             .getExecutor(this.getHedgedReadThreadpoolSize()));
 
             Callable<Void> executeInSource = () -> {

@@ -20,7 +20,7 @@
 include Java
 java_import org.apache.hadoop.hbase.client.ConnectionFactory
 java_import org.apache.hadoop.hbase.HBaseConfiguration
-java_import com.hydraql.connection.HBaseConnectionManagerRuby
+java_import com.hydraql.adapter.connection.HBaseConnectionManagerRuby
 
 require 'hbase/admin'
 require 'hbase/table'

@@ -1,17 +1,22 @@
 package com.hydraql.adapter;
 
+import com.hydraql.adapter.executor.HedgedReadStrategy;
 import org.apache.hadoop.conf.Configuration;
 
 /**
  * @author leojie@apache.org 2024/4/6 22:26
  */
 public class HBaseClientConf {
+    private final HedgedReadStrategy.Level hedgedReadStrategy;
     private final int hedgedReadThreadpoolSize;
     private final long hedgedReadThresholdMillis;
     private final boolean hedgedReadWriteDisable;
 
     public HBaseClientConf(Configuration conf) {
         if (conf != null) {
+            hedgedReadStrategy = HedgedReadStrategy.Level.find(conf.get(
+                    HBaseClientConfigKeys.HedgedRead.STRATEGY,
+                    HBaseClientConfigKeys.HedgedRead.STRATEGY_DEFAULT));
             hedgedReadThreadpoolSize = conf.getInt(
                     HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_KEY,
                     HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_DEFAULT);
@@ -25,7 +30,12 @@ public class HBaseClientConf {
             hedgedReadThreadpoolSize = HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_DEFAULT;
             hedgedReadThresholdMillis = HBaseClientConfigKeys.HedgedRead.THRESHOLD_MILLIS_DEFAULT;
             hedgedReadWriteDisable = HBaseClientConfigKeys.HedgedRead.WRITE_DISABLE_DEFAULT;
+            hedgedReadStrategy = HedgedReadStrategy.Level.NONE;
         }
+    }
+
+    public HedgedReadStrategy.Level getHedgedReadStrategy() {
+        return hedgedReadStrategy;
     }
 
     public int getHedgedReadThreadpoolSize() {
@@ -41,6 +51,7 @@ public class HBaseClientConf {
     }
 
     public boolean hedgedReadIsOpen() {
-        return this.getHedgedReadThreadpoolSize() > 0;
+        return this.getHedgedReadStrategy() != HedgedReadStrategy.Level.NONE &&
+                this.getHedgedReadThreadpoolSize() > 0;
     }
 }

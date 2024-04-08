@@ -17,11 +17,11 @@ public interface ConnectionContext {
     Configuration getConfiguration();
 
     default Connection getConnection() {
-        return HBaseConnectionManager.getInstance().getConnection(this.getConfiguration());
+        return HBaseConnectionManager.create().getConnection(this.getConfiguration());
     }
 
     default BufferedMutator getBufferedMutator(HTableContext tableContext) {
-        return HBaseConnectionManager.getInstance().getBufferedMutator(tableContext,
+        return HBaseConnectionManager.create().getBufferedMutator(tableContext,
                 this.getConfiguration(), this.getConnection());
     }
 
@@ -60,11 +60,11 @@ public interface ConnectionContext {
     }
 
     default Connection getHedgedReadConnection() {
-        return HBaseConnectionManager.getInstance().getConnection(this.getHedgedReadConfiguration());
+        return HBaseConnectionManager.create().getConnection(this.getHedgedReadConfiguration());
     }
 
     default BufferedMutator getHedgedReadBufferedMutator(HTableContext tableContext) {
-        return HBaseConnectionManager.getInstance().getBufferedMutator(tableContext,
+        return HBaseConnectionManager.create().getBufferedMutator(tableContext,
                 this.getHedgedReadConfiguration(), this.getHedgedReadConnection());
     }
 

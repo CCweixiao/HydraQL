@@ -47,7 +47,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
 
     protected <T> T execute(TableCallback<T, Hbase.Client> action) {
         try {
-            return action.doInTable(this.hbaseClient);
+            return action.execute(this.hbaseClient);
         } catch (Throwable throwable) {
             throw new HBaseThriftException(throwable);
         }

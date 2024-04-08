@@ -22,7 +22,7 @@ public class HBaseConnectionManagerRuby {
     }
 
     public static Connection getConnection(Configuration configuration) {
-        return HBaseConnectionManager.getInstance().getConnection(configuration);
+        return HBaseConnectionManager.create().getConnection(configuration);
     }
 
     public static Configuration getConfiguration(Properties properties) {

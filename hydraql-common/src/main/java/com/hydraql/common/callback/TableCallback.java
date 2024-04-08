@@ -13,5 +13,5 @@ public interface TableCallback<T, HT> {
      * @return result
      * @throws Throwable throw error
      */
-    T doInTable(HT table) throws Throwable;
+    T execute(HT table) throws Throwable;
 }

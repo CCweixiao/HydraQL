@@ -45,7 +45,7 @@ import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_S
  * @author leojie 2020/9/25 11:11 下午
  */
 @InterfaceAudience.Private
-public class HBaseAdminAdapter extends AdminOpAdapter implements HBaseMetricOperations {
+public class HBaseAdminAdapter extends AdminActionAdapter implements HBaseMetricOperations {
     public static final Logger LOG = LoggerFactory.getLogger(HBaseAdminAdapter.class);
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
     public HBaseAdminAdapter(Configuration configuration) {

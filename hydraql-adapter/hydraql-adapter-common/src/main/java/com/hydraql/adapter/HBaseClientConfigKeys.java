@@ -11,6 +11,10 @@ public interface HBaseClientConfigKeys {
     interface HedgedRead {
         String PREFIX = HBaseClientConfigKeys.PREFIX + "hedged.read.";
 
+        String STRATEGY = PREFIX + "strategy";
+
+        String STRATEGY_DEFAULT = "none";
+
         String WRITE_DISABLE = PREFIX + "write.disable";
 
         boolean WRITE_DISABLE_DEFAULT = true;

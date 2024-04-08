@@ -1,6 +1,5 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.AdminOpAdapter;
 import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseFamilyHasExistsException;
 import com.hydraql.common.exception.HBaseFamilyNotFoundException;
@@ -42,7 +41,7 @@ import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_S
  * @author leojie 2020/9/25 11:11 下午
  */
 @InterfaceAudience.Private
-public class HBaseAdminAdapter extends AdminOpAdapter implements HBaseMetricOperations {
+public class HBaseAdminAdapter extends AdminActionAdapter implements HBaseMetricOperations {
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
     public HBaseAdminAdapter(Configuration configuration) {
         super(configuration);

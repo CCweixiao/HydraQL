@@ -6,7 +6,6 @@ import com.hydraql.common.exception.HydraQLConnectionException;
 import com.hydraql.common.security.AuthType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.BufferedMutatorParams;
 import org.apache.hadoop.hbase.client.Connection;
@@ -44,7 +43,7 @@ public class HBaseConnectionManager {
         bufferedMutators = new ConcurrentHashMap<>();
     }
 
-    public static HBaseConnectionManager getInstance() {
+    public static HBaseConnectionManager create() {
         if (instance == null) {
             synchronized (HBaseConnectionManager.class) {
                 if (instance == null) {
@@ -114,7 +113,8 @@ public class HBaseConnectionManager {
      * <p>BufferedMutator的使用场景及特点是：</p>
      * <p>1. BufferedMutator拥有一块缓冲区，客户端提交的数据量大小超过缓冲区大小时会触发自动刷新，在大量数据写入场景中可以减少与服务端的RPC通信次数，
      * 增大客户端写入数据的吞吐量</p>
-     * <p>2. 但如果写入qps较低，或者缓冲区设置较大时，也可以支持检测第一条数据的写入时间，按照一定周期触发强制flush</p>
+     * <p>2. 但如果写入qps较低，或者缓冲区设置较大时，也可以支持检测第一条数据的写入时间，按照一定周期触发强制flush，
+     * 但是，周期性刷新缓冲区的功能，只有HBase 2.x才能支持</p>
      * <p>3. 在极端情况下，如果JVM异常崩溃，缓冲区中的数据可能来不及发送到服务端，会导致数据丢失，如果不能容忍，需要每次提交数据后强制触发flush</p>
      *
      * @param tableContext  table configuration context
@@ -142,8 +142,9 @@ public class HBaseConnectionManager {
             }
 
             BufferedMutatorParams mutatorParams = new BufferedMutatorParams(tableContext.getTableName());
-            mutatorParams.writeBufferSize(tableContext.getBatchSaveOptions().getWriteBufferSize());
-            mutatorParams.listener(tableContext.getBatchSaveOptions().getExceptionListener());
+            mutatorParams.writeBufferSize(tableContext.getWriteBufferSize());
+            mutatorParams.maxKeyValueSize(tableContext.getMaxKeyValueSize());
+            mutatorParams.listener(tableContext.getExceptionListener());
             BufferedMutator mutator = connection.getBufferedMutator(mutatorParams);
             bufferedMutators.put(uniqueKey, mutator);
             LOG.info("Created buffered mutator for table: {} successfully.", tableName);
@@ -249,18 +250,17 @@ public class HBaseConnectionManager {
     public void destroy() {
         try {
             bufferMutatorLock.lock();
+            connLock.lock();
+
             for (BufferedMutator mutator : bufferedMutators.values()) {
                 mutator.close();
             }
             bufferedMutators.clear();
-            bufferMutatorLock.unlock();
 
-            connLock.lock();
             for (Connection connection : connections.values()) {
                 connection.close();
             }
             connections.clear();
-            connLock.unlock();
         } catch (IOException e) {
             LOG.warn("An exception occurred while destroy resources.", e);
         } finally {
@@ -268,6 +268,5 @@ public class HBaseConnectionManager {
             connLock.unlock();
         }
     }
-
 }
 
