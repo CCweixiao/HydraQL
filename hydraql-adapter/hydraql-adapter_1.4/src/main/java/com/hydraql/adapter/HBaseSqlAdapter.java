@@ -79,7 +79,7 @@ public class HBaseSqlAdapter extends HqlOpAdapter {
         Put put = new Put(Bytes.toBytes(tableName));
         put.addColumn(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER, Bytes.toBytes(tableSchemaJson));
         put.addColumn(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_CREATE_HQL_QUALIFIER, Bytes.toBytes(hql));
-        this.executeSave(HQL_META_DATA_TABLE_NAME.getNameAsString(), put);
+        this.execSinglePut(HQL_META_DATA_TABLE_NAME.getNameAsString(), put);
         return true;
     }
 

@@ -19,6 +19,10 @@ public interface HBaseClientConfigKeys {
 
         boolean WRITE_DISABLE_DEFAULT = true;
 
+        String OVERALL_TIMEOUT_MILLIS = PREFIX + "overall.timeout.millis";
+
+        long OVERALL_TIMEOUT_MILLIS_DEFAULT = 1000;
+
         String THRESHOLD_MILLIS_KEY = PREFIX + "threshold.millis";
 
         long THRESHOLD_MILLIS_DEFAULT = 500;

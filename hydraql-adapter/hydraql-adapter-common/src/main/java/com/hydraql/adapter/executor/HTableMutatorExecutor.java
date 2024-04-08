@@ -7,14 +7,8 @@ import com.hydraql.common.exception.HydraQLTableOpException;
 import org.apache.hadoop.hbase.client.Mutation;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author leojie 2024/4/7 19:51
@@ -24,7 +18,7 @@ public interface HTableMutatorExecutor extends HTableSingleExecutor {
 
     WrapperBufferedMutator getHedgedReadWrapperBufferedMutator(HTableContext tableContext);
 
-    default void executeOnSource(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) throws IOException {
+    default void executeOnPrefer(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) throws IOException {
         try {
             WrapperBufferedMutator mutator = this.getWrapperBufferedMutator(tableContext);
             action.doInMutator(mutator);
@@ -33,7 +27,7 @@ public interface HTableMutatorExecutor extends HTableSingleExecutor {
         }
     }
 
-    default void executeOnTarget(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) throws IOException {
+    default void executeOnSpare(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) throws IOException {
         try {
             WrapperBufferedMutator mutator = this.getHedgedReadWrapperBufferedMutator(tableContext);
             action.doInMutator(mutator);
@@ -42,57 +36,20 @@ public interface HTableMutatorExecutor extends HTableSingleExecutor {
         }
     }
 
-    default void execute(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) {
-        if (this.hedgedReadIsOpen() && !this.hedgedReadWriteDisable()) {
-            ArrayList<Future<Void>> futures = new ArrayList<>();
-            CompletionService<Void> hedgedService =
-                    new ExecutorCompletionService<>(HedgedReadExecutor.create()
-                            .getExecutor(this.getHedgedReadThreadpoolSize()));
-
-            Callable<Void> executeInSource = () -> {
-                executeOnSource(tableContext, action);
+    default void execute(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) throws IOException {
+        HedgedReadStrategy hedgedReadStrategy = createHedgedReadStrategy();
+        if (hedgedReadStrategy != null && !hedgedReadWriteDisable()) {
+            Callable<Void> preferCall = () -> {
+                executeOnPrefer(tableContext, action);
                 return null;
             };
-
-            Future<Void> firstRequest = hedgedService.submit(executeInSource);
-            futures.add(firstRequest);
-            Future<Void> future = null;
-            try {
-                long thresholdMillis = this.getHedgedReadThresholdMillis();
-                future = hedgedService.poll(thresholdMillis, TimeUnit.MICROSECONDS);
-                long start = System.currentTimeMillis();
-                while (future == null && (System.currentTimeMillis() - start) < thresholdMillis) {
-                    future = hedgedService.poll(thresholdMillis, TimeUnit.MICROSECONDS);
-                }
-                if (future != null) {
-                    future.get();
-                    return;
-                }
-            } catch (ExecutionException e) {
-                futures.remove(future);
-            } catch (InterruptedException e) {
-                throw new HydraQLTableOpException("Interrupted while waiting for reading task.");
-            }
-
-            Callable<Void> executeInTarget = () -> {
-                executeOnTarget(tableContext, action);
+            Callable<Void> spareCall = () -> {
+                executeOnSpare(tableContext, action);
                 return null;
             };
-            Future<Void> oneMoreRequest = hedgedService.submit(executeInTarget);
-            futures.add(oneMoreRequest);
-            try {
-                getFirstToComplete(hedgedService, futures);
-                cancelAll(futures);
-            } catch (InterruptedException e) {
-                //todo Ignore and retry
-            }
-
+            hedgedReadStrategy.execute(preferCall, spareCall);
         } else {
-            try {
-                executeOnSource(tableContext, action);
-            } catch (IOException e) {
-                throw new HydraQLTableOpException(e);
-            }
+            executeOnPrefer(tableContext, action);
         }
     }
 
@@ -100,22 +57,26 @@ public interface HTableMutatorExecutor extends HTableSingleExecutor {
         if (mutations == null || mutations.isEmpty()) {
             return;
         }
-        this.execute(tableContext, mutator -> mutator.mutate(mutations));
+        try {
+            this.execute(tableContext, mutator -> mutator.mutate(mutations));
+        } catch (IOException e) {
+            throw new HydraQLTableOpException(e);
+        }
     }
 
-    default void executeSaveBatch(String tableName, List<Mutation> puts) {
+    default void execBatchPuts(String tableName, List<Mutation> puts) {
         this.executeMutationBatch(HTableContext.createDefault(tableName), puts);
     }
 
-    default void executeSaveBatch(HTableContext tableContext, List<Mutation> puts) {
+    default void execBatchPuts(HTableContext tableContext, List<Mutation> puts) {
         this.executeMutationBatch(tableContext, puts);
     }
 
-    default void executeDeleteBatch(HTableContext tableContext, List<Mutation> deletes) {
+    default void execBatchDeletes(HTableContext tableContext, List<Mutation> deletes) {
         this.executeMutationBatch(tableContext, deletes);
     }
 
-    default void executeDeleteBatch(String tableName, List<Mutation> deletes) {
+    default void execBatchDeletes(String tableName, List<Mutation> deletes) {
         this.executeMutationBatch(HTableContext.createDefault(tableName), deletes);
     }
 }

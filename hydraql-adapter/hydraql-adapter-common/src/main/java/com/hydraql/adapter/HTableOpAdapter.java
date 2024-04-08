@@ -43,14 +43,14 @@ public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTa
 
     @Override
     public void save(String tableName, String rowKey, Map<String, Object> data) {
-        this.executeSave(tableName, buildPut(rowKey, data));
+        this.execSinglePut(tableName, buildPut(rowKey, data));
     }
 
     @Override
     public <T> void save(T t) {
         final Class<?> clazz = t.getClass();
         HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
-        this.executeSave(tableMeta.getTableName(), new Put(buildPut(t)));
+        this.execSinglePut(tableMeta.getTableName(), new Put(buildPut(t)));
     }
 
     @Override
@@ -64,7 +64,7 @@ public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTa
                 puts.add(buildPut(row, d));
             }
         });
-        this.executeSaveBatch(tableName, puts);
+        this.execBatchPuts(tableName, puts);
     }
 
     @Override
@@ -78,7 +78,7 @@ public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTa
         for (T t : list) {
             putList.add(new Put(buildPut(t)));
         }
-        this.executeSaveBatch(tableMeta.getTableName(), putList);
+        this.execBatchPuts(tableMeta.getTableName(), putList);
     }
 
     @Override
@@ -339,7 +339,7 @@ public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTa
         }
         final Class<?> clazz = t.getClass();
         HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
-        this.executeDelete(tableMeta.getTableName(), new Delete(buildDelete(t)));
+        this.execSingleDelete(tableMeta.getTableName(), new Delete(buildDelete(t)));
     }
 
     @Override
@@ -361,7 +361,7 @@ public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTa
             throw new IllegalArgumentException("the row key of the table will be deleted is not empty.");
         }
         Delete delete = buildDeleteCondition(rowKey, familyName, qualifiers);
-        this.executeDelete(tableName, delete);
+        this.execSingleDelete(tableName, delete);
     }
 
     @Override
@@ -384,7 +384,7 @@ public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTa
         for (T t : list) {
             deleteList.add(new Delete(buildDelete(t)));
         }
-        this.executeDeleteBatch(tableMeta.getTableName(), deleteList);
+        this.execBatchDeletes(tableMeta.getTableName(), deleteList);
     }
 
     @Override
@@ -406,7 +406,7 @@ public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTa
             throw new IllegalArgumentException("the row keys of the table will be deleted is not empty.");
         }
         List<Mutation> mutations = rowKeys.stream().map(rowKey -> buildDeleteCondition(rowKey, familyName, qualifiers)).collect(Collectors.toList());
-        this.executeDeleteBatch(tableName, mutations);
+        this.execBatchDeletes(tableName, mutations);
     }
 
     @Override

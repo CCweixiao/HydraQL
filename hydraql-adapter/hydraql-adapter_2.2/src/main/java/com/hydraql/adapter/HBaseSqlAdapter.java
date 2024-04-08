@@ -17,7 +17,6 @@ import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
 import com.hydraql.dsl.util.Util;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -71,7 +70,7 @@ public class HBaseSqlAdapter extends HqlOpAdapter {
         Put put = new Put(Bytes.toBytes(tableName));
         put.addColumn(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_TABLE_QUALIFIER, Bytes.toBytes(tableSchemaJson));
         put.addColumn(HQL_META_DATA_TABLE_FAMILY, HQL_META_DATA_CREATE_HQL_QUALIFIER, Bytes.toBytes(hql));
-        this.executeSave(HQL_META_DATA_TABLE_NAME.getNameAsString(), put);
+        this.execSinglePut(HQL_META_DATA_TABLE_NAME.getNameAsString(), put);
         return true;
     }
 

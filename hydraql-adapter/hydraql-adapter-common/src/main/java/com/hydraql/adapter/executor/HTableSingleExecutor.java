@@ -9,9 +9,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
 
 /**
  * @author leojie 2024/4/7 19:45
@@ -23,17 +21,18 @@ public interface HTableSingleExecutor extends ConnectionContext {
             HedgedReadStrategy.Level level = getHBaseClientConf().getHedgedReadStrategy();
             switch (level) {
                 case THRESHOLD:
-                    strategy = new ThresholdHedgedReadStrategy(getHBaseClientConf().getHedgedReadThresholdMillis(),
+                    strategy = new HedgedReadThresholdStrategy(getHBaseClientConf().getHedgedReadThresholdMillis(),
                             getHBaseClientConf().getHedgedReadThreadpoolSize());
                     break;
                 case FIRST_ONE:
-                    strategy = new FirstOneHedgedReadStrategy(getHBaseClientConf().getHedgedReadThreadpoolSize());
+                    strategy = new HedgedReadFirstOneStrategy(getHBaseClientConf().getHedgedReadThreadpoolSize());
                     break;
                 case HASH:
-                    strategy = new HashHedgedReadStrategy(getHBaseClientConf().getHedgedReadThreadpoolSize());
+                    strategy = new HedgedReadHashStrategy(getHBaseClientConf().getHedgedReadThreadpoolSize());
                     break;
                 case CONSISTENCY:
-                    strategy = new ConsistencyHedgedReadStrategy(getHBaseClientConf().getHedgedReadThreadpoolSize());
+                    strategy = new HedgedReadConsistencyStrategy(getHBaseClientConf().getHedgedReadThreadpoolSize(),
+                            getHBaseClientConf().getHedgedReadOverallTimeoutMillis());
                     break;
                 default:
                     break;
@@ -42,20 +41,18 @@ public interface HTableSingleExecutor extends ConnectionContext {
         return strategy;
     }
 
-    default <T> T execute(String tableName, TableCallback<T, Table> action) throws IOException {
+    default <T> T execute(String tableName, TableCallback<T, Table> action) {
         HedgedReadStrategy hedgedReadStrategy = createHedgedReadStrategy();
-        if (hedgedReadStrategy != null) {
-            Callable<T> preferCall = () -> {
-                executeOnPrefer(tableName, action);
-                return null;
-            };
-            Callable<T> spareCall = () -> {
-                executeOnSpare(tableName, action);
-                return null;
-            };
-            return hedgedReadStrategy.execute(preferCall, spareCall);
-        } else {
-            return executeOnPrefer(tableName, action);
+        try {
+            if (hedgedReadStrategy != null) {
+                Callable<T> preferCall = () -> executeOnPrefer(tableName, action);
+                Callable<T> spareCall = () -> executeOnSpare(tableName, action);
+                return hedgedReadStrategy.execute(preferCall, spareCall);
+            } else {
+                return executeOnPrefer(tableName, action);
+            }
+        } catch (IOException e) {
+            throw new HydraQLTableOpException(e);
         }
     }
 
@@ -75,7 +72,7 @@ public interface HTableSingleExecutor extends ConnectionContext {
         }
     }
 
-    default void executeSave(String tableName, Put put) {
+    default void execSinglePut(String tableName, Put put) {
         if (this.hedgedReadWriteDisable()) {
             try {
                 this.executeOnPrefer(tableName, table -> {
@@ -93,7 +90,7 @@ public interface HTableSingleExecutor extends ConnectionContext {
         }
     }
 
-    default void executeDelete(String tableName, Delete delete) {
+    default void execSingleDelete(String tableName, Delete delete) {
         if (this.hedgedReadWriteDisable()) {
             try {
                 this.executeOnPrefer(tableName, table -> {
@@ -111,15 +108,4 @@ public interface HTableSingleExecutor extends ConnectionContext {
         }
     }
 
-//    default boolean hedgedReadWriteDisable() {
-//        return this.getHBaseClientConf().isHedgedReadWriteDisable();
-//    }
-//
-//    default int getHedgedReadThreadpoolSize() {
-//        return this.getHBaseClientConf().getHedgedReadThreadpoolSize();
-//    }
-//
-//    default long getHedgedReadThresholdMillis() {
-//        return this.getHBaseClientConf().getHedgedReadThresholdMillis();
-//    }
 }

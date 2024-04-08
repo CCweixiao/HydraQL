@@ -51,13 +51,13 @@ public class UpsetExecutor extends BaseHqlExecutor<Boolean> implements Interpret
         if (rowDataList.size() == 1) {
             // todo timestamp处理
             Put put = sqlAdapter.constructPut(rowDataList.get(0), 0L);
-            sqlAdapter.executeSave(tableName, put);
+            sqlAdapter.execSinglePut(tableName, put);
             return true;
         }
 
         List<Mutation> puts = rowDataList.stream().map(rowData -> sqlAdapter.constructPut(rowData, 0L))
                 .collect(Collectors.toList());
-        sqlAdapter.executeSaveBatch(tableName, puts);
+        sqlAdapter.execBatchPuts(tableName, puts);
         return true;
     }
 

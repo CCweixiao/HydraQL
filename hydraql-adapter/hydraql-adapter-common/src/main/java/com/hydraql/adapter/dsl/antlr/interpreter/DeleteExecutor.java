@@ -103,7 +103,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
             }
             deletes.add(sqlAdapter.constructDelete(rowKey, deleteColumns, ts));
         }
-        sqlAdapter.executeDeleteBatch(tableName, deletes);
+        sqlAdapter.execBatchDeletes(tableName, deletes);
     }
 
     private void deleteWithScanFirst(String hql, String tableName, RowKeyRange rowKeyRange,
@@ -138,7 +138,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
                 return;
             }
             try {
-                sqlAdapter.executeDeleteBatch(tableName, deletes);
+                sqlAdapter.execBatchDeletes(tableName, deletes);
                 deletes.clear();
             } catch (Exception e) {
                 throw new HBaseSqlExecuteException("Delete error. hql=" + hql, e);

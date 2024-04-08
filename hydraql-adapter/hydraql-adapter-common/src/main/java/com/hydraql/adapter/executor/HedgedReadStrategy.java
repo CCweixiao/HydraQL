@@ -76,6 +76,7 @@ public interface HedgedReadStrategy {
         if (futures.isEmpty()) {
             throw new InterruptedException("let's retry.");
         }
+
         Future<T> future = null;
         try {
             future = hedgedService.take();

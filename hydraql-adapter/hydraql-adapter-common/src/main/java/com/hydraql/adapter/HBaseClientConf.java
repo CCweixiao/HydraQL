@@ -10,6 +10,8 @@ public class HBaseClientConf {
     private final HedgedReadStrategy.Level hedgedReadStrategy;
     private final int hedgedReadThreadpoolSize;
     private final long hedgedReadThresholdMillis;
+
+    private final long hedgedReadOverallTimeoutMillis;
     private final boolean hedgedReadWriteDisable;
 
     public HBaseClientConf(Configuration conf) {
@@ -20,6 +22,9 @@ public class HBaseClientConf {
             hedgedReadThreadpoolSize = conf.getInt(
                     HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_KEY,
                     HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_DEFAULT);
+            hedgedReadOverallTimeoutMillis = conf.getLong(
+                    HBaseClientConfigKeys.HedgedRead.OVERALL_TIMEOUT_MILLIS,
+                    HBaseClientConfigKeys.HedgedRead.OVERALL_TIMEOUT_MILLIS_DEFAULT);
             hedgedReadThresholdMillis = conf.getLong(
                     HBaseClientConfigKeys.HedgedRead.THRESHOLD_MILLIS_KEY,
                     HBaseClientConfigKeys.HedgedRead.THRESHOLD_MILLIS_DEFAULT);
@@ -28,6 +33,7 @@ public class HBaseClientConf {
                     HBaseClientConfigKeys.HedgedRead.WRITE_DISABLE_DEFAULT);
         } else {
             hedgedReadThreadpoolSize = HBaseClientConfigKeys.HedgedRead.THREADPOOL_SIZE_DEFAULT;
+            hedgedReadOverallTimeoutMillis = HBaseClientConfigKeys.HedgedRead.OVERALL_TIMEOUT_MILLIS_DEFAULT;
             hedgedReadThresholdMillis = HBaseClientConfigKeys.HedgedRead.THRESHOLD_MILLIS_DEFAULT;
             hedgedReadWriteDisable = HBaseClientConfigKeys.HedgedRead.WRITE_DISABLE_DEFAULT;
             hedgedReadStrategy = HedgedReadStrategy.Level.NONE;
@@ -40,6 +46,10 @@ public class HBaseClientConf {
 
     public int getHedgedReadThreadpoolSize() {
         return hedgedReadThreadpoolSize;
+    }
+
+    public long getHedgedReadOverallTimeoutMillis() {
+        return hedgedReadOverallTimeoutMillis;
     }
 
     public long getHedgedReadThresholdMillis() {

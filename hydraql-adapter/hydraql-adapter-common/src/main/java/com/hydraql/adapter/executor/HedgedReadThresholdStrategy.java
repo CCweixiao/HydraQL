@@ -11,11 +11,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author leojie@apache.org 2024/4/8 17:44
  */
-public class ThresholdHedgedReadStrategy implements HedgedReadStrategy {
+public class HedgedReadThresholdStrategy implements HedgedReadStrategy {
     private final long thresholdMillis;
     private final int maxThreads;
 
-    public ThresholdHedgedReadStrategy(long thresholdMillis, int maxThreads) {
+    public HedgedReadThresholdStrategy(long thresholdMillis, int maxThreads) {
         this.thresholdMillis = thresholdMillis;
         this.maxThreads = maxThreads;
     }
@@ -28,14 +28,16 @@ public class ThresholdHedgedReadStrategy implements HedgedReadStrategy {
 
         ArrayList<Future<T>> futures = new ArrayList<>();
         CompletionService<T> hedgedService = this.getHedgedReadService(maxThreads);
+
         Future<T> preferRequest = hedgedService.submit(prefer);
         futures.add(preferRequest);
+
         Future<T> future = null;
         try {
             if (thresholdMillis <= 0) {
                 future = hedgedService.poll();
             } else {
-                future = hedgedService.poll(thresholdMillis, TimeUnit.MICROSECONDS);
+                future = hedgedService.poll(thresholdMillis, TimeUnit.MILLISECONDS);
             }
             if (future != null) {
                 return future.get();
@@ -43,11 +45,12 @@ public class ThresholdHedgedReadStrategy implements HedgedReadStrategy {
         } catch (ExecutionException e) {
             futures.remove(future);
         } catch (InterruptedException e) {
-            throw new IOException("Interrupted while waiting for reading task", e);
+            throw new IOException("Interrupted while waiting for reading/writing task", e);
         }
 
         Future<T> spareRequest = hedgedService.submit(spare);
         futures.add(spareRequest);
+
         try {
             T result = getFirstToComplete(hedgedService, futures);
             cancelAll(futures);

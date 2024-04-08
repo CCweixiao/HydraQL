@@ -29,6 +29,10 @@ public interface ConnectionContext {
         return getHBaseClientConf().hedgedReadIsOpen();
     }
 
+    default boolean hedgedReadWriteDisable() {
+        return getHBaseClientConf().isHedgedReadWriteDisable();
+    }
+
     default Configuration getHedgedReadConfiguration() {
         if (this.getConfiguration() == null) {
             throw new NullPointerException("The source cluster configuration cannot be empty.");
