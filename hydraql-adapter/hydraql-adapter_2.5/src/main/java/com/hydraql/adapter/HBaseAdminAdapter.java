@@ -4,6 +4,7 @@ import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseFamilyHasExistsException;
 import com.hydraql.common.exception.HBaseFamilyNotFoundException;
 import com.hydraql.common.exception.HBaseOperationsException;
+import com.hydraql.common.exception.NoSuchColumnFamilyException;
 import com.hydraql.common.lang.MyAssert;
 import com.hydraql.common.model.HBaseRegionRecord;
 import com.hydraql.common.model.HBaseTableRecord;
@@ -242,6 +243,157 @@ public class HBaseAdminAdapter extends AbstractAdminAdapter implements HBaseMetr
     @Override
     public boolean modifyTableConfiguration(final String tableName, Map<String, String> configuration, boolean isAsync) {
         throw new UnsupportedOperationException("Unsupported function modifyTableConfiguration.");
+    }
+
+    @Override
+    public boolean modifyFamilyAttributes(String tableName, String familyName, Map<String, String> attributes, boolean isAsync) {
+        if (attributes == null || attributes.isEmpty()) {
+            return true;
+        }
+
+        return this.execute(admin -> {
+            final TableDescriptor tableDescriptor = admin.getDescriptor(TableName.valueOf(tableName));
+            ColumnFamilyDescriptor modifyColumnDescriptor = null;
+            for (ColumnFamilyDescriptor family : tableDescriptor.getColumnFamilies()) {
+                if (family.getNameAsString().equals(familyName)) {
+                    modifyColumnDescriptor = family;
+                    break;
+                }
+            }
+            if (modifyColumnDescriptor == null) {
+                throw new NoSuchColumnFamilyException(familyName);
+            }
+            ColumnFamilyDescriptorBuilder modifyColumnDescriptorBuilder =
+                    ColumnFamilyDescriptorBuilder.newBuilder(modifyColumnDescriptor);
+
+            boolean isNeedModify = false;
+            for (String attributeKey : attributes.keySet()) {
+                byte[] attributeKeyBytes = Bytes.toBytes(attributeKey);
+
+                byte[] originalAttributeValBytes = modifyColumnDescriptor.getValue(attributeKeyBytes);
+                String modifyAttributeVal = attributes.get(attributeKey);
+                byte[] modifyAttributeValBytes =
+                        StringUtil.isBlank(modifyAttributeVal) ? null : Bytes.toBytes(modifyAttributeVal);
+
+                if (originalAttributeValBytes != null &&
+                        Arrays.equals(originalAttributeValBytes, modifyAttributeValBytes)) {
+                    continue;
+                }
+                if (modifyAttributeValBytes == null) {
+                    modifyColumnDescriptorBuilder.setValue(attributeKeyBytes, null);
+                } else {
+                    modifyColumnDescriptorBuilder.setValue(attributeKeyBytes, modifyAttributeValBytes);
+                }
+                isNeedModify = true;
+            }
+
+            if (!isNeedModify) {
+                return true;
+            }
+
+            if (isAsync) {
+                admin.modifyColumnFamilyAsync(TableName.valueOf(tableName), modifyColumnDescriptor);
+            } else {
+                admin.modifyColumnFamily(TableName.valueOf(tableName), modifyColumnDescriptor);
+            }
+            return true;
+        });
+    }
+
+    @Override
+    public boolean modifyFamilyAttributesAsync(String tableName, String familyName, Map<String, String> attributes) {
+        return modifyFamilyAttributes(tableName, familyName, attributes, true);
+    }
+
+    @Override
+    public boolean removeFamilyAttributes(String tableName, String familyName, List<String> attributeKeys, boolean isAsync) {
+        if (attributeKeys == null || attributeKeys.isEmpty()) {
+            return true;
+        }
+        Map<String, String> attributes = new HashMap<>();
+        for (String attributeKey : attributeKeys) {
+            attributes.put(attributeKey, "");
+        }
+        return modifyFamilyAttributes(tableName, familyName, attributes, isAsync);
+    }
+
+    @Override
+    public boolean removeFamilyAttributesAsync(String tableName, String familyName, List<String> attributeKeys) {
+        return removeFamilyAttributes(tableName, familyName, attributeKeys, true);
+    }
+
+    @Override
+    public boolean modifyFamilyConfiguration(String tableName, String familyName, Map<String, String> configs, boolean isAsync) {
+        if (configs == null || configs.isEmpty()) {
+            return true;
+        }
+
+        return this.execute(admin -> {
+            final TableDescriptor tableDescriptor = admin.getDescriptor(TableName.valueOf(tableName));
+            ColumnFamilyDescriptor modifyColumnDescriptor = null;
+            for (ColumnFamilyDescriptor family : tableDescriptor.getColumnFamilies()) {
+                if (family.getNameAsString().equals(familyName)) {
+                    modifyColumnDescriptor = family;
+                    break;
+                }
+            }
+
+            if (modifyColumnDescriptor == null) {
+                throw new NoSuchColumnFamilyException(familyName);
+            }
+
+            ColumnFamilyDescriptorBuilder modifyColumnDescriptorBuilder =
+                    ColumnFamilyDescriptorBuilder.newBuilder(modifyColumnDescriptor);
+
+            boolean isNeedModify = false;
+            for (String configKey : configs.keySet()) {
+                String originalConfigVal = modifyColumnDescriptor.getConfigurationValue(configKey);
+                String modifyConfigVal = configs.get(configKey);
+                if (StringUtil.isNotBlank(originalConfigVal) &&
+                        StringUtil.isNotBlank(modifyConfigVal) && originalConfigVal.equals(modifyConfigVal)) {
+                    continue;
+                }
+                if (StringUtil.isBlank(modifyConfigVal)) {
+                    modifyColumnDescriptorBuilder.setConfiguration(configKey, null);
+                } else {
+                    modifyColumnDescriptorBuilder.setConfiguration(configKey, modifyConfigVal);
+                }
+                isNeedModify = true;
+            }
+
+            if (!isNeedModify) {
+                return true;
+            }
+
+            if (isAsync) {
+                admin.modifyColumnFamilyAsync(TableName.valueOf(tableName), modifyColumnDescriptor);
+            } else {
+                admin.modifyColumnFamily(TableName.valueOf(tableName), modifyColumnDescriptor);
+            }
+            return true;
+        });
+    }
+
+    @Override
+    public boolean modifyFamilyConfigurationAsync(String tableName, String familyName, Map<String, String> configs) {
+        return modifyFamilyConfiguration(tableName, familyName, configs, true);
+    }
+
+    @Override
+    public boolean removeFamilyConfiguration(String tableName, String familyName, List<String> configKeys, boolean isAsync) {
+        if (configKeys == null || configKeys.isEmpty()) {
+            return true;
+        }
+        Map<String, String> configs = new HashMap<>();
+        for (String configKey : configKeys) {
+            configs.put(configKey, "");
+        }
+        return modifyFamilyConfiguration(tableName, familyName, configs, isAsync);
+    }
+
+    @Override
+    public boolean removeFamilyConfigurationAsync(String tableName, String familyName, List<String> configKeys) {
+        return removeFamilyConfiguration(tableName, familyName, configKeys, true);
     }
 
     @Override

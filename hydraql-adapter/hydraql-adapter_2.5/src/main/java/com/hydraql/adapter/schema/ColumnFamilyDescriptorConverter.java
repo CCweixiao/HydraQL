@@ -10,6 +10,7 @@ import org.apache.yetus.audience.InterfaceAudience;
 import java.util.Map;
 
 import static com.hydraql.adapter.schema.BaseColumnFamilyDesc.BLOCK_STORAGE_POLICY_KEY;
+import static com.hydraql.adapter.schema.BaseColumnFamilyDesc.STORAGE_POLICY;
 
 /**
  * @author leojie 2023/5/17 22:43
@@ -84,35 +85,48 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
 
     @Override
     protected ColumnFamilyDesc doBackward(ColumnFamilyDescriptor columnDescriptor) {
-        ColumnFamilyDesc columnFamilyDesc =
+        final BaseColumnFamilyDesc.Builder<ColumnFamilyDesc> builder =
                 ColumnFamilyDesc.newBuilder(columnDescriptor.getNameAsString())
-                .replicationScope(columnDescriptor.getScope())
-                .maxVersions(columnDescriptor.getMaxVersions())
-                .minVersions(columnDescriptor.getMinVersions())
-                .compressionType(columnDescriptor.getCompressionType().getName())
-                .bloomFilterType(columnDescriptor.getBloomFilterType().name())
-                .timeToLive(columnDescriptor.getTimeToLive())
-                .blockSize(columnDescriptor.getBlocksize())
-                .blockCacheEnabled(columnDescriptor.isBlockCacheEnabled())
-                .inMemory(columnDescriptor.isInMemory())
-                .keepDeletedCells(columnDescriptor.getKeepDeletedCells().name())
-                .dataBlockEncoding(columnDescriptor.getDataBlockEncoding().name())
-                .cacheDataOnWrite(columnDescriptor.isCacheDataOnWrite())
-                .cacheIndexesOnWrite(columnDescriptor.isCacheIndexesOnWrite())
-                .cacheBloomsOnWrite(columnDescriptor.isCacheBloomsOnWrite())
-                .evictBlocksOnClose(columnDescriptor.isEvictBlocksOnClose())
-                .prefetchBlocksOnOpen(columnDescriptor.isPrefetchBlocksOnOpen())
-                .mobEnabled(columnDescriptor.isMobEnabled())
-                .mobThreshold(columnDescriptor.getMobThreshold())
-                .build();
+                        .replicationScope(columnDescriptor.getScope())
+                        .maxVersions(columnDescriptor.getMaxVersions())
+                        .minVersions(columnDescriptor.getMinVersions())
+                        .compressionType(columnDescriptor.getCompressionType().getName())
+                        .bloomFilterType(columnDescriptor.getBloomFilterType().name())
+                        .timeToLive(columnDescriptor.getTimeToLive())
+                        .blockSize(columnDescriptor.getBlocksize())
+                        .blockCacheEnabled(columnDescriptor.isBlockCacheEnabled())
+                        .inMemory(columnDescriptor.isInMemory())
+                        .keepDeletedCells(columnDescriptor.getKeepDeletedCells().name())
+                        .dataBlockEncoding(columnDescriptor.getDataBlockEncoding().name())
+                        .cacheDataOnWrite(columnDescriptor.isCacheDataOnWrite())
+                        .cacheIndexesOnWrite(columnDescriptor.isCacheIndexesOnWrite())
+                        .cacheBloomsOnWrite(columnDescriptor.isCacheBloomsOnWrite())
+                        .evictBlocksOnClose(columnDescriptor.isEvictBlocksOnClose())
+                        .prefetchBlocksOnOpen(columnDescriptor.isPrefetchBlocksOnOpen())
+                        .mobEnabled(columnDescriptor.isMobEnabled())
+                        .mobThreshold(columnDescriptor.getMobThreshold());
 
         Map<String, String> configuration = columnDescriptor.getConfiguration();
         if (configuration != null && !configuration.isEmpty()) {
-            configuration.forEach(columnFamilyDesc::setConfiguration);
+            String storagePolicy = configuration.getOrDefault(BLOCK_STORAGE_POLICY_KEY, "");
+            if (StringUtil.isNotBlank(storagePolicy)) {
+                builder.storagePolicy(storagePolicy);
+            }
+            configuration.forEach(builder::setConfiguration);
         }
 
-        columnDescriptor.getValues().forEach((key, value) ->
-                columnFamilyDesc.setValue(Bytes.toString(key.get()), Bytes.toString(value.get())));
-        return columnFamilyDesc;
+        Map<Bytes, Bytes> values = columnDescriptor.getValues();
+        if (values != null && !values.isEmpty()) {
+            values.forEach((key, value) -> {
+                String keyStr = Bytes.toString(key.get());
+                String valueStr = Bytes.toString(value.get());
+                if (STORAGE_POLICY.equals(keyStr) && StringUtil.isNotBlank(valueStr)) {
+                    builder.storagePolicy(valueStr);
+                }
+                builder.setValue(keyStr, valueStr);
+            });
+        }
+
+        return builder.build();
     }
 }

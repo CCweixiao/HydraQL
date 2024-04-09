@@ -193,6 +193,9 @@ public abstract class BaseColumnFamilyDesc {
 
         public Builder<CF> storagePolicy(String storagePolicy) {
             verifyKey(STORAGE_POLICY);
+            if (StringUtil.isBlank(storagePolicy)) {
+                return this;
+            }
             this.storagePolicy = storagePolicy;
             this.setValue(STORAGE_POLICY, storagePolicy);
             return this;

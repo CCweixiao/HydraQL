@@ -46,14 +46,32 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
         columnDescriptor.setPrefetchBlocksOnOpen(columnFamilyDesc.isPrefetchBlocksOnOpen());
 
         String storagePolicy = columnFamilyDesc.getStoragePolicy();
+        boolean storagePolicyHasSet = false;
         if (StringUtil.isNotBlank(storagePolicy)) {
-            columnDescriptor.setConfiguration(BLOCK_STORAGE_POLICY_KEY, storagePolicy);
             columnDescriptor.setValue(STORAGE_POLICY, storagePolicy);
+            storagePolicyHasSet = true;
         }
 
         Map<String, String> configuration = columnFamilyDesc.getConfiguration();
         if (configuration != null && !configuration.isEmpty()) {
-            configuration.forEach(columnDescriptor::setConfiguration);
+            for (String key : configuration.keySet()) {
+                if (BLOCK_STORAGE_POLICY_KEY.equals(key)) {
+                    String storagePolicyConfig = configuration.get(key);
+                    if (StringUtil.isBlank(storagePolicyConfig)) {
+                        continue;
+                    }
+                    if (!storagePolicyHasSet) {
+                        columnDescriptor.setValue(STORAGE_POLICY, storagePolicyConfig);
+                        continue;
+                    }
+                    if (!storagePolicyConfig.equals(storagePolicy)) {
+                        throw new IllegalArgumentException(
+                                String.format("There are conflicting storage policies %s and %s", storagePolicy, storagePolicyConfig));
+                    }
+                } else {
+                    columnDescriptor.setConfiguration(key, configuration.get(key));
+                }
+            }
         }
 
         Map<String, String> values = columnFamilyDesc.getValues();
