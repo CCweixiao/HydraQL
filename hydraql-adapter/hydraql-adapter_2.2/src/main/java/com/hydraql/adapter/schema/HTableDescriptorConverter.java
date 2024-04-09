@@ -49,9 +49,10 @@ public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTa
     protected HTableDesc doBackward(TableDescriptor tableDescriptor) {
         List<ColumnFamilyDesc> columnFamilyDescList =
                 Arrays.stream(tableDescriptor.getColumnFamilies())
-                        .map(cd -> new ColumnFamilyDesc().convertTo(cd)).collect(Collectors.toList());
-        HTableDesc tableDesc = HTableDesc.newBuilder()
-                .name(tableDescriptor.getTableName().getNameAsString())
+                        .map(cd -> ColumnFamilyDesc.createDefault(cd.getNameAsString())
+                                .convertTo(cd)).collect(Collectors.toList());
+        HTableDesc tableDesc =
+                HTableDesc.newBuilder(tableDescriptor.getTableName().getNameAsString())
                 .maxFileSize(tableDescriptor.getMaxFileSize())
                 .memStoreFlushSize(tableDescriptor.getMemStoreFlushSize())
                 .readOnly(tableDescriptor.isReadOnly())
@@ -59,7 +60,7 @@ public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTa
                 .compactionEnabled(tableDescriptor.isCompactionEnabled())
                 .build();
         for (ColumnFamilyDesc columnFamilyDesc : columnFamilyDescList) {
-            tableDesc.addColumnFamily(columnFamilyDesc);
+            tableDesc.append(columnFamilyDesc);
         }
         Map<Bytes, Bytes> values = tableDescriptor.getValues();
         if (values != null && !values.isEmpty()) {

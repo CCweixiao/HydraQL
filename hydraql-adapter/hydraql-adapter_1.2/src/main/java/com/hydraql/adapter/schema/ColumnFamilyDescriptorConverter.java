@@ -3,10 +3,14 @@ package com.hydraql.adapter.schema;
 import com.hydraql.common.exception.HBaseFamilyNotEmptyException;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.Map;
+
+import static com.hydraql.adapter.schema.BaseColumnFamilyDesc.BLOCK_STORAGE_POLICY_KEY;
+import static com.hydraql.adapter.schema.BaseColumnFamilyDesc.STORAGE_POLICY;
 
 /**
  * @author leojie 2023/5/17 22:43
@@ -40,10 +44,18 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
         columnDescriptor.setCacheBloomsOnWrite(columnFamilyDesc.isCacheBloomsOnWrite());
         columnDescriptor.setEvictBlocksOnClose(columnFamilyDesc.isEvictBlocksOnClose());
         columnDescriptor.setPrefetchBlocksOnOpen(columnFamilyDesc.isPrefetchBlocksOnOpen());
+
+        String storagePolicy = columnFamilyDesc.getStoragePolicy();
+        if (StringUtil.isNotBlank(storagePolicy)) {
+            columnDescriptor.setConfiguration(BLOCK_STORAGE_POLICY_KEY, storagePolicy);
+            columnDescriptor.setValue(STORAGE_POLICY, storagePolicy);
+        }
+
         Map<String, String> configuration = columnFamilyDesc.getConfiguration();
         if (configuration != null && !configuration.isEmpty()) {
             configuration.forEach(columnDescriptor::setConfiguration);
         }
+
         Map<String, String> values = columnFamilyDesc.getValues();
         if (values != null && !values.isEmpty()) {
             values.forEach(columnDescriptor::setValue);
@@ -53,8 +65,8 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
 
     @Override
     protected ColumnFamilyDesc doBackward(HColumnDescriptor columnDescriptor) {
-        ColumnFamilyDesc columnFamilyDesc = ColumnFamilyDesc.newBuilder()
-                .name(columnDescriptor.getNameAsString())
+        final BaseColumnFamilyDesc.Builder<ColumnFamilyDesc> builder =
+                ColumnFamilyDesc.newBuilder(columnDescriptor.getNameAsString())
                 .replicationScope(columnDescriptor.getScope())
                 .maxVersions(columnDescriptor.getMaxVersions())
                 .minVersions(columnDescriptor.getMinVersions())
@@ -71,11 +83,29 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
                 .cacheIndexesOnWrite(columnDescriptor.isCacheIndexesOnWrite())
                 .cacheBloomsOnWrite(columnDescriptor.isCacheBloomsOnWrite())
                 .evictBlocksOnClose(columnDescriptor.isEvictBlocksOnClose())
-                .prefetchBlocksOnOpen(columnDescriptor.isPrefetchBlocksOnOpen())
-                .setConfiguration(columnDescriptor.getConfiguration())
-                .build();
-        columnDescriptor.getValues().forEach((key, value) ->
-                columnFamilyDesc.setValue(Bytes.toString(key.get()), Bytes.toString(value.get())));
-        return columnFamilyDesc;
+                .prefetchBlocksOnOpen(columnDescriptor.isPrefetchBlocksOnOpen());
+
+        Map<String, String> configuration = columnDescriptor.getConfiguration();
+        if (configuration != null && !configuration.isEmpty()) {
+            String storagePolicy = configuration.getOrDefault(BLOCK_STORAGE_POLICY_KEY, "");
+            if (StringUtil.isNotBlank(storagePolicy)) {
+                builder.storagePolicy(storagePolicy);
+            }
+            configuration.forEach(builder::setConfiguration);
+        }
+
+        Map<ImmutableBytesWritable, ImmutableBytesWritable> values = columnDescriptor.getValues();
+        if (values != null && !values.isEmpty()) {
+            values.forEach((key, value) -> {
+                String keyStr = Bytes.toString(key.get());
+                String valueStr = Bytes.toString(value.get());
+                if (STORAGE_POLICY.equals(keyStr) && StringUtil.isNotBlank(valueStr)) {
+                    builder.storagePolicy(valueStr);
+                }
+                builder.setValue(keyStr, valueStr);
+            });
+        }
+
+        return builder.build();
     }
 }

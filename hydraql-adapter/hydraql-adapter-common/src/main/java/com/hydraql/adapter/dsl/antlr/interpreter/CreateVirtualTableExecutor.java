@@ -1,6 +1,6 @@
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.HqlOpAdapter;
+import com.hydraql.adapter.AbstractHQLAdapter;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.adapter.dsl.antlr.visitor.CreateVirtualTableVisitor;
@@ -10,7 +10,7 @@ import com.hydraql.dsl.model.HBaseTableSchema;
  * @author leojie 2023/9/27 15:07
  */
 public class CreateVirtualTableExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
-    private final HqlOpAdapter sqlAdapter;
+    private final AbstractHQLAdapter sqlAdapter;
 
     private CreateVirtualTableExecutor(ExecutorBuilder builder) {
         super(builder.hql);
@@ -44,8 +44,8 @@ public class CreateVirtualTableExecutor extends BaseHqlExecutor<Boolean> impleme
 
     private static class ExecutorBuilder extends Builder<CreateVirtualTableExecutor, Boolean> {
         private final String hql;
-        private final HqlOpAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, HqlOpAdapter sqlAdapter) {
+        private final AbstractHQLAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, AbstractHQLAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -56,7 +56,7 @@ public class CreateVirtualTableExecutor extends BaseHqlExecutor<Boolean> impleme
         }
     }
 
-    public static CreateVirtualTableExecutor of(String hql, HqlOpAdapter sqlAdapter) {
+    public static CreateVirtualTableExecutor of(String hql, AbstractHQLAdapter sqlAdapter) {
         return new CreateVirtualTableExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

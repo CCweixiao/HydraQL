@@ -12,18 +12,15 @@ public class ColumnFamilyDesc extends BaseColumnFamilyDesc implements Comparable
     private final BaseColumnFamilyDescriptorConverter<ColumnFamilyDesc, HColumnDescriptor>
             familyDescriptorConverter;
 
-    public ColumnFamilyDesc() {
-        this.familyDescriptorConverter = new ColumnFamilyDescriptorConverter(this);
-    }
-
     private ColumnFamilyDesc(BaseColumnFamilyDesc.Builder<ColumnFamilyDesc> builder) {
         super(builder);
         this.familyDescriptorConverter = new ColumnFamilyDescriptorConverter(this);
     }
 
     public static class Builder extends BaseColumnFamilyDesc.Builder<ColumnFamilyDesc> {
-        private Builder() {
 
+        private Builder(String name) {
+            super(name);
         }
 
         @Override
@@ -32,8 +29,12 @@ public class ColumnFamilyDesc extends BaseColumnFamilyDesc implements Comparable
         }
     }
 
-    public static Builder newBuilder() {
-        return new ColumnFamilyDesc.Builder();
+    public static Builder newBuilder(String name) {
+        return new ColumnFamilyDesc.Builder(name);
+    }
+
+    public static ColumnFamilyDesc createDefault(String name) {
+        return newBuilder(name).build();
     }
 
     public HColumnDescriptor convertFor() {

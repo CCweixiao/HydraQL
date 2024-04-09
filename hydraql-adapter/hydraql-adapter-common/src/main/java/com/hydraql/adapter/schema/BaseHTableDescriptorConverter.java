@@ -19,8 +19,8 @@ public abstract class BaseHTableDescriptorConverter<D extends BaseHTableDesc, S>
         return this.convert(this.hTableDesc);
     }
 
-    protected D convertTo(S htableDescriptor) {
-        return this.reverse().convert(htableDescriptor);
+    protected D convertTo(S tableDescriptor) {
+        return this.reverse().convert(tableDescriptor);
     }
 
     @Override

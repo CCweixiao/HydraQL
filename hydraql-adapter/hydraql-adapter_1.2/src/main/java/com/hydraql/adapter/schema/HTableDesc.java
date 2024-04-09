@@ -11,27 +11,29 @@ public class HTableDesc extends BaseHTableDesc implements Comparable<HTableDesc>
 
     private final BaseHTableDescriptorConverter<HTableDesc, HTableDescriptor> tableDescriptorConverter;
 
-    public HTableDesc() {
-        this.tableDescriptorConverter = new HTableDescriptorConverter(this);
-    }
-
     private HTableDesc(BaseHTableDesc.Builder<HTableDesc> builder) {
         super(builder);
         this.tableDescriptorConverter = new HTableDescriptorConverter(this);
     }
 
     public static class Builder extends BaseHTableDesc.Builder<HTableDesc> {
-        private Builder() {
 
+        private Builder(String name) {
+            super(name);
         }
+
         @Override
         public HTableDesc build() {
             return new HTableDesc(this);
         }
     }
 
-    public static Builder newBuilder() {
-        return new HTableDesc.Builder();
+    public static Builder newBuilder(String name) {
+        return new HTableDesc.Builder(name);
+    }
+
+    public static HTableDesc createDefault(String name) {
+        return newBuilder(name).build();
     }
 
     public HTableDescriptor convertFor() {

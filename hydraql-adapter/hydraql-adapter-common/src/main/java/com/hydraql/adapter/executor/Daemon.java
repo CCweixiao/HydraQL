@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * @author leojie@apache.org 2024/4/8 16:52
  */
-public class Daemon extends Thread {
+class Daemon extends Thread {
 
     {
         setDaemon(true);                              // always a daemon

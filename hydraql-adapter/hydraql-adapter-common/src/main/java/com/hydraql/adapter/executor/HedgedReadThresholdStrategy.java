@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author leojie@apache.org 2024/4/8 17:44
  */
-public class HedgedReadThresholdStrategy implements HedgedReadStrategy {
+class HedgedReadThresholdStrategy implements HedgedReadStrategy {
     private final long thresholdMillis;
     private final int maxThreads;
 

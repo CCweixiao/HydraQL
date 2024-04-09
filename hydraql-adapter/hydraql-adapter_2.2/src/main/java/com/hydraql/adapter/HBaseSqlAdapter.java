@@ -28,7 +28,7 @@ import java.util.*;
  * @author leojie 2020/11/28 8:36 下午
  */
 @InterfaceAudience.Private
-public class HBaseSqlAdapter extends HqlOpAdapter {
+public class HBaseSqlAdapter extends AbstractHQLAdapter {
     public HBaseSqlAdapter(Configuration configuration) {
         super(configuration);
     }

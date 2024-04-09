@@ -1,6 +1,6 @@
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.HqlOpAdapter;
+import com.hydraql.adapter.AbstractHQLAdapter;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.common.util.StringUtil;
@@ -17,7 +17,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  * @author leojie 2023/9/27 15:13
  */
 public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
-    private final HqlOpAdapter sqlAdapter;
+    private final AbstractHQLAdapter sqlAdapter;
 
     private DropVirtualTableExecutor(ExecutorBuilder builder) {
         super(builder.hql);
@@ -33,13 +33,13 @@ public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implement
         String virtualTableName = new TableNameVisitor().extractTableName(dropTableCommandContext.table_ref());
         Get get = new Get(Bytes.toBytes(virtualTableName));
         boolean virtualTableExists = sqlAdapter.execute(
-                HqlOpAdapter.HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
+                AbstractHQLAdapter.HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {
                 return false;
             }
-            byte[] value = result.getValue(HqlOpAdapter.HQL_META_DATA_TABLE_FAMILY,
-                    HqlOpAdapter.HQL_META_DATA_TABLE_QUALIFIER);
+            byte[] value = result.getValue(AbstractHQLAdapter.HQL_META_DATA_TABLE_FAMILY,
+                    AbstractHQLAdapter.HQL_META_DATA_TABLE_QUALIFIER);
             return value != null && StringUtil.isNotBlank(Bytes.toString(value));
         });
         HydraQLParser.If_existsContext ifExistsContext = dropTableCommandContext.if_exists();
@@ -48,7 +48,7 @@ public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implement
         }
         Delete delete = new Delete(Bytes.toBytes(virtualTableName));
         boolean deleteRes = sqlAdapter.execute(
-                HqlOpAdapter.HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
+                AbstractHQLAdapter.HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             table.delete(delete);
             return true;
         });
@@ -72,9 +72,9 @@ public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implement
 
     private static class ExecutorBuilder extends Builder<DropVirtualTableExecutor, Boolean> {
         private final String hql;
-        private final HqlOpAdapter sqlAdapter;
+        private final AbstractHQLAdapter sqlAdapter;
 
-        private ExecutorBuilder(String hql, HqlOpAdapter sqlAdapter) {
+        private ExecutorBuilder(String hql, AbstractHQLAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -85,7 +85,7 @@ public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implement
         }
     }
 
-    public static DropVirtualTableExecutor of(String hql, HqlOpAdapter sqlAdapter) {
+    public static DropVirtualTableExecutor of(String hql, AbstractHQLAdapter sqlAdapter) {
         return new DropVirtualTableExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

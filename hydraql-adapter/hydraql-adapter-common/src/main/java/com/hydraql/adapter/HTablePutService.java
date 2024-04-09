@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * @author leojie 2023/7/20 19:32
  */
-public interface IHBaseTablePutAdapter {
+public interface HTablePutService {
 
     default Put buildPut(String rowKey, Map<String, Object> data) {
         if (StringUtil.isBlank(rowKey)) {

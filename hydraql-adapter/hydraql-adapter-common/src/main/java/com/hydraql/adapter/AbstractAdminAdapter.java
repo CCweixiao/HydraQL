@@ -1,6 +1,6 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.executor.AdminActionExecutor;
+import com.hydraql.adapter.executor.AdminExecutor;
 import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.StringUtil;
@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
  * @author leojie 2020/11/14 2:26 下午
  */
 @InterfaceAudience.Private
-public abstract class AdminActionAdapter implements AdminActionExecutor, IHBaseAdminAdapter {
+abstract class AbstractAdminAdapter implements AdminExecutor, AdminService {
     private final Configuration configuration;
 
-    public AdminActionAdapter(Configuration configuration) {
+    public AbstractAdminAdapter(Configuration configuration) {
         this.configuration = configuration;
     }
 

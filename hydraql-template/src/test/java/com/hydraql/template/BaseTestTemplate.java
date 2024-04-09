@@ -41,15 +41,12 @@ public class BaseTestTemplate {
     }
 
     protected void createTestTable() {
-        ColumnFamilyDesc cf = ColumnFamilyDesc.newBuilder()
-                .name("info")
+        ColumnFamilyDesc cf = ColumnFamilyDesc.newBuilder("info")
                 .maxVersions(5)
                 .build();
-        ColumnFamilyDesc cf2 = ColumnFamilyDesc.newBuilder()
-                .name("detail")
+        ColumnFamilyDesc cf2 = ColumnFamilyDesc.newBuilder("detail")
                 .build();
-        HTableDesc tableDesc = HTableDesc.newBuilder()
-                .name(TEST_TABLE)
+        HTableDesc tableDesc = HTableDesc.newBuilder(TEST_TABLE)
                 .addFamilyDesc(cf)
                 .build();
       adminTemplate.createTable(tableDesc);

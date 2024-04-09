@@ -21,7 +21,7 @@ import java.util.*;
  * @author leo.jie (weixiao.me@aliyun.com)
  */
 @InterfaceAudience.Private
-public class HBaseTableAdapter extends HTableOpAdapter {
+public class HBaseTableAdapter extends AbstractHTableAdapter {
     public HBaseTableAdapter(Configuration configuration) {
         super(configuration);
     }

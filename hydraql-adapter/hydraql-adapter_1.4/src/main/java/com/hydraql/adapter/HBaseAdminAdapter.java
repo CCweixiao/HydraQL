@@ -41,7 +41,7 @@ import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_S
  * @author leojie 2020/9/25 11:11 下午
  */
 @InterfaceAudience.Private
-public class HBaseAdminAdapter extends AdminActionAdapter implements HBaseMetricOperations {
+public class HBaseAdminAdapter extends AbstractAdminAdapter implements HBaseMetricOperations {
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
     public HBaseAdminAdapter(Configuration configuration) {
         super(configuration);
@@ -62,7 +62,7 @@ public class HBaseAdminAdapter extends AdminActionAdapter implements HBaseMetric
             }
             List<HTableDesc> tableDescList = new ArrayList<>(tableDescriptors.length);
             for (HTableDescriptor tableDescriptor : tableDescriptors) {
-                HTableDesc tableDesc = new HTableDesc().convertTo(tableDescriptor);
+                HTableDesc tableDesc = HTableDesc.createDefault(tableDescriptor.getNameAsString()).convertTo(tableDescriptor);
                 tableDescList.add(tableDesc);
             }
             return tableDescList;
@@ -89,7 +89,8 @@ public class HBaseAdminAdapter extends AdminActionAdapter implements HBaseMetric
             if (tableDescriptors == null || tableDescriptors.length == 0) {
                 return new ArrayList<>();
             }
-            return Arrays.stream(tableDescriptors).map(t -> new HTableDesc().convertTo(t)).collect(Collectors.toList());
+            return Arrays.stream(tableDescriptors).map(t ->
+                    HTableDesc.createDefault(t.getNameAsString()).convertTo(t)).collect(Collectors.toList());
         });
     }
 
@@ -100,7 +101,8 @@ public class HBaseAdminAdapter extends AdminActionAdapter implements HBaseMetric
             tableNotExistsThrowError(admin, tableName);
             HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
             final Collection<HColumnDescriptor> families = tableDescriptor.getFamilies();
-            return families.stream().map(c -> new ColumnFamilyDesc().convertTo(c)).collect(Collectors.toList());
+            return families.stream().map(c ->
+                    ColumnFamilyDesc.createDefault(c.getNameAsString()).convertTo(c)).collect(Collectors.toList());
         });
     }
 
@@ -109,7 +111,7 @@ public class HBaseAdminAdapter extends AdminActionAdapter implements HBaseMetric
     public HTableDesc getTableDesc(String tableName) {
         return this.execute(admin -> {
             HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
-            return new HTableDesc().convertTo(tableDescriptor);
+            return HTableDesc.createDefault(tableDescriptor.getNameAsString()).convertTo(tableDescriptor);
         });
     }
 

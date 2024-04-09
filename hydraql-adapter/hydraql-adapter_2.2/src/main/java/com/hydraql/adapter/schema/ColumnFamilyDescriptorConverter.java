@@ -9,6 +9,8 @@ import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.Map;
 
+import static com.hydraql.adapter.schema.BaseColumnFamilyDesc.BLOCK_STORAGE_POLICY_KEY;
+
 /**
  * @author leojie 2023/5/17 22:43
  */
@@ -23,49 +25,71 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
         if (StringUtil.isBlank(columnFamilyDesc.getNameAsString())) {
             throw new HBaseFamilyNotEmptyException("The family name is not empty.");
         }
-        ColumnFamilyDescriptorBuilder familyDescriptorBuilder = ColumnFamilyDescriptorBuilder.newBuilder(Bytes.toBytes(columnFamilyDesc.getNameAsString()));
-        familyDescriptorBuilder.setScope(columnFamilyDesc.getReplicationScope());
-        familyDescriptorBuilder.setMaxVersions(columnFamilyDesc.getMaxVersions());
-        familyDescriptorBuilder.setMinVersions(columnFamilyDesc.getMinVersions());
-        familyDescriptorBuilder.setCompressionType(getCompression(columnFamilyDesc.getCompressionType()));
-        familyDescriptorBuilder.setBloomFilterType(getBloomType(columnFamilyDesc.getBloomFilterType()));
-        familyDescriptorBuilder.setTimeToLive(columnFamilyDesc.getTimeToLive());
-        familyDescriptorBuilder.setBlocksize(columnFamilyDesc.getBlockSize());
-        familyDescriptorBuilder.setBlockCacheEnabled(columnFamilyDesc.isBlockCacheEnabled());
-        familyDescriptorBuilder.setInMemory(columnFamilyDesc.isInMemory());
-        familyDescriptorBuilder.setKeepDeletedCells(getKeepDeletedCells(columnFamilyDesc.getKeepDeletedCells()));
-        familyDescriptorBuilder.setDataBlockEncoding(getDataBlockEncoding(columnFamilyDesc.getDataBlockEncoding()));
-        familyDescriptorBuilder.setCacheDataOnWrite(columnFamilyDesc.isCacheDataOnWrite());
-        familyDescriptorBuilder.setCacheIndexesOnWrite(columnFamilyDesc.isCacheIndexesOnWrite());
-        familyDescriptorBuilder.setCacheBloomsOnWrite(columnFamilyDesc.isCacheBloomsOnWrite());
-        familyDescriptorBuilder.setEvictBlocksOnClose(columnFamilyDesc.isEvictBlocksOnClose());
-        familyDescriptorBuilder.setPrefetchBlocksOnOpen(columnFamilyDesc.isPrefetchBlocksOnOpen());
-        if (StringUtil.isNotBlank(columnFamilyDesc.getStoragePolicy())) {
-            familyDescriptorBuilder.setStoragePolicy(columnFamilyDesc.getStoragePolicy());
+        ColumnFamilyDescriptorBuilder builder = ColumnFamilyDescriptorBuilder.newBuilder(Bytes.toBytes(columnFamilyDesc.getNameAsString()));
+        builder.setScope(columnFamilyDesc.getReplicationScope());
+        builder.setMaxVersions(columnFamilyDesc.getMaxVersions());
+        builder.setMinVersions(columnFamilyDesc.getMinVersions());
+        builder.setCompressionType(getCompression(columnFamilyDesc.getCompressionType()));
+        builder.setBloomFilterType(getBloomType(columnFamilyDesc.getBloomFilterType()));
+        builder.setTimeToLive(columnFamilyDesc.getTimeToLive());
+        builder.setBlocksize(columnFamilyDesc.getBlockSize());
+        builder.setBlockCacheEnabled(columnFamilyDesc.isBlockCacheEnabled());
+        builder.setInMemory(columnFamilyDesc.isInMemory());
+        builder.setKeepDeletedCells(getKeepDeletedCells(columnFamilyDesc.getKeepDeletedCells()));
+        builder.setDataBlockEncoding(getDataBlockEncoding(columnFamilyDesc.getDataBlockEncoding()));
+        builder.setCacheDataOnWrite(columnFamilyDesc.isCacheDataOnWrite());
+        builder.setCacheIndexesOnWrite(columnFamilyDesc.isCacheIndexesOnWrite());
+        builder.setCacheBloomsOnWrite(columnFamilyDesc.isCacheBloomsOnWrite());
+        builder.setEvictBlocksOnClose(columnFamilyDesc.isEvictBlocksOnClose());
+        builder.setPrefetchBlocksOnOpen(columnFamilyDesc.isPrefetchBlocksOnOpen());
+
+        String storagePolicy = columnFamilyDesc.getStoragePolicy();
+        boolean storagePolicyHasSet = false;
+        if (StringUtil.isNotBlank(storagePolicy)) {
+            builder.setStoragePolicy(storagePolicy);
+            storagePolicyHasSet = true;
         }
-        familyDescriptorBuilder.setMobEnabled(columnFamilyDesc.isMobEnabled());
-        familyDescriptorBuilder.setMobThreshold(columnFamilyDesc.getMobThreshold());
 
         Map<String, String> configuration = columnFamilyDesc.getConfiguration();
         if (configuration != null && !configuration.isEmpty()) {
-            configuration.forEach(familyDescriptorBuilder::setConfiguration);
+            for (String key : configuration.keySet()) {
+                if (BLOCK_STORAGE_POLICY_KEY.equals(key)) {
+                    String storagePolicyConfig = configuration.get(key);
+                    if (StringUtil.isBlank(storagePolicyConfig)) {
+                        continue;
+                    }
+                    if (!storagePolicyHasSet) {
+                        builder.setStoragePolicy(storagePolicyConfig);
+                        continue;
+                    }
+                    if (!storagePolicyConfig.equals(storagePolicy)) {
+                        throw new IllegalArgumentException(
+                                String.format("There are conflicting storage policies %s and %s", storagePolicy, storagePolicyConfig));
+                    }
+                } else {
+                    builder.setConfiguration(key, configuration.get(key));
+                }
+            }
         }
+
+        builder.setMobEnabled(columnFamilyDesc.isMobEnabled());
+        builder.setMobThreshold(columnFamilyDesc.getMobThreshold());
 
         Map<String, String> values = columnFamilyDesc.getValues();
         if (values != null && !values.isEmpty()) {
-            values.forEach(familyDescriptorBuilder::setValue);
+            values.forEach(builder::setValue);
         }
-
-        return familyDescriptorBuilder.build();
+        return builder.build();
     }
 
     @Override
     protected ColumnFamilyDesc doBackward(ColumnFamilyDescriptor columnDescriptor) {
-        ColumnFamilyDesc columnFamilyDesc = ColumnFamilyDesc.newBuilder()
-                .name(columnDescriptor.getNameAsString())
+        ColumnFamilyDesc columnFamilyDesc =
+                ColumnFamilyDesc.newBuilder(columnDescriptor.getNameAsString())
                 .replicationScope(columnDescriptor.getScope())
                 .maxVersions(columnDescriptor.getMaxVersions())
                 .minVersions(columnDescriptor.getMinVersions())
+                .storagePolicy(columnDescriptor.getStoragePolicy())
                 .compressionType(columnDescriptor.getCompressionType().getName())
                 .bloomFilterType(columnDescriptor.getBloomFilterType().name())
                 .timeToLive(columnDescriptor.getTimeToLive())
@@ -82,6 +106,11 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
                 .mobEnabled(columnDescriptor.isMobEnabled())
                 .mobThreshold(columnDescriptor.getMobThreshold())
                 .build();
+
+        Map<String, String> configuration = columnDescriptor.getConfiguration();
+        if (configuration != null && !configuration.isEmpty()) {
+            configuration.forEach(columnFamilyDesc::setConfiguration);
+        }
 
         columnDescriptor.getValues().forEach((key, value) ->
                 columnFamilyDesc.setValue(Bytes.toString(key.get()), Bytes.toString(value.get())));

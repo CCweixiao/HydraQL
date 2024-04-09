@@ -3,7 +3,7 @@ package com.hydraql.adapter.executor;
 /**
  * @author leojie@apache.org 2024/4/8 19:41
  */
-public class HedgedReadFirstOneStrategy extends HedgedReadThresholdStrategy {
+class HedgedReadFirstOneStrategy extends HedgedReadThresholdStrategy {
     public HedgedReadFirstOneStrategy(int maxThreads) {
         super(0, maxThreads);
     }

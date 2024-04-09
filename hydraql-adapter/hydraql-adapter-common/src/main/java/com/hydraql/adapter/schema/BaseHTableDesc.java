@@ -17,19 +17,25 @@ import java.util.stream.Collectors;
  */
 @InterfaceAudience.Private
 public abstract class BaseHTableDesc {
-    private String name;
-    private long maxFileSize;
-    private boolean readOnly;
-    private long memStoreFlushSize;
-    private boolean compactionEnabled;
+    public static final String NAMESPACE_DEFAULT = "default";
+    public static final String TABLE_NAME_SPLIT_CHAR = ":";
+    public static final String MAX_FILESIZE = "MAX_FILESIZE";
+    public static final long MAX_FILESIZE_DEFAULT = 10737418240L;
+    public static final String READONLY = "READONLY";
+    public static final String COMPACTION_ENABLED = "COMPACTION_ENABLED";
+    public static final String MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
+    public static final long MEMSTORE_FLUSHSIZE_DEFAULT = 134217728L;
+    public static final String SPLIT_POLICY = "SPLIT_POLICY";
 
-    private String regionSplitPolicyClassName;
-    private Map<String, String> configuration;
-    private Map<String, String> values;
-    private List<BaseColumnFamilyDesc> columnFamilyDescList;
-
-    public BaseHTableDesc() {
-    }
+    private final String name;
+    private final long maxFileSize;
+    private final boolean readOnly;
+    private final long memStoreFlushSize;
+    private final boolean compactionEnabled;
+    private final String regionSplitPolicyClassName;
+    private final Map<String, String> configuration;
+    private final Map<String, String> values;
+    private final List<BaseColumnFamilyDesc> columnFamilyDescList;
 
     public BaseHTableDesc(Builder<?> builder) {
         this.name = builder.name;
@@ -43,65 +49,62 @@ public abstract class BaseHTableDesc {
         this.regionSplitPolicyClassName = builder.regionSplitPolicyClassName;
     }
 
-    public abstract static class Builder<HTD extends BaseHTableDesc> {
-        private String name;
-        private long maxFileSize;
-        private boolean readOnly;
-        private long memStoreFlushSize;
-        private boolean compactionEnabled;
+    public abstract static class Builder<HTD extends BaseHTableDesc> implements HTableSchemaInterceptor {
+        private final String name;
+        private long maxFileSize = MAX_FILESIZE_DEFAULT;
+        private boolean readOnly = false;
+        private long memStoreFlushSize = MEMSTORE_FLUSHSIZE_DEFAULT;
+        private boolean compactionEnabled = true;
         private String regionSplitPolicyClassName;
-        private Map<String, String> configuration;
-        private Map<String, String> values;
-        private List<BaseColumnFamilyDesc> columnFamilyDescList;
+        private final Map<String, String> configuration;
+        private final Map<String, String> values;
+        private final List<BaseColumnFamilyDesc> columnFamilyDescList;
 
-        public Builder<HTD> name(String name) {
+        protected Builder(String name) {
             this.name = name;
-            this.maxFileSize = 10737418240L;
-            this.readOnly = false;
-            this.memStoreFlushSize = 134217728L;
-            this.compactionEnabled = true;
-            this.regionSplitPolicyClassName = null;
             this.columnFamilyDescList = new ArrayList<>();
             this.configuration = new HashMap<>();
             this.values = new HashMap<>();
-            return this;
-        }
-
-        public Builder<HTD> name(String namespace, String name) {
-            this.name = namespace.concat(HMHBaseConstants.TABLE_NAME_SPLIT_CHAR).concat(name);
-            this.maxFileSize = 10737418240L;
-            this.readOnly = false;
-            this.memStoreFlushSize = 134217728L;
-            this.compactionEnabled = true;
-            this.regionSplitPolicyClassName = null;
-            this.columnFamilyDescList = new ArrayList<>();
-            this.configuration = new HashMap<>();
-            this.values = new HashMap<>();
-            return this;
         }
 
         public Builder<HTD> maxFileSize(long maxFileSize) {
+            verifyKey(MAX_FILESIZE);
+            if (maxFileSize <= 0) {
+                maxFileSize = MAX_FILESIZE_DEFAULT;
+            }
             this.maxFileSize = maxFileSize;
+            this.setValue(MAX_FILESIZE, String.valueOf(maxFileSize));
             return this;
         }
 
         public Builder<HTD> readOnly(boolean readOnly) {
+            verifyKey(READONLY);
             this.readOnly = readOnly;
+            this.setValue(READONLY, String.valueOf(readOnly));
             return this;
         }
 
         public Builder<HTD> memStoreFlushSize(long memStoreFlushSize) {
+            verifyKey(MEMSTORE_FLUSHSIZE);
+            if (memStoreFlushSize <= 0) {
+                memStoreFlushSize = MEMSTORE_FLUSHSIZE_DEFAULT;
+            }
             this.memStoreFlushSize = memStoreFlushSize;
+            this.setValue(MEMSTORE_FLUSHSIZE, String.valueOf(memStoreFlushSize));
             return this;
         }
 
         public Builder<HTD> compactionEnabled(boolean compactionEnabled) {
+            verifyKey(COMPACTION_ENABLED);
             this.compactionEnabled = compactionEnabled;
+            this.setValue(COMPACTION_ENABLED, String.valueOf(compactionEnabled));
             return this;
         }
 
         public Builder<HTD> regionSplitPolicyClassName(String regionSplitPolicyClassName) {
+            verifyKey(SPLIT_POLICY);
             this.regionSplitPolicyClassName = regionSplitPolicyClassName;
+            this.setValue(SPLIT_POLICY, regionSplitPolicyClassName);
             return this;
         }
 
@@ -109,6 +112,7 @@ public abstract class BaseHTableDesc {
             if (StringUtil.isBlank(key)) {
                 return this;
             }
+            verifyConfiguration(key, value);
             this.configuration.put(key, value);
             return this;
         }
@@ -121,12 +125,13 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> columnFamilyDescList(List<BaseColumnFamilyDesc> columnFamilyDescList) {
-            this.columnFamilyDescList = columnFamilyDescList;
-            return this;
-        }
-
         public Builder<HTD> addFamilyDesc(BaseColumnFamilyDesc columnFamilyDesc) {
+            String familyName = columnFamilyDesc.getNameAsString();
+            for (BaseColumnFamilyDesc familyDesc : this.columnFamilyDescList) {
+                if (familyName.equals(familyDesc.getNameAsString())) {
+                    throw new IllegalArgumentException(String.format("Column family %s already exists", familyName));
+                }
+            }
             this.columnFamilyDescList.add(columnFamilyDesc);
             return this;
         }
@@ -142,48 +147,24 @@ public abstract class BaseHTableDesc {
         return TableName.valueOf(name);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public long getMaxFileSize() {
         return maxFileSize;
-    }
-
-    public void setMaxFileSize(long maxFileSize) {
-        this.maxFileSize = maxFileSize;
     }
 
     public boolean isReadOnly() {
         return readOnly;
     }
 
-    public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
-    }
-
     public long getMemStoreFlushSize() {
         return memStoreFlushSize;
-    }
-
-    public void setMemStoreFlushSize(long memStoreFlushSize) {
-        this.memStoreFlushSize = memStoreFlushSize;
     }
 
     public boolean isCompactionEnabled() {
         return compactionEnabled;
     }
 
-    public void setCompactionEnabled(boolean compactionEnabled) {
-        this.compactionEnabled = compactionEnabled;
-    }
-
     public String getRegionSplitPolicyClassName() {
         return regionSplitPolicyClassName;
-    }
-
-    public void setRegionSplitPolicyClassName(String regionSplitPolicyClassName) {
-        this.regionSplitPolicyClassName = regionSplitPolicyClassName;
     }
 
     public Map<String, String> getConfiguration() {
@@ -191,9 +172,6 @@ public abstract class BaseHTableDesc {
     }
 
     public void setConfiguration(String key, String value) {
-        if (this.configuration == null) {
-            this.configuration = new HashMap<>();
-        }
         if (StringUtil.isBlank(key)) {
             return;
         }
@@ -205,9 +183,6 @@ public abstract class BaseHTableDesc {
     }
 
     public void setValue(String key, String value) {
-        if (this.values == null) {
-            this.values = new HashMap<>();
-        }
         if (StringUtil.isBlank(key)) {
             return;
         }
@@ -218,14 +193,7 @@ public abstract class BaseHTableDesc {
         return columnFamilyDescList;
     }
 
-    public void setColumnFamilyDescList(List<BaseColumnFamilyDesc> columnFamilyDescList) {
-        this.columnFamilyDescList = columnFamilyDescList;
-    }
-
-    public void addColumnFamily(BaseColumnFamilyDesc columnFamilyDesc) {
-        if (this.columnFamilyDescList == null) {
-            this.columnFamilyDescList = new ArrayList<>();
-        }
+    public void append(BaseColumnFamilyDesc columnFamilyDesc) {
         this.columnFamilyDescList.add(columnFamilyDesc);
     }
 
@@ -290,8 +258,6 @@ public abstract class BaseHTableDesc {
         if (obj == null) {
             return false;
         }
-        System.out.println(getClass());
-        System.out.println(obj.getClass());
         return getClass() == obj.getClass();
     }
 }

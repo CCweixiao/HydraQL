@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 19:36
  */
-public interface IHBaseTableScanAdapter {
+public interface HTableScanService {
     Scan buildScan(ScanParams scanParams);
     <T> List<T> scan(Scan scan, Class<T> clazz);
 

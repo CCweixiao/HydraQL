@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author leojie 2023/6/30 18:49
  */
-public class HedgedReadExecutor {
+class HedgedReadExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(HedgedReadExecutor.class);
     private static volatile HedgedReadExecutor executor;
     private static ThreadPoolExecutor HEDGED_READ_THREAD_POOL;

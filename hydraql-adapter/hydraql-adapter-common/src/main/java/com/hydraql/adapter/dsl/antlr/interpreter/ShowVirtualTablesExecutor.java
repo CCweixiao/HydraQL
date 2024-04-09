@@ -1,6 +1,6 @@
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.HqlOpAdapter;
+import com.hydraql.adapter.AbstractHQLAdapter;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.dsl.context.HBaseSqlContext;
 import org.apache.hadoop.hbase.client.Result;
@@ -17,7 +17,7 @@ import java.util.Set;
  * @author leojie 2023/9/27 14:57
  */
 public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> implements Interpreter {
-    private final HqlOpAdapter sqlAdapter;
+    private final AbstractHQLAdapter sqlAdapter;
 
     private ShowVirtualTablesExecutor(ExecutorBuilder builder) {
         super(builder.hql);
@@ -41,7 +41,7 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
 
     private List<String> queryAllVirtualTables() {
         Scan scan = new Scan();
-        return sqlAdapter.execute(HqlOpAdapter.
+        return sqlAdapter.execute(AbstractHQLAdapter.
                 HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             ResultScanner scanner = table.getScanner(scan);
             List<String> tables = new ArrayList<>();
@@ -54,8 +54,8 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
 
     private static class ExecutorBuilder extends Builder<ShowVirtualTablesExecutor, List<String>> {
         private final String hql;
-        private final HqlOpAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, HqlOpAdapter sqlAdapter) {
+        private final AbstractHQLAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, AbstractHQLAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -66,7 +66,7 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
         }
     }
 
-    public static ShowVirtualTablesExecutor of(String hql, HqlOpAdapter sqlAdapter) {
+    public static ShowVirtualTablesExecutor of(String hql, AbstractHQLAdapter sqlAdapter) {
         return new ShowVirtualTablesExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

@@ -1,7 +1,7 @@
 package com.hydraql.template;
 
 import com.hydraql.adapter.HBaseSqlAdapter;
-import com.hydraql.adapter.IHBaseSqlAdapter;
+import com.hydraql.adapter.HQLService;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;
 import org.apache.hadoop.conf.Configuration;
@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 public class HBaseSqlTemplate implements BaseHBaseSqlTemplate {
     private final Configuration configuration;
-    private final IHBaseSqlAdapter sqlAdapter;
+    private final HQLService sqlAdapter;
 
     private HBaseSqlTemplate(Builder builder) {
         this.configuration = builder.configuration;

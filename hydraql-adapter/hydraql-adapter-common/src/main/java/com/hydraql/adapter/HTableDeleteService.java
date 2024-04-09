@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 19:36
  */
-public interface IHBaseTableDeleteAdapter {
+public interface HTableDeleteService {
     default Delete buildDeleteCondition(String rowKey, String familyName, List<String> qualifiers) {
         if (StringUtil.isBlank(rowKey)) {
             throw new HBaseOperationsException("RowKey must not be empty.");

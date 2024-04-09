@@ -37,6 +37,7 @@ public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTa
         if (configuration != null && !configuration.isEmpty()) {
             configuration.forEach(tableDescriptor::setConfiguration);
         }
+
         Map<String, String> values = tableDesc.getValues();
         if (values != null && !values.isEmpty()) {
             values.forEach(tableDescriptor::setValue);
@@ -46,16 +47,16 @@ public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTa
 
     @Override
     protected HTableDesc doBackward(HTableDescriptor tableDescriptor) {
-        HTableDesc tableDesc = HTableDesc.newBuilder()
-                .name(tableDescriptor.getTableName().getNameAsString())
+        HTableDesc tableDesc =
+                HTableDesc.newBuilder(tableDescriptor.getTableName().getNameAsString())
                 .maxFileSize(tableDescriptor.getMaxFileSize())
                 .memStoreFlushSize(tableDescriptor.getMemStoreFlushSize())
                 .readOnly(tableDescriptor.isReadOnly())
                 .compactionEnabled(tableDescriptor.isCompactionEnabled())
                 .build();
-        for (HColumnDescriptor columnFamily : tableDescriptor.getColumnFamilies()) {
-            ColumnFamilyDesc columnFamilyDesc = new ColumnFamilyDesc().convertTo(columnFamily);
-            tableDesc.addColumnFamily(columnFamilyDesc);
+        for (HColumnDescriptor cf : tableDescriptor.getColumnFamilies()) {
+            ColumnFamilyDesc columnFamilyDesc = ColumnFamilyDesc.createDefault(cf.getNameAsString()).convertTo(cf);
+            tableDesc.append(columnFamilyDesc);
         }
         Map<String, String> configuration = tableDescriptor.getConfiguration();
         if (configuration != null && !configuration.isEmpty()) {

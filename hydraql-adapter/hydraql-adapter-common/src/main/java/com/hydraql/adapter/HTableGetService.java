@@ -28,7 +28,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  *
  * @author leojie 2020/9/26 11:04 上午
  */
-public interface IHBaseTableGetAdapter {
+public interface HTableGetService {
     /**
      * 传入GetParams对象，生成Get的接口方法，由具体的HBaseTableAdapterImpl类去实现
      *

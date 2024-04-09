@@ -189,6 +189,38 @@ public class HBaseConnectionManager {
         }
     }
 
+    private void doKerberosReLogin() {
+        if (!UserGroupInformation.isSecurityEnabled()) {
+            return;
+        }
+
+        Thread reLoginThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(KERBEROS_RE_LOGIN_INTERVAL);
+                    } catch (InterruptedException e) {
+                        LOG.warn("Ignore error", e);
+                    }
+                    int times = 0;
+                    while (times < KERBEROS_RE_LOGIN_MAX_RETRY) {
+                        if (runKerberosLogin()) {
+                            LOG.info("Ran kerberos re login command successfully.");
+                            break;
+                        } else {
+                            times++;
+                            LOG.info("Run kerberos re login failed for {} time(s).", times);
+                        }
+                    }
+                }
+            }
+        });
+        reLoginThread.setName("KerberosReLoginThread");
+        reLoginThread.setDaemon(true);
+        reLoginThread.start();
+    }
+
     private boolean runKerberosLogin() {
         Configuration conf = new org.apache.hadoop.conf.Configuration();
         conf.set("hadoop.security.authentication", AuthType.KERBEROS.getAuthType());
@@ -207,39 +239,6 @@ public class HBaseConnectionManager {
             LOG.error("Unable to run kinit.", e);
         }
         return false;
-    }
-
-    private void doKerberosReLogin() {
-        if (!UserGroupInformation.isSecurityEnabled()) {
-            return;
-        }
-
-        Thread reLoginThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    int times = 0;
-
-                    while (times < KERBEROS_RE_LOGIN_MAX_RETRY) {
-                        if (runKerberosLogin()) {
-                            LOG.info("Ran kerberos re login command successfully.");
-                            break;
-                        } else {
-                            times++;
-                            LOG.info("Run kerberos re login failed for {} time(s).", times);
-                        }
-                    }
-                    try {
-                        Thread.sleep(KERBEROS_RE_LOGIN_INTERVAL);
-                    } catch (InterruptedException e) {
-                        LOG.warn("Ignore error", e);
-                    }
-                }
-            }
-        });
-        reLoginThread.setName("KerberosReLoginThread");
-        reLoginThread.setDaemon(true);
-        reLoginThread.start();
     }
 
     private boolean isKerberosAuthType(Configuration configuration) {

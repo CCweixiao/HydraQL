@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author leojie 2022/12/7 20:41
  */
-public interface IHBaseSqlAdapter {
+public interface HQLService {
 
     String showCreateVirtualTable(String hql);
     List<String> showVirtualTables(String hql);

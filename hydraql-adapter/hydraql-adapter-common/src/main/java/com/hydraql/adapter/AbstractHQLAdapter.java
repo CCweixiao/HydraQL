@@ -37,7 +37,7 @@ import java.util.Map;
  * @author leojie 2020/11/28 8:34 下午
  */
 @InterfaceAudience.Private
-public abstract class HqlOpAdapter implements HTableMutatorExecutor, IHBaseSqlAdapter {
+public abstract class AbstractHQLAdapter implements HTableMutatorExecutor, HQLService {
     public static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
     public static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
     public static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
@@ -45,7 +45,7 @@ public abstract class HqlOpAdapter implements HTableMutatorExecutor, IHBaseSqlAd
 
     private final Configuration configuration;
 
-    public HqlOpAdapter(Configuration configuration) {
+    public AbstractHQLAdapter(Configuration configuration) {
         this.configuration = configuration;
     }
 

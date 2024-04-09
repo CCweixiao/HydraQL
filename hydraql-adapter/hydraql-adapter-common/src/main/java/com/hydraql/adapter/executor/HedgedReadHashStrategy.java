@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * @author leojie@apache.org 2024/4/8 20:07
  */
-public class HedgedReadHashStrategy implements HedgedReadStrategy {
+class HedgedReadHashStrategy implements HedgedReadStrategy {
     private final static LongAdder COUNTER = new LongAdder();
     private final int maxThreads;
 

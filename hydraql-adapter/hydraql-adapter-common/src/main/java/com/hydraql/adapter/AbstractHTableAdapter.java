@@ -29,10 +29,10 @@ import static com.hydraql.adapter.HBaseClientConfigKeys.HBASE_CLIENT_SCANNER_CAC
  * @author leo.jie (leojie1314@gmail.com)
  */
 @InterfaceAudience.Private
-public abstract class HTableOpAdapter implements HTableMutatorExecutor, IHBaseTableOpAdapter,
-        IHBaseTableGetAdapter, IHBaseTablePutAdapter, IHBaseTableDeleteAdapter, IHBaseTableScanAdapter {
+abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTableOpAdapter,
+        HTableGetService, HTablePutService, HTableDeleteService, HTableScanService {
     private final Configuration configuration;
-    public HTableOpAdapter(Configuration configuration) {
+    public AbstractHTableAdapter(Configuration configuration) {
         this.configuration = configuration;
     }
 

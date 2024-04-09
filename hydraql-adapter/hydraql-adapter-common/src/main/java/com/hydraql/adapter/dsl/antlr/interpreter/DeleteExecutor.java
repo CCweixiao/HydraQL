@@ -1,13 +1,13 @@
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.HqlOpAdapter;
+import com.hydraql.adapter.AbstractHQLAdapter;
+import com.hydraql.adapter.dsl.antlr.data.RowKeyRange;
+import com.hydraql.adapter.dsl.antlr.visitor.DeleteColListVisitor;
+import com.hydraql.adapter.dsl.antlr.visitor.RowKeyRangeVisitor;
 import com.hydraql.adapter.dsl.antlr.visitor.TableNameVisitor;
 import com.hydraql.common.exception.HBaseSqlExecuteException;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.dsl.antlr.HydraQLParser;
-import com.hydraql.adapter.dsl.antlr.data.RowKeyRange;
-import com.hydraql.adapter.dsl.antlr.visitor.DeleteColListVisitor;
-import com.hydraql.adapter.dsl.antlr.visitor.RowKeyRangeVisitor;
 import com.hydraql.dsl.client.rowkey.RowKey;
 import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
 
-    private final HqlOpAdapter sqlAdapter;
+    private final AbstractHQLAdapter sqlAdapter;
 
     private DeleteExecutor(DeleteExecutor.ExecutorBuilder builder) {
         super(builder.hql);
@@ -158,8 +158,8 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
 
     private static class ExecutorBuilder extends Builder<DeleteExecutor, Boolean> {
         private final String hql;
-        private final HqlOpAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, HqlOpAdapter sqlAdapter) {
+        private final AbstractHQLAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, AbstractHQLAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -170,7 +170,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
         }
     }
 
-    public static DeleteExecutor of(String hql, HqlOpAdapter sqlAdapter) {
+    public static DeleteExecutor of(String hql, AbstractHQLAdapter sqlAdapter) {
         return new DeleteExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }
