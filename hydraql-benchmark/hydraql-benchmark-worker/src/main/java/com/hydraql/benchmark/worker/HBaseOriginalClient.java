@@ -1,10 +1,5 @@
 package com.hydraql.benchmark.worker;
 
-import org.apache.hadoop.hbase.CompareOperator;
-import org.apache.hadoop.hbase.filter.BinaryComparator;
-import org.apache.hadoop.hbase.filter.ByteArrayComparable;
-import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.ValueFilter;
 import com.hydraql.benchmark.core.ByteArrayByteIterator;
 import com.hydraql.benchmark.core.ByteIterator;
 import com.hydraql.benchmark.core.DBException;
@@ -90,17 +85,6 @@ public class HBaseOriginalClient extends com.hydraql.benchmark.core.DB {
     private long writeBufferSize = 1024 * 1024 * 12;
 
     /**
-     * If true, we will configure server-side value filtering during scans.
-     */
-    private boolean useScanValueFiltering = false;
-    private CompareOperator scanFilterOperator;
-    private static final String DEFAULT_SCAN_FILTER_OPERATOR = "less_or_equal";
-    private ByteArrayComparable scanFilterValue;
-    private static final String DEFAULT_SCAN_FILTER_VALUE = // 200 hexadecimal chars translated into 100 bytes
-            "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" +
-                    "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
-
-    /**
      * Initialize any state for this DB. Called once per DB instance; there is one
      * DB instance per client thread.
      */
@@ -125,8 +109,8 @@ public class HBaseOriginalClient extends com.hydraql.benchmark.core.DB {
             UserGroupInformation.setConfiguration(config);
         }
 
-        if ((getProperties().getProperty("principal") != null)
-                && (getProperties().getProperty("keytab") != null)) {
+        if ((getProperties().getProperty("principal")!=null)
+                && (getProperties().getProperty("keytab")!=null)) {
             try {
                 UserGroupInformation.loginUserFromKeytab(getProperties().getProperty("principal"),
                         getProperties().getProperty("keytab"));
@@ -164,17 +148,9 @@ public class HBaseOriginalClient extends com.hydraql.benchmark.core.DB {
             debug = true;
         }
 
-        usePageFilter = isBooleanParamSet("hbase.usepagefilter", usePageFilter);
-
-
-        if (isBooleanParamSet("hbase.usescanvaluefiltering", false)) {
-            useScanValueFiltering=true;
-            String operator = getProperties().getProperty("hbase.scanfilteroperator");
-            operator = operator == null || operator.trim().isEmpty() ? DEFAULT_SCAN_FILTER_OPERATOR : operator;
-            scanFilterOperator = CompareOperator.valueOf(operator.toUpperCase());
-            String filterValue = getProperties().getProperty("hbase.scanfiltervalue");
-            filterValue = filterValue == null || filterValue.trim().isEmpty() ? DEFAULT_SCAN_FILTER_VALUE : filterValue;
-            scanFilterValue = new BinaryComparator(Bytes.fromHex(filterValue));
+        if ("false"
+                .equals(getProperties().getProperty("hbase.usepagefilter", "true"))) {
+            usePageFilter = false;
         }
 
         columnFamily = getProperties().getProperty("columnfamily");
@@ -338,11 +314,9 @@ public class HBaseOriginalClient extends com.hydraql.benchmark.core.DB {
         // HBase has no record limit. Here, assume recordcount is small enough to
         // bring back in one call.
         // We get back recordcount records
-        FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-
         s.setCaching(recordcount);
         if (this.usePageFilter) {
-            filterList.addFilter(new PageFilter(recordcount));
+            s.setFilter(new PageFilter(recordcount));
         }
 
         // add specified fields or else all fields
@@ -353,13 +327,6 @@ public class HBaseOriginalClient extends com.hydraql.benchmark.core.DB {
                 s.addColumn(columnFamilyBytes, Bytes.toBytes(field));
             }
         }
-
-        // define value filter if needed
-        if (useScanValueFiltering){
-            filterList.addFilter(new ValueFilter(scanFilterOperator, scanFilterValue));
-        }
-
-        s.setFilter(filterList);
 
         // get results
         ResultScanner scanner = null;
@@ -538,9 +505,5 @@ public class HBaseOriginalClient extends com.hydraql.benchmark.core.DB {
     // Only non-private for testing.
     void setConfiguration(final Configuration newConfig) {
         this.config = newConfig;
-    }
-
-    private boolean isBooleanParamSet(String param, boolean defaultValue){
-        return Boolean.parseBoolean(getProperties().getProperty(param, Boolean.toString(defaultValue)));
     }
 }

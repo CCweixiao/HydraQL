@@ -36,26 +36,22 @@ COMMANDS = {
     "shell" : {
         "command"     : "",
         "description" : "Interactive mode",
-        "main"        : "site.ycsb.CommandLine",
+        "main"        : "com.hydraql.benchmark.core.CommandLine",
     },
     "load" : {
         "command"     : "-load",
         "description" : "Execute the load phase",
-        "main"        : "site.ycsb.Client",
+        "main"        : "com.hydraql.benchmark.core.Client",
     },
     "run" : {
         "command"     : "-t",
         "description" : "Execute the transaction phase",
-        "main"        : "site.ycsb.Client",
+        "main"        : "com.hydraql.benchmark.core.Client",
     },
 }
 
 DATABASES = {
-    "hbase098"     : "site.ycsb.db.HBaseClient",
-    "hbase10"      : "site.ycsb.db.HBaseClient10",
-    "hbase12"      : "site.ycsb.db.hbase12.HBaseClient12",
-    "hbase14"      : "site.ycsb.db.hbase14.HBaseClient14",
-    "hbase20"      : "site.ycsb.db.hbase20.HBaseClient20",
+    "hbase"      : "com.hydraql.benchmark.worker.HBaseOriginalClient",
 }
 
 OPTIONS = {

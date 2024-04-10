@@ -19,7 +19,6 @@
     <modules>
         <module>hydraql-benchmark-core</module>
         <module>hydraql-benchmark-worker</module>
-        <module>hydraql-benchmark-distribution</module>
     </modules>
 
 </project>
