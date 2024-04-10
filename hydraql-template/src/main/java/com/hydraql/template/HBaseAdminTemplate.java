@@ -107,13 +107,83 @@ public class HBaseAdminTemplate implements BaseHBaseAdminTemplate {
     }
 
     @Override
-    public boolean modifyTableProps(String tableName, Map<String, String> props, boolean isAsync) {
-        return adminAdapter.modifyTableConfiguration(tableName, props, isAsync);
+    public boolean modifyTableAttributes(String tableName, Map<String, String> attributeKeys, boolean isAsync) {
+        return adminAdapter.modifyTableAttributes(tableName, attributeKeys, isAsync);
     }
 
     @Override
-    public boolean modifyTablePropsAsync(String tableName, Map<String, String> props) {
-        return adminAdapter.modifyTableConfigurationAsync(tableName, props);
+    public boolean modifyTableAttributesAsync(String tableName, Map<String, String> attributeKeys) {
+        return adminAdapter.modifyTableAttributesAsync(tableName, attributeKeys);
+    }
+
+    @Override
+    public boolean removeTableAttributes(String tableName, List<String> attributeKeys, boolean isAsync) {
+        return adminAdapter.removeTableAttributes(tableName, attributeKeys, isAsync);
+    }
+
+    @Override
+    public boolean removeTableAttributesAsync(String tableName, List<String> attributeKeys) {
+        return adminAdapter.removeTableAttributesAsync(tableName, attributeKeys);
+    }
+
+    @Override
+    public boolean modifyTableConfiguration(String tableName, Map<String, String> configuration, boolean isAsync) {
+        return adminAdapter.modifyTableConfiguration(tableName, configuration, isAsync);
+    }
+
+    @Override
+    public boolean modifyTableConfigurationAsync(String tableName, Map<String, String> configuration) {
+        return adminAdapter.modifyTableConfigurationAsync(tableName, configuration);
+    }
+
+    @Override
+    public boolean removeTableConfiguration(String tableName, List<String> configKeys, boolean isAsync) {
+        return adminAdapter.removeTableConfiguration(tableName, configKeys, isAsync);
+    }
+
+    @Override
+    public boolean removeTableConfigurationAsync(String tableName, List<String> configKeys) {
+        return adminAdapter.removeTableConfigurationAsync(tableName, configKeys);
+    }
+
+    @Override
+    public boolean modifyFamilyAttributes(String tableName, String familyName, Map<String, String> attributes, boolean isAsync) {
+        return adminAdapter.modifyFamilyAttributes(tableName, familyName, attributes, isAsync);
+    }
+
+    @Override
+    public boolean modifyFamilyAttributesAsync(String tableName, String familyName, Map<String, String> attributes) {
+        return adminAdapter.modifyFamilyAttributesAsync(tableName, familyName, attributes);
+    }
+
+    @Override
+    public boolean removeFamilyAttributes(String tableName, String familyName, List<String> attributeKeys, boolean isAsync) {
+        return adminAdapter.removeFamilyAttributes(tableName, familyName, attributeKeys, isAsync);
+    }
+
+    @Override
+    public boolean removeFamilyAttributesAsync(String tableName, String familyName, List<String> attributeKeys) {
+        return adminAdapter.removeFamilyAttributesAsync(tableName, familyName, attributeKeys);
+    }
+
+    @Override
+    public boolean modifyFamilyConfiguration(String tableName, String familyName, Map<String, String> configs, boolean isAsync) {
+        return adminAdapter.modifyFamilyConfiguration(tableName, familyName, configs, isAsync);
+    }
+
+    @Override
+    public boolean modifyFamilyConfigurationAsync(String tableName, String familyName, Map<String, String> configs) {
+        return adminAdapter.modifyFamilyConfigurationAsync(tableName, familyName, configs);
+    }
+
+    @Override
+    public boolean removeFamilyConfiguration(String tableName, String familyName, List<String> configKeys, boolean isAsync) {
+        return adminAdapter.removeFamilyConfiguration(tableName, familyName, configKeys, isAsync);
+    }
+
+    @Override
+    public boolean removeFamilyConfigurationAsync(String tableName, String familyName, List<String> configKeys) {
+        return adminAdapter.removeFamilyConfigurationAsync(tableName, familyName, configKeys);
     }
 
     @Override

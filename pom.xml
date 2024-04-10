@@ -59,6 +59,7 @@
         <module>hydraql-template</module>
         <module>hydraql-thrift</module>
         <module>spring-boot-starter-hydraql</module>
+        <module>hydraql-benchmark</module>
     </modules>
 
     <properties>

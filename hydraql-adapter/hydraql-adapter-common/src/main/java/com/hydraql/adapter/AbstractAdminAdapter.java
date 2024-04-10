@@ -73,8 +73,91 @@ abstract class AbstractAdminAdapter implements AdminExecutor, AdminService {
     }
 
     @Override
+    public boolean modifyTableAttributesAsync(String tableName, Map<String, String> attributes) {
+        return modifyTableAttributes(tableName, attributes, true);
+    }
+
+    @Override
+    public boolean removeTableAttributes(String tableName, List<String> attributeKeys, boolean isAsync) {
+        if (attributeKeys == null || attributeKeys.isEmpty()) {
+            return true;
+        }
+        Map<String, String> attributes = new HashMap<>();
+        for (String attributeKey : attributeKeys) {
+            attributes.put(attributeKey, null);
+        }
+        return modifyTableAttributes(tableName, attributes, isAsync);
+    }
+
+    @Override
+    public boolean removeTableAttributesAsync(String tableName, List<String> attributeKeys) {
+        return removeTableAttributes(tableName, attributeKeys, true);
+    }
+
+    @Override
     public boolean modifyTableConfigurationAsync(final String tableName, Map<String, String> configuration) {
         return modifyTableConfiguration(tableName, configuration, true);
+    }
+
+    @Override
+    public boolean removeTableConfiguration(String tableName, List<String> configKeys, boolean isAsync) {
+        if (configKeys == null || configKeys.isEmpty()) {
+            return true;
+        }
+        Map<String, String> configs = new HashMap<>();
+        for (String configKey : configKeys) {
+            configs.put(configKey, null);
+        }
+        return modifyTableConfiguration(tableName, configs, isAsync);
+    }
+
+    @Override
+    public boolean removeTableConfigurationAsync(String tableName, List<String> configKeys) {
+        return removeTableConfiguration(tableName, configKeys, true);
+    }
+
+    @Override
+    public boolean modifyFamilyAttributesAsync(String tableName, String familyName, Map<String, String> attributes) {
+        return modifyFamilyAttributes(tableName, familyName, attributes, true);
+    }
+
+    @Override
+    public boolean removeFamilyAttributes(String tableName, String familyName, List<String> attributeKeys, boolean isAsync) {
+        if (attributeKeys == null || attributeKeys.isEmpty()) {
+            return true;
+        }
+        Map<String, String> attributes = new HashMap<>();
+        for (String attributeKey : attributeKeys) {
+            attributes.put(attributeKey, null);
+        }
+        return modifyFamilyAttributes(tableName, familyName, attributes, isAsync);
+    }
+
+    @Override
+    public boolean removeFamilyAttributesAsync(String tableName, String familyName, List<String> attributeKeys) {
+        return removeFamilyAttributes(tableName, familyName, attributeKeys, true);
+    }
+
+    @Override
+    public boolean modifyFamilyConfigurationAsync(String tableName, String familyName, Map<String, String> configs) {
+        return modifyFamilyConfiguration(tableName, familyName, configs, true);
+    }
+
+    @Override
+    public boolean removeFamilyConfiguration(String tableName, String familyName, List<String> configKeys, boolean isAsync) {
+        if (configKeys == null || configKeys.isEmpty()) {
+            return true;
+        }
+        Map<String, String> configs = new HashMap<>();
+        for (String configKey : configKeys) {
+            configs.put(configKey, "");
+        }
+        return modifyFamilyConfiguration(tableName, familyName, configs, isAsync);
+    }
+
+    @Override
+    public boolean removeFamilyConfigurationAsync(String tableName, String familyName, List<String> configKeys) {
+        return removeFamilyConfiguration(tableName, familyName, configKeys, true);
     }
 
     @Override

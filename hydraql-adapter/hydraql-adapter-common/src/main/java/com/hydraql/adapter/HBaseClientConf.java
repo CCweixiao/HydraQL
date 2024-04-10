@@ -10,7 +10,6 @@ public class HBaseClientConf {
     private final HedgedReadStrategy.Level hedgedReadStrategy;
     private final int hedgedReadThreadpoolSize;
     private final long hedgedReadThresholdMillis;
-
     private final long hedgedReadOverallTimeoutMillis;
     private final boolean hedgedReadWriteDisable;
 

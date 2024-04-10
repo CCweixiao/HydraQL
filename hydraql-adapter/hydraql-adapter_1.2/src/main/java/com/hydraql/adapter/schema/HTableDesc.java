@@ -40,7 +40,7 @@ public class HTableDesc extends BaseHTableDesc implements Comparable<HTableDesc>
         return this.tableDescriptorConverter.convertFor();
     }
 
-    public HTableDesc convertTo(HTableDescriptor tableDescriptor) {
+    public HTableDesc parseFrom(HTableDescriptor tableDescriptor) {
         return this.tableDescriptorConverter.convertTo(tableDescriptor);
     }
 

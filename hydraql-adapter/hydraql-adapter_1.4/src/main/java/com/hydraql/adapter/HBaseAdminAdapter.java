@@ -27,6 +27,7 @@ import com.hydraql.adapter.util.RegionSplitter;
 import com.hydraql.adapter.util.SplitKeyUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.yetus.audience.InterfaceAudience;
@@ -236,18 +237,72 @@ public class HBaseAdminAdapter extends AbstractAdminAdapter implements HBaseMetr
 
 
     @Override
-    public boolean modifyTableConfiguration(final String tableName, Map<String, String> configuration, boolean isAsync) {
+    public boolean modifyTableAttributes(String tableName, Map<String, String> attributes, boolean isAsync) {
+        if (attributes == null || attributes.isEmpty()) {
+            return true;
+        }
         return this.execute(admin -> {
-            tableNotExistsThrowError(admin, tableName);
             final HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
-            if (configuration != null && !configuration.isEmpty()) {
-                configuration.forEach(tableDescriptor::setValue);
-                if (isAsync) {
-                    admin.modifyTable(TableName.valueOf(tableName), tableDescriptor);
+            boolean isNeedModify = false;
+            Map<ImmutableBytesWritable, ImmutableBytesWritable> values = tableDescriptor.getValues();
+            for (String attributeKey : attributes.keySet()) {
+                String attributeValue = attributes.get(attributeKey);
+                if (StringUtil.isBlank(attributeValue)) {
+                    tableDescriptor.setValue(attributeKey, null);
                 } else {
-                    admin.modifyTable(TableName.valueOf(tableName), tableDescriptor);
+                    ImmutableBytesWritable originalValue = values.get(new ImmutableBytesWritable(Bytes.toBytes(attributeKey)));
+                    if (new ImmutableBytesWritable(Bytes.toBytes(attributeValue)).equals(originalValue)) {
+                        continue;
+                    }
+                    tableDescriptor.setValue(attributeKey, attributeValue);
                 }
+                isNeedModify = true;
+            }
+
+            if (!isNeedModify) {
                 return true;
+            }
+
+            if (isAsync) {
+                admin.modifyTable(TableName.valueOf(tableName), tableDescriptor);
+            } else {
+                admin.modifyTable(TableName.valueOf(tableName), tableDescriptor);
+            }
+            return true;
+        });
+    }
+
+    @Override
+    public boolean modifyTableConfiguration(final String tableName, Map<String, String> configuration, boolean isAsync) {
+        if (configuration == null || configuration.isEmpty()) {
+            return true;
+        }
+        return this.execute(admin -> {
+            final HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
+            boolean isNeedModify = false;
+            Map<String, String> values = tableDescriptor.getConfiguration();
+            for (String configKey : configuration.keySet()) {
+                String configValue = configuration.get(configKey);
+                if (StringUtil.isBlank(configValue)) {
+                    tableDescriptor.setConfiguration(configKey, null);
+                } else {
+                    String originalValue = values.get(configKey);
+                    if (configValue.equals(originalValue)) {
+                        continue;
+                    }
+                    tableDescriptor.setConfiguration(configKey, configValue);
+                }
+                isNeedModify = true;
+            }
+
+            if (!isNeedModify) {
+                return true;
+            }
+
+            if (isAsync) {
+                admin.modifyTable(TableName.valueOf(tableName), tableDescriptor);
+            } else {
+                admin.modifyTable(TableName.valueOf(tableName), tableDescriptor);
             }
             return true;
         });
@@ -301,28 +356,6 @@ public class HBaseAdminAdapter extends AbstractAdminAdapter implements HBaseMetr
     }
 
     @Override
-    public boolean modifyFamilyAttributesAsync(String tableName, String familyName, Map<String, String> attributes) {
-        return modifyFamilyAttributes(tableName, familyName, attributes, true);
-    }
-
-    @Override
-    public boolean removeFamilyAttributes(String tableName, String familyName, List<String> attributeKeys, boolean isAsync) {
-        if (attributeKeys == null || attributeKeys.isEmpty()) {
-            return true;
-        }
-        Map<String, String> attributes = new HashMap<>();
-        for (String attributeKey : attributeKeys) {
-            attributes.put(attributeKey, "");
-        }
-        return modifyFamilyAttributes(tableName, familyName, attributes, isAsync);
-    }
-
-    @Override
-    public boolean removeFamilyAttributesAsync(String tableName, String familyName, List<String> attributeKeys) {
-        return removeFamilyAttributes(tableName, familyName, attributeKeys, true);
-    }
-
-    @Override
     public boolean modifyFamilyConfiguration(String tableName, String familyName, Map<String, String> configs, boolean isAsync) {
         if (configs == null || configs.isEmpty()) {
             return true;
@@ -367,28 +400,6 @@ public class HBaseAdminAdapter extends AbstractAdminAdapter implements HBaseMetr
             }
             return true;
         });
-    }
-
-    @Override
-    public boolean modifyFamilyConfigurationAsync(String tableName, String familyName, Map<String, String> configs) {
-        return modifyFamilyConfiguration(tableName, familyName, configs, true);
-    }
-
-    @Override
-    public boolean removeFamilyConfiguration(String tableName, String familyName, List<String> configKeys, boolean isAsync) {
-        if (configKeys == null || configKeys.isEmpty()) {
-            return true;
-        }
-        Map<String, String> configs = new HashMap<>();
-        for (String configKey : configKeys) {
-            configs.put(configKey, "");
-        }
-        return modifyFamilyConfiguration(tableName, familyName, configs, isAsync);
-    }
-
-    @Override
-    public boolean removeFamilyConfigurationAsync(String tableName, String familyName, List<String> configKeys) {
-        return removeFamilyConfiguration(tableName, familyName, configKeys, true);
     }
 
     @Override

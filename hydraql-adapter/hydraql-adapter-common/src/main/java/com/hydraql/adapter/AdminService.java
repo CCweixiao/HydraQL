@@ -1,10 +1,10 @@
 package com.hydraql.adapter;
 
+import com.hydraql.adapter.schema.BaseColumnFamilyDesc;
+import com.hydraql.adapter.schema.BaseHTableDesc;
 import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.SplitGoEnum;
-import com.hydraql.adapter.schema.BaseColumnFamilyDesc;
-import com.hydraql.adapter.schema.BaseHTableDesc;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.yetus.audience.InterfaceAudience;
 
@@ -152,21 +152,78 @@ public interface AdminService {
     /**
      * 修改表属性
      *
+     * @param tableName  表名
+     * @param attributes 属性集合
+     * @param isAsync    是否异步
+     * @return 修改是否成功
+     */
+    boolean modifyTableAttributes(final String tableName, Map<String, String> attributes, boolean isAsync);
+
+    /**
+     * 异步修改表属性
+     *
+     * @param tableName  表名
+     * @param attributes 属性集合
+     * @return 修改是否成功
+     */
+    boolean modifyTableAttributesAsync(final String tableName, Map<String, String> attributes);
+
+    /**
+     * 移除表属性
+     *
      * @param tableName     表名
-     * @param configuration 属性
+     * @param attributeKeys 属性键列表
+     * @param isAsync       是否异步
+     * @return 是否移除成功
+     */
+    boolean removeTableAttributes(final String tableName, List<String> attributeKeys, boolean isAsync);
+
+    /**
+     * 异步移除表属性
+     *
+     * @param tableName     表名
+     * @param attributeKeys 属性键列表
+     * @return 是否移除成功
+     */
+    boolean removeTableAttributesAsync(final String tableName, List<String> attributeKeys);
+
+    /**
+     * 修改表配置
+     *
+     * @param tableName     表名
+     * @param configuration 配置集合
      * @param isAsync       是否异步
      * @return 修改是否成功
      */
     boolean modifyTableConfiguration(final String tableName, Map<String, String> configuration, boolean isAsync);
 
     /**
-     * 异步修改表属性
+     * 异步修改表配置
      *
      * @param tableName     表名
-     * @param configuration 属性
+     * @param configuration 配置集合
      * @return 修改是否成功
      */
     boolean modifyTableConfigurationAsync(final String tableName, Map<String, String> configuration);
+
+    /**
+     * 移除表配置
+     *
+     * @param tableName  表名
+     * @param configKeys 配置键列表
+     * @param isAsync    是否异步
+     * @return 是否移除成功
+     */
+    boolean removeTableConfiguration(final String tableName, List<String> configKeys, boolean isAsync);
+
+    /**
+     * 异步移除表配置
+     *
+     * @param tableName  表名
+     * @param configKeys 配置键列表
+     * @return 是否移除成功
+     */
+    boolean removeTableConfigurationAsync(final String tableName, List<String> configKeys);
 
     /**
      * 修改表列簇属性，例如：COMPRESSION，TTL，VERSIONS等
@@ -215,7 +272,7 @@ public interface AdminService {
      *
      * @param tableName  表名
      * @param familyName 列簇名
-     * @param configs     配置列表
+     * @param configs    配置列表
      * @param isAsync    是否异步
      * @return 修改是否成功
      */
@@ -226,7 +283,7 @@ public interface AdminService {
      *
      * @param tableName  表名
      * @param familyName 列簇名
-     * @param configs     属性列表
+     * @param configs    属性列表
      * @return 修改是否成功
      */
     boolean modifyFamilyConfigurationAsync(final String tableName, String familyName, Map<String, String> configs);

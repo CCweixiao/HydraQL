@@ -149,20 +149,162 @@ public interface BaseHBaseAdminTemplate extends HBaseMetricOperations {
      * 修改表属性
      *
      * @param tableName 表名
-     * @param props     属性
+     * @param attributeKeys     属性
      * @param isAsync   是否异步
      * @return 修改是否成功
      */
-    boolean modifyTableProps(final String tableName, Map<String, String> props, boolean isAsync);
+    boolean modifyTableAttributes(final String tableName, Map<String, String> attributeKeys, boolean isAsync);
 
     /**
      * 异步修改表属性
      *
      * @param tableName 表名
-     * @param props     属性
+     * @param attributeKeys     属性
      * @return 修改是否成功
      */
-    boolean modifyTablePropsAsync(final String tableName, Map<String, String> props);
+    boolean modifyTableAttributesAsync(final String tableName, Map<String, String> attributeKeys);
+
+    /**
+     * 移除表属性
+     *
+     * @param tableName     表名
+     * @param attributeKeys 属性键列表
+     * @param isAsync       是否异步
+     * @return 是否移除成功
+     */
+    boolean removeTableAttributes(final String tableName, List<String> attributeKeys, boolean isAsync);
+
+    /**
+     * 异步移除表属性
+     *
+     * @param tableName     表名
+     * @param attributeKeys 属性键列表
+     * @return 是否移除成功
+     */
+    boolean removeTableAttributesAsync(final String tableName, List<String> attributeKeys);
+
+    /**
+     * 修改表配置
+     *
+     * @param tableName     表名
+     * @param configuration 配置集合
+     * @param isAsync       是否异步
+     * @return 修改是否成功
+     */
+    boolean modifyTableConfiguration(final String tableName, Map<String, String> configuration, boolean isAsync);
+
+    /**
+     * 异步修改表配置
+     *
+     * @param tableName     表名
+     * @param configuration 配置集合
+     * @return 修改是否成功
+     */
+    boolean modifyTableConfigurationAsync(final String tableName, Map<String, String> configuration);
+
+    /**
+     * 移除表配置
+     *
+     * @param tableName  表名
+     * @param configKeys 配置键列表
+     * @param isAsync    是否异步
+     * @return 是否移除成功
+     */
+    boolean removeTableConfiguration(final String tableName, List<String> configKeys, boolean isAsync);
+
+    /**
+     * 异步移除表配置
+     *
+     * @param tableName  表名
+     * @param configKeys 配置键列表
+     * @return 是否移除成功
+     */
+    boolean removeTableConfigurationAsync(final String tableName, List<String> configKeys);
+
+    /**
+     * 修改表列簇属性，例如：COMPRESSION，TTL，VERSIONS等
+     *
+     * @param tableName  表名
+     * @param familyName 列簇名
+     * @param attributes 属性列表
+     * @param isAsync    是否异步
+     * @return 修改是否成功
+     */
+    boolean modifyFamilyAttributes(final String tableName, String familyName, Map<String, String> attributes, boolean isAsync);
+
+    /**
+     * 异步修改表列簇属性，例如：COMPRESSION，TTL，VERSIONS等
+     *
+     * @param tableName  表名
+     * @param familyName 列簇名
+     * @param attributes 属性列表
+     * @return 修改是否成功
+     */
+    boolean modifyFamilyAttributesAsync(final String tableName, String familyName, Map<String, String> attributes);
+
+    /**
+     * 移除列簇属性
+     *
+     * @param tableName     表名
+     * @param familyName    列簇名
+     * @param attributeKeys 待移除属性的键列表
+     * @param isAsync       是否异步
+     * @return 是否操作成功
+     */
+    boolean removeFamilyAttributes(String tableName, String familyName, List<String> attributeKeys, boolean isAsync);
+
+    /**
+     * 异步移除列簇属性
+     *
+     * @param tableName     表名
+     * @param familyName    列簇名
+     * @param attributeKeys 待移除属性的键列表
+     * @return 是否操作成功
+     */
+    boolean removeFamilyAttributesAsync(String tableName, String familyName, List<String> attributeKeys);
+
+    /**
+     * 修改表列簇配置，如：hbase.hstore.engine.class等
+     *
+     * @param tableName  表名
+     * @param familyName 列簇名
+     * @param configs     配置列表
+     * @param isAsync    是否异步
+     * @return 修改是否成功
+     */
+    boolean modifyFamilyConfiguration(final String tableName, String familyName, Map<String, String> configs, boolean isAsync);
+
+    /**
+     * 异步修改表列簇配置，如：hbase.hstore.engine.class等
+     *
+     * @param tableName  表名
+     * @param familyName 列簇名
+     * @param configs     属性列表
+     * @return 修改是否成功
+     */
+    boolean modifyFamilyConfigurationAsync(final String tableName, String familyName, Map<String, String> configs);
+
+    /**
+     * 移除列簇配置
+     *
+     * @param tableName  表名
+     * @param familyName 列簇名
+     * @param configKeys 待移除属性的配置键列表
+     * @param isAsync    是否异步
+     * @return 是否操作成功
+     */
+    boolean removeFamilyConfiguration(String tableName, String familyName, List<String> configKeys, boolean isAsync);
+
+    /**
+     * 异步移除列簇属性
+     *
+     * @param tableName  表名
+     * @param familyName 列簇名
+     * @param configKeys 待移除属性的配置键列表
+     * @return 是否操作成功
+     */
+    boolean removeFamilyConfigurationAsync(String tableName, String familyName, List<String> configKeys);
+
 
     /**
      * 修改表名
