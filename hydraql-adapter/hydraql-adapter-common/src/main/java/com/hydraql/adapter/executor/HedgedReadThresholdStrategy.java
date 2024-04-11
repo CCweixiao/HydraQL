@@ -33,13 +33,16 @@ class HedgedReadThresholdStrategy implements HedgedReadStrategy {
         futures.add(preferRequest);
 
         Future<T> future = null;
+        long start = System.currentTimeMillis();
         try {
             if (thresholdMillis <= 0) {
                 future = hedgedService.poll();
             } else {
                 future = hedgedService.poll(thresholdMillis, TimeUnit.MILLISECONDS);
             }
+
             if (future != null) {
+                System.out.println(Thread.currentThread().getName() + "主集群获取耗时：" + (System.currentTimeMillis() - start) + "ms");
                 return future.get();
             }
         } catch (ExecutionException e) {
@@ -52,7 +55,9 @@ class HedgedReadThresholdStrategy implements HedgedReadStrategy {
         futures.add(spareRequest);
 
         try {
+            start = System.currentTimeMillis();
             T result = getFirstToComplete(hedgedService, futures);
+            System.out.println(Thread.currentThread().getName() + "备集群获取耗时：" + (System.currentTimeMillis() - start) + "ms");
             cancelAll(futures);
             return result;
         } catch (InterruptedException e) {

@@ -32,6 +32,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
     private final Configuration configuration;
     public AbstractHTableAdapter(Configuration configuration) {
         this.configuration = configuration;
+        warmUpConnection();
     }
 
     @Override

@@ -48,7 +48,7 @@ public class TestHBaseHedgedReadTemplate {
 
     @Test
     public void testHedgedReadThresholdGet() {
-        Configuration conf = createHedgedConfiguration("myhbase1", "myhbase", true,
+        Configuration conf = createHedgedConfiguration("myhbase", "myhbase", true,
                 HedgedReadStrategy.Level.THRESHOLD);
         HBaseTableTemplate tableTemplate = HBaseTableTemplate.of(conf);
         List<HBaseRowData> rowDataList = tableTemplate.scan(TEST_TABLE, ScanParams.of().build());

@@ -3,7 +3,7 @@ package com.hydraql.adapter.executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,11 +32,12 @@ class HedgedReadExecutor {
 
     public synchronized ThreadPoolExecutor getExecutor(int num) {
         if (HEDGED_READ_THREAD_POOL != null) {
+            System.out.println(HEDGED_READ_THREAD_POOL.getQueue().size());
             return HEDGED_READ_THREAD_POOL;
         }
 
-        HEDGED_READ_THREAD_POOL = new ThreadPoolExecutor(1, num, 60,
-                TimeUnit.SECONDS, new SynchronousQueue<>(),
+        HEDGED_READ_THREAD_POOL = new ThreadPoolExecutor(num, num, 120,
+                TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
                 new Daemon.DaemonFactory() {
                     private final AtomicInteger threadIndex = new AtomicInteger(0);
 
@@ -51,7 +52,7 @@ class HedgedReadExecutor {
                     @Override
                     public void rejectedExecution(Runnable runnable,
                                                   ThreadPoolExecutor e) {
-                        LOG.warn("Execution rejected, Executing in current thread");
+                        LOG.error("Execution rejected, Executing in current thread");
                         // will run in the current thread
                         super.rejectedExecution(runnable, e);
                     }
