@@ -2,7 +2,7 @@ package com.hydraql.adapter.schema;
 
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @author leojie 2020/9/9 10:25 下午
  */
-@InterfaceAudience.Public
+
 public class ColumnFamilyDesc extends BaseColumnFamilyDesc implements Comparable<ColumnFamilyDesc>{
 
     private final BaseColumnFamilyDescriptorConverter<ColumnFamilyDesc, ColumnFamilyDescriptor>

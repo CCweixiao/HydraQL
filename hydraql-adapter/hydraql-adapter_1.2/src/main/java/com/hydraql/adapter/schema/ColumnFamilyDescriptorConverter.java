@@ -5,8 +5,6 @@ import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.yetus.audience.InterfaceAudience;
-
 import java.util.Map;
 
 import static com.hydraql.adapter.schema.BaseColumnFamilyDesc.BLOCK_STORAGE_POLICY_KEY;
@@ -15,7 +13,6 @@ import static com.hydraql.adapter.schema.BaseColumnFamilyDesc.STORAGE_POLICY;
 /**
  * @author leojie 2023/5/17 22:43
  */
-@InterfaceAudience.Private
 public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorConverter<ColumnFamilyDesc, HColumnDescriptor> {
     public ColumnFamilyDescriptorConverter(ColumnFamilyDesc columnFamilyDesc) {
         super(columnFamilyDesc);

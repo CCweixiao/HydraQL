@@ -27,7 +27,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import java.util.Map;
 /**
  * @author leojie 2020/11/28 8:36 下午
  */
-@InterfaceAudience.Private
 public class HBaseSqlAdapter extends AbstractHQLAdapter {
     public HBaseSqlAdapter(Configuration configuration) {
         super(configuration);

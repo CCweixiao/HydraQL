@@ -13,7 +13,7 @@ import org.apache.hadoop.hbase.classification.InterfaceAudience;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public enum Mode {
   NAMESPACE("Namespace", "Record per Namespace", new NamespaceModeStrategy()),
   TABLE("Table", "Record per Table", new TableModeStrategy()),

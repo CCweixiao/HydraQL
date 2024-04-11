@@ -1,7 +1,7 @@
 package com.hydraql.adapter.hbtop.mode;
 
 import com.hydraql.adapter.hbtop.RecordFilter;
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public class DrillDownInfo {
   private final Mode nextMode;
   private final List<RecordFilter> initialFilters;

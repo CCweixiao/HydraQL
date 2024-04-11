@@ -1,14 +1,12 @@
 package com.hydraql.adapter.schema;
 
 import com.hydraql.common.lang.Converter;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.Objects;
 
 /**
  * @author leojie 2023/5/16 23:17
  */
-@InterfaceAudience.Private
 public abstract class BaseHTableDescriptorConverter<D extends BaseHTableDesc, S> extends Converter<D, S> {
     private final D hTableDesc;
     public BaseHTableDescriptorConverter(D hTableDesc) {

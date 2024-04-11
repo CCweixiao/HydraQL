@@ -25,7 +25,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public final class RegionModeStrategy implements ModeStrategy {
 
   private final List<FieldInfo> fieldInfos = Arrays.asList(

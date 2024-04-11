@@ -6,7 +6,7 @@ import com.hydraql.adapter.hbtop.field.FieldInfo;
 import com.hydraql.common.util.DateAndTimeUtil;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.RegionInfo;
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public final class RegionModeStrategy implements ModeStrategy {
 
   private final List<FieldInfo> fieldInfos = Arrays.asList(

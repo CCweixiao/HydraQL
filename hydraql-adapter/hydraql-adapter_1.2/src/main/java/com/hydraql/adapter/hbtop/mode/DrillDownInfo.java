@@ -11,7 +11,7 @@ import com.hydraql.adapter.hbtop.RecordFilter;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public class DrillDownInfo {
   private final Mode nextMode;
   private final List<RecordFilter> initialFilters;

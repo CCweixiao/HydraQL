@@ -13,7 +13,6 @@ import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.yetus.audience.InterfaceAudience;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +27,6 @@ import static com.hydraql.adapter.HBaseClientConfigKeys.HBASE_CLIENT_SCANNER_CAC
  *
  * @author leo.jie (leojie1314@gmail.com)
  */
-@InterfaceAudience.Private
 abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTableOpAdapter,
         HTableGetService, HTablePutService, HTableDeleteService, HTableScanService {
     private final Configuration configuration;

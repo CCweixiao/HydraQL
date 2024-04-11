@@ -28,7 +28,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import java.util.Map;
 /**
  * @author leojie 2020/11/28 8:34 下午
  */
-@InterfaceAudience.Private
 public abstract class AbstractHQLAdapter implements HTableMutatorExecutor, HQLService {
     public static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
     public static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");

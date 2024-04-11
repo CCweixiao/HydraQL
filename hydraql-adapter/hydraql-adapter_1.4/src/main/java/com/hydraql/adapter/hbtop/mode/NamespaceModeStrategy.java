@@ -17,7 +17,7 @@ import org.apache.hadoop.hbase.classification.InterfaceAudience;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public final class NamespaceModeStrategy implements ModeStrategy {
 
   private final List<FieldInfo> fieldInfos = Arrays.asList(

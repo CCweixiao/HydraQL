@@ -4,7 +4,7 @@ import com.hydraql.adapter.hbtop.field.FieldValue;
 import com.hydraql.adapter.hbtop.field.Field;
 import com.hydraql.adapter.hbtop.field.FieldValueType;
 import org.apache.hbase.thirdparty.com.google.common.collect.ImmutableMap;
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public final class Record implements Map<Field, FieldValue> {
 
     private final org.apache.hbase.thirdparty.com.google.common.collect.ImmutableMap<Field, FieldValue> values;

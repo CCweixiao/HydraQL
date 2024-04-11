@@ -4,7 +4,6 @@ import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseFamilyNotUniqueException;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 /**
  * @author leojie 2023/5/19 20:35
  */
-@InterfaceAudience.Private
 public abstract class BaseHTableDesc {
     public static final String NAMESPACE_DEFAULT = "default";
     public static final String TABLE_NAME_SPLIT_CHAR = ":";

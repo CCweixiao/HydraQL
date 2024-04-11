@@ -30,7 +30,6 @@ import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -43,7 +42,6 @@ import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_S
 /**
  * @author leojie 2020/9/25 11:11 下午
  */
-@InterfaceAudience.Private
 public class HBaseAdminAdapter extends AbstractAdminAdapter implements HBaseMetricOperations {
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
 

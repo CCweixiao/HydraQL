@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.classification.InterfaceAudience;
 /**
  * @author leojie 2021/1/16 9:56 下午
  */
-@InterfaceAudience.Private
+
 public class Summary {
     private final String currentTime;
     private final String version;

@@ -6,7 +6,6 @@ import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.SplitGoEnum;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import java.util.Map;
  *
  * @author leojie 2020/9/25 10:44 下午
  */
-@InterfaceAudience.Private
 public interface AdminService {
     /**
      * 判断表是否存在

@@ -158,10 +158,11 @@
                         </goals>
                         <configuration>
                             <createSourcesJar>true</createSourcesJar>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <finalName>${artifactId}-${project.version}</finalName>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
                             <artifactSet>
                                 <excludes>
                                     <!-- Leave slf4j unshaded so downstream users can configure logging -->
@@ -196,8 +197,12 @@
                             </filters>
                             <relocations>
                                 <relocation>
+                                    <pattern>com.esotericsoftware</pattern>
+                                    <shadedPattern>${shading.prefix}.com.esotericsoftware</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>com.google</pattern>
-                                    <shadedPattern>${shading.prefix}.common.google</shadedPattern>
+                                    <shadedPattern>${shading.prefix}.com.google</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.yetus</pattern>

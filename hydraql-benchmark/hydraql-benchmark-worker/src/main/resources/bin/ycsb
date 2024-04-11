@@ -31,7 +31,7 @@ except ImportError:
     print >> sys.stderr, '[ERROR] argparse not found. Try installing it via "pip".'
     exit(1)
 
-BASE_URL = "https://github.com/brianfrankcooper/YCSB/tree/master/"
+BASE_URL = "https://github.com/CCweixiao/HydraQL/tree/master/hydraql-benchmark"
 COMMANDS = {
     "shell" : {
         "command"     : "",
@@ -52,6 +52,7 @@ COMMANDS = {
 
 DATABASES = {
     "hbase"      : "com.hydraql.benchmark.worker.HBaseOriginalClient",
+    "hydraql"      : "com.hydraql.benchmark.worker.HydraQLTemplateClient",
 }
 
 OPTIONS = {

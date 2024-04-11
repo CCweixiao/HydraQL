@@ -17,7 +17,7 @@
 
 package com.hydraql.adapter.hbtop.field;
 
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public final class Size implements Comparable<Size> {
   public static final Size ZERO = new Size(0, Unit.KILOBYTE);
   private static final BigDecimal SCALE_BASE = BigDecimal.valueOf(1024D);

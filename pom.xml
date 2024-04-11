@@ -67,7 +67,7 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <build.checkstyle.path>${basedir}/build/checkstyle</build.checkstyle.path>
+        <build.checkstyle.path>${maven.multiModuleProjectDirectory}/build/checkstyle</build.checkstyle.path>
         <build.findbugs.path>${basedir}/build/findbugs</build.findbugs.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot-2.version>2.1.7.RELEASE</spring-boot-2.version>
@@ -161,11 +161,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.yetus</groupId>
-            <artifactId>audience-annotations</artifactId>
-            <version>${audience-annotations.version}</version>
         </dependency>
     </dependencies>
 

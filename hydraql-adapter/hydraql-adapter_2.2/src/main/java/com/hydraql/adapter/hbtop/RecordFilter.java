@@ -2,7 +2,7 @@ package com.hydraql.adapter.hbtop;
 
 import com.hydraql.adapter.hbtop.field.Field;
 import com.hydraql.adapter.hbtop.field.FieldValue;
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public final class RecordFilter {
   private enum Operator {
     EQUAL("="),

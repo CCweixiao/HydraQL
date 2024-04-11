@@ -7,7 +7,6 @@ import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.regionserver.BloomType;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,6 @@ import java.util.Map;
 /**
  * @author leojie 2023/5/19 20:43
  */
-@InterfaceAudience.Private
 public abstract class BaseColumnFamilyDesc {
     public static final String IS_MOB = "IS_MOB";
     public static final String MOB_THRESHOLD = "MOB_THRESHOLD";

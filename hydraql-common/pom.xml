@@ -27,30 +27,37 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>reflectasm</artifactId>
             <version>${reflectasm.version}</version>
+        </dependency>
+
+        <!--<dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>reflectasm</artifactId>
+            <version>${reflectasm.version}</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/reflectasm-1.11.9.jar</systemPath>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>
-        <resources>
+        <!--<resources>
             <resource>
                 <directory>lib</directory>
+                <targetPath>./BOOT-INF/lib/</targetPath>
                 <includes>
-                    <include>*.jar</include>
+                    <include>**/*.jar</include>
                 </includes>
             </resource>
-        </resources>
+        </resources>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
+                <!--<configuration>
                     <compilerArgs>
                         <arg>-extdirs</arg>
                         <arg>${basedir}/lib</arg>
                     </compilerArgs>
-                </configuration>
+                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

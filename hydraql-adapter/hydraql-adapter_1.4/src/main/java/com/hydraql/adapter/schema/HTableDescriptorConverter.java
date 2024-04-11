@@ -5,7 +5,7 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * @author leojie 2023/5/17 21:48
  */
-@InterfaceAudience.Private
+
 public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTableDesc, HTableDescriptor> {
     public HTableDescriptorConverter(HTableDesc tableDesc) {
         super(tableDesc);

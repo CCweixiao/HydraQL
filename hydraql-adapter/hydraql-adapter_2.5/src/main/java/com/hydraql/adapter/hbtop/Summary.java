@@ -1,7 +1,7 @@
 package com.hydraql.adapter.hbtop;
 
 
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * @author leojie 2021/1/16 9:56 下午
  */
-@InterfaceAudience.Private
+
 public class Summary {
     private final String currentTime;
     private final String version;

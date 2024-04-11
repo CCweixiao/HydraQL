@@ -7,7 +7,7 @@ import org.apache.hadoop.hbase.classification.InterfaceAudience;
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public enum Field {
   REGION_NAME("RNAME", "Region Name", true, true, FieldValueType.STRING),
   NAMESPACE("NAMESPACE", "Namespace Name", true, true, FieldValueType.STRING),

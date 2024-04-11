@@ -1,12 +1,12 @@
 package com.hydraql.adapter.hbtop.mode;
 
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public class RequestCountPerSecond {
   private long previousLastReportTimestamp;
   private long previousReadRequestCount;

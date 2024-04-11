@@ -18,14 +18,14 @@
 package com.hydraql.adapter.hbtop.field;
 
 import org.apache.hadoop.hbase.Size;
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import java.util.Objects;
 
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public final class FieldValue implements Comparable<FieldValue> {
 
     private final Object value;

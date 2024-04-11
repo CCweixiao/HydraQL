@@ -17,14 +17,14 @@
  */
 package com.hydraql.adapter.hbtop.field;
 
-import org.apache.yetus.audience.InterfaceAudience;
+
 
 import java.util.Objects;
 
 /**
  * @author leojie 2021/1/16 9:14 下午
  */
-@InterfaceAudience.Private
+
 public class FieldInfo {
   private final Field field;
   private final int defaultLength;

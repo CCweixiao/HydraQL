@@ -13,7 +13,6 @@ import org.apache.hadoop.hbase.TableNotEnabledException;
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.yetus.audience.InterfaceAudience;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 /**
  * @author leojie 2020/11/14 2:26 下午
  */
-@InterfaceAudience.Private
 abstract class AbstractAdminAdapter implements AdminExecutor, AdminService {
     private final Configuration configuration;
 

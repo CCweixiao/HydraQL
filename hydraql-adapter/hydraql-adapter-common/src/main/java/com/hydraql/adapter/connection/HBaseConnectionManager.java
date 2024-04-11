@@ -59,7 +59,7 @@ public class HBaseConnectionManager {
             throw new HydraQLConnectionException("The configuration of cluster must not be null.");
         }
         String connKey = HBaseConnectionUtil.generateUniqueConnectionKey(configuration);
-        LOG.info("Start to get connection for unique key: {}.", connKey);
+        LOG.debug("Start to get connection for unique key: {}.", connKey);
         Connection conn = connections.get(connKey);
         if (conn != null) {
             return conn;
@@ -89,10 +89,10 @@ public class HBaseConnectionManager {
                         throw new HydraQLConnectionException(e);
                     }
                 });
-                LOG.info("Created connection {} with proxy user {} successfully", connKey, proxyUser);
+                LOG.debug("Created connection {} with proxy user {} successfully", connKey, proxyUser);
             } else {
                 connection = ConnectionFactory.createConnection(configuration);
-                LOG.info("Created connection {} successfully.", connKey);
+                LOG.debug("Created connection {} successfully.", connKey);
             }
             connections.put(connKey, connection);
             return connection;
@@ -129,7 +129,7 @@ public class HBaseConnectionManager {
         }
         String tableName = tableContext.getTableName().getNameAsString();
         String uniqueKey = HBaseConnectionUtil.generateUniqueConnectionKey(configuration, tableName);
-        LOG.info("Start to get buffered mutator for unique key: {}.", uniqueKey);
+        LOG.debug("Start to get buffered mutator for unique key: {}.", uniqueKey);
         BufferedMutator bufferedMutator = bufferedMutators.get(uniqueKey);
         if (bufferedMutator != null) {
             return bufferedMutator;
@@ -147,10 +147,10 @@ public class HBaseConnectionManager {
             mutatorParams.listener(tableContext.getExceptionListener());
             BufferedMutator mutator = connection.getBufferedMutator(mutatorParams);
             bufferedMutators.put(uniqueKey, mutator);
-            LOG.info("Created buffered mutator for table: {} successfully.", tableName);
+            LOG.debug("Created buffered mutator for table: {} successfully.", tableName);
             return mutator;
         } catch (IOException e) {
-            LOG.info("Created buffered mutator for table: {} error, the reason is: ", tableName, e);
+            LOG.error("Created buffered mutator for table: {} error, the reason is: ", tableName, e);
             throw new HydraQLConnectionException(e);
         } finally {
             bufferMutatorLock.unlock();
@@ -181,7 +181,7 @@ public class HBaseConnectionManager {
             configuration.set(HBaseConfigKeys.HADOOP_SECURITY_AUTH, AuthType.KERBEROS.getAuthType());
             UserGroupInformation.setConfiguration(configuration);
             UserGroupInformation.loginUserFromKeytab(principal, keytab);
-            LOG.info("Login successfully via keytab: {} and principal: {}", keytab, principal);
+            LOG.debug("Login successfully via keytab: {} and principal: {}", keytab, principal);
             doKerberosReLogin();
         } catch (IOException e) {
             kerberosEnvInit.set(false);
