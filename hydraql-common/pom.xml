@@ -12,6 +12,10 @@
     <artifactId>hydraql-common</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
@@ -28,37 +32,15 @@
             <artifactId>reflectasm</artifactId>
             <version>${reflectasm.version}</version>
         </dependency>
-
-        <!--<dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>reflectasm</artifactId>
-            <version>${reflectasm.version}</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/reflectasm-1.11.9.jar</systemPath>
-        </dependency>-->
     </dependencies>
 
     <build>
-        <!--<resources>
-            <resource>
-                <directory>lib</directory>
-                <targetPath>./BOOT-INF/lib/</targetPath>
-                <includes>
-                    <include>**/*.jar</include>
-                </includes>
-            </resource>
-        </resources>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <!--<configuration>
-                    <compilerArgs>
-                        <arg>-extdirs</arg>
-                        <arg>${basedir}/lib</arg>
-                    </compilerArgs>
-                </configuration>-->
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
