@@ -19,7 +19,10 @@
             <!--依赖包中是否包含当前工程-->
             <useProjectArtifact>true</useProjectArtifact>
             <excludes>
-                <exclude>slf4j-log4j12*</exclude>
+                <exclude>com.hydraql:hydraql-common</exclude>
+                <exclude>com.hydraql:hydraql-dsl</exclude>
+                <exclude>com.hydraql:hydraql-adapter-common</exclude>
+                <exclude>com.hydraql:hydraql-adapter_${hydraql.hbase.adapter.version}</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

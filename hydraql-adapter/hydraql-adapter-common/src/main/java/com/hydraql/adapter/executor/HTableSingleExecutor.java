@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * @author leojie 2024/4/7 19:45
@@ -50,6 +51,12 @@ public interface HTableSingleExecutor extends ConnectionContext {
                 return hedgedReadStrategy.execute(preferCall, spareCall);
             } else {
                 return executeOnPrefer(tableName, action);
+            }
+        } catch (RejectedExecutionException e) {
+            try {
+                return executeOnPrefer(tableName, action);
+            } catch (IOException ex) {
+                throw new HydraQLTableOpException(ex);
             }
         } catch (IOException e) {
             throw new HydraQLTableOpException(e);

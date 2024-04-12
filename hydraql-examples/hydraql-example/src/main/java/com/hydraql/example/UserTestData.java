@@ -1,4 +1,4 @@
-package com.hydraql.benchmark.worker;
+package com.hydraql.example;
 
 import com.hydraql.common.annotations.HBaseColumn;
 import com.hydraql.common.annotations.HBaseRowKey;
@@ -134,6 +134,16 @@ public class UserTestData {
     public String toString() {
         return "UserTestData{" +
                 "userId='" + userId + '\'' +
+                ", field0='" + field0 + '\'' +
+                ", field1='" + field1 + '\'' +
+                ", field2='" + field2 + '\'' +
+                ", field3='" + field3 + '\'' +
+                ", field4='" + field4 + '\'' +
+                ", field5='" + field5 + '\'' +
+                ", field6='" + field6 + '\'' +
+                ", field7='" + field7 + '\'' +
+                ", field8='" + field8 + '\'' +
+                ", field9='" + field9 + '\'' +
                 '}';
     }
 }

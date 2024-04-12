@@ -249,6 +249,9 @@ public class HydraQLTemplateClient extends com.hydraql.benchmark.core.DB {
                 }
             }
             userTestData = tableTemplate.getRow(getBuilder.build(), UserTestData.class);
+            if (debug) {
+                System.out.println(userTestData);
+            }
         } catch (ConcurrentModificationException e) {
             // do nothing for now...need to understand HBase concurrency model better
             return Status.ERROR;
