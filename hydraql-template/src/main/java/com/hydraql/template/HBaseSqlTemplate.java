@@ -1,7 +1,7 @@
 package com.hydraql.template;
 
 import com.hydraql.adapter.HBaseSqlAdapter;
-import com.hydraql.adapter.HQLService;
+import com.hydraql.adapter.service.HQLService;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;
 import org.apache.hadoop.conf.Configuration;

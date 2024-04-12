@@ -1,4 +1,4 @@
-package com.hydraql.adapter;
+package com.hydraql.adapter.service;
 
 import com.hydraql.adapter.schema.BaseColumnFamilyDesc;
 import com.hydraql.adapter.schema.BaseHTableDesc;

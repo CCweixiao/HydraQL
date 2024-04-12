@@ -1,4 +1,4 @@
-package com.hydraql.adapter;
+package com.hydraql.adapter.service;
 
 import com.hydraql.common.mapper.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 19:36
  */
-public interface HTableScanService {
+public interface ScanService {
     Scan buildScan(ScanParams scanParams);
     <T> List<T> scan(Scan scan, Class<T> clazz);
 

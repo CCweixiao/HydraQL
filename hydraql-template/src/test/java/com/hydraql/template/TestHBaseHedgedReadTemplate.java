@@ -1,7 +1,7 @@
 package com.hydraql.template;
 
 import com.hydraql.adapter.HBaseClientConf;
-import com.hydraql.adapter.executor.HedgedReadStrategy;
+import com.hydraql.adapter.hedgedread.HedgedReadStrategy;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.query.ScanParams;
 import org.apache.hadoop.conf.Configuration;

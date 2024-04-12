@@ -1,4 +1,4 @@
-package com.hydraql.adapter.executor;
+package com.hydraql.adapter.hedgedread;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * @author leojie@apache.org 2024/4/8 20:07
  */
-class HedgedReadHashStrategy implements HedgedReadStrategy {
+public class HedgedReadHashStrategy implements HedgedReadStrategy {
     private final static LongAdder COUNTER = new LongAdder();
     private final int maxThreads;
 

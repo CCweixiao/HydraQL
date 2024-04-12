@@ -1,6 +1,6 @@
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.AbstractHQLAdapter;
+import com.hydraql.adapter.AbstractHBaseSqlAdapter;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.exception.HBaseSqlExecuteException;
 import com.hydraql.common.model.HQLType;
@@ -34,7 +34,7 @@ import java.util.Map;
  * @author leojie 2023/9/27 19:22
  */
 public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Interpreter {
-    private final AbstractHQLAdapter sqlAdapter;
+    private final AbstractHBaseSqlAdapter sqlAdapter;
 
     private SelectExecutor(SelectExecutor.ExecutorBuilder builder) {
         super(builder.hql);
@@ -68,7 +68,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
 
         if (rowKeyRange.isMatchGet()) {
             Get get = sqlAdapter.constructGet(rowKeyRange.getEqRow(), queryExtInfo, filter, selectColumns);
-            return sqlAdapter.execute(tableName, table -> {
+            return sqlAdapter.executeGetOrScan(tableName, table -> {
                 Result result = table.get(get);
                 if (result == null) {
                     return null;
@@ -94,7 +94,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
             for (int i = 0; i < getArr.length; i++) {
                 getArr[i] = sqlAdapter.constructGet(queryInRows.get(i), queryExtInfo, filter, selectColumns);
             }
-            return sqlAdapter.execute(tableName, table -> {
+            return sqlAdapter.executeGetOrScan(tableName, table -> {
                 HBaseDataSet dataSet = HBaseDataSet.of(tableName);
                 final Result[] results = table.get(Arrays.asList(getArr));
                 if (results != null) {
@@ -122,7 +122,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
     private HBaseDataSet queryToDataSet(HBaseTableSchema tableSchema, QueryExtInfo queryExtInfo,
                                         List<QueryHBaseColumn> selectColumns, Scan scan) {
         String tableName = tableSchema.getTableName();
-        return sqlAdapter.execute(tableName, table -> {
+        return sqlAdapter.executeGetOrScan(tableName, table -> {
             int limit = Integer.MAX_VALUE;
 
             if (queryExtInfo.isLimitSet()) {
@@ -207,8 +207,8 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
 
     private static class ExecutorBuilder extends Builder<SelectExecutor, HBaseDataSet> {
         private final String hql;
-        private final AbstractHQLAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, AbstractHQLAdapter sqlAdapter) {
+        private final AbstractHBaseSqlAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -219,7 +219,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
         }
     }
 
-    public static SelectExecutor of(String hql, AbstractHQLAdapter sqlAdapter) {
+    public static SelectExecutor of(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
         return new SelectExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

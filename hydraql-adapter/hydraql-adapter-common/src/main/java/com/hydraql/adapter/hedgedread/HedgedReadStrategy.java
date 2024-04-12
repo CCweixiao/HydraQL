@@ -1,4 +1,4 @@
-package com.hydraql.adapter.executor;
+package com.hydraql.adapter.hedgedread;
 
 import com.hydraql.adapter.HBaseClientConfigKeys;
 import com.hydraql.common.util.StringUtil;

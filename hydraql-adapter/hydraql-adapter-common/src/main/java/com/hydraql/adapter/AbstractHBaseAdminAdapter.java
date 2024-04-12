@@ -1,6 +1,9 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.executor.AdminExecutor;
+import com.hydraql.adapter.context.ConnectionContext;
+import com.hydraql.adapter.service.AdminService;
+import com.hydraql.common.callback.AdminCallback;
+import com.hydraql.common.exception.HydraQLAdminOpException;
 import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.StringUtil;
@@ -15,17 +18,21 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * @author leojie 2020/11/14 2:26 下午
  */
-abstract class AbstractAdminAdapter implements AdminExecutor, AdminService {
+abstract class AbstractHBaseAdminAdapter implements ConnectionContext, AdminService {
     private final Configuration configuration;
 
-    public AbstractAdminAdapter(Configuration configuration) {
+    public AbstractHBaseAdminAdapter(Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -389,6 +396,14 @@ abstract class AbstractAdminAdapter implements AdminExecutor, AdminService {
     protected void tableNotEnableThrowError(Admin admin, String tableName) throws IOException {
         if (admin.isTableDisabled(TableName.valueOf(tableName))) {
             throw new TableNotEnabledException(tableName);
+        }
+    }
+
+    protected <T> T execute(AdminCallback<T, Admin> action) {
+        try (Admin admin = this.getConnection().getAdmin()) {
+            return action.doInAdmin(admin);
+        } catch (Throwable e) {
+            throw new HydraQLAdminOpException(e);
         }
     }
 }

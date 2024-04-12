@@ -1,7 +1,7 @@
 package com.hydraql.template;
 
-import com.hydraql.adapter.HTableScanService;
-import com.hydraql.common.IHBaseTableOpAdapter;
+import com.hydraql.adapter.service.ScanService;
+import com.hydraql.common.HTableService;
 import com.hydraql.common.mapper.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 22:12
  */
-public abstract class BaseHBaseTableTemplate implements IHBaseTableOpAdapter, HTableScanService {
+public abstract class BaseHBaseTableTemplate implements HTableService, ScanService {
     abstract <T> T get(Get get, Class<T> clazz);
     abstract <T> T get(String tableName, Get get, RowMapper<T> rowMapper);
     abstract HBaseRowData get(String tableName, Get get);

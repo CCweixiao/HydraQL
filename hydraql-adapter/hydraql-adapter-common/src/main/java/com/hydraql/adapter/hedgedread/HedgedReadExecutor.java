@@ -1,4 +1,4 @@
-package com.hydraql.adapter.executor;
+package com.hydraql.adapter.hedgedread;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author leojie 2023/6/30 18:49
  */
-class HedgedReadExecutor {
+public class HedgedReadExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(HedgedReadExecutor.class);
     private static volatile HedgedReadExecutor executor;
     private static ThreadPoolExecutor HEDGED_READ_THREAD_POOL;

@@ -1,4 +1,4 @@
-package com.hydraql.adapter;
+package com.hydraql.adapter.service;
 
 import com.hydraql.common.constants.HMHBaseConstants;
 import com.hydraql.common.exception.HBaseMetaDataException;
@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * @author leojie 2023/7/20 19:32
  */
-public interface HTablePutService {
+public interface UpsertService {
 
     default Put buildPut(String rowKey, Map<String, Object> data) {
         if (StringUtil.isBlank(rowKey)) {

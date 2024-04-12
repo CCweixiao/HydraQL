@@ -1,4 +1,4 @@
-package com.hydraql.adapter.executor;
+package com.hydraql.adapter.hedgedread;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author leojie@apache.org 2024/4/8 19:43
  */
-class HedgedReadConsistencyStrategy implements HedgedReadStrategy {
+public class HedgedReadConsistencyStrategy implements HedgedReadStrategy {
     private final int maxThreads;
     private final long overallTimeoutMillis;
 

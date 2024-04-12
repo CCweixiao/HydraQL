@@ -1,7 +1,11 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.executor.HTableMutatorExecutor;
-import com.hydraql.common.IHBaseTableOpAdapter;
+import com.hydraql.adapter.service.DeleteService;
+import com.hydraql.adapter.service.GetService;
+import com.hydraql.adapter.service.HTableUpsertService;
+import com.hydraql.adapter.service.UpsertService;
+import com.hydraql.adapter.service.ScanService;
+import com.hydraql.common.HTableService;
 import com.hydraql.common.mapper.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
@@ -27,17 +31,11 @@ import static com.hydraql.adapter.HBaseClientConfigKeys.HBASE_CLIENT_SCANNER_CAC
  *
  * @author leo.jie (leojie1314@gmail.com)
  */
-abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTableOpAdapter,
-        HTableGetService, HTablePutService, HTableDeleteService, HTableScanService {
-    private final Configuration configuration;
-    public AbstractHTableAdapter(Configuration configuration) {
-        this.configuration = configuration;
-        warmUpConnection();
-    }
+abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements HTableService,
+        GetService, UpsertService, DeleteService, ScanService {
 
-    @Override
-    public Configuration getConfiguration() {
-        return configuration;
+    public AbstractHBaseTableAdapter(Configuration configuration) {
+        super(configuration);
     }
 
     @Override
@@ -89,7 +87,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
     @Override
     public <T> T get(Get get, Class<T> clazz) {
         String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -106,7 +104,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
 
     @Override
     public <T> T get(String tableName, Get get, RowMapper<T> rowMapper) {
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -123,7 +121,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
 
     @Override
     public HBaseRowData get(String tableName, Get get) {
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -135,7 +133,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
     @Override
     public <T> List<T> getWithMultiVersions(Get get, int versions, Class<T> clazz) {
         String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return new ArrayList<>();
@@ -153,7 +151,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
 
     @Override
     public <T> List<T> getWithMultiVersions(String tableName, Get get, int versions, RowMapper<T> rowMapper) {
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return new ArrayList<>();
@@ -177,7 +175,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
 
     @Override
     public HBaseRowDataWithMultiVersions getWithMultiVersions(String tableName, Get get, int versions) {
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -195,7 +193,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
 
     @Override
     public <T> List<T> gets(String tableName, List<Get> gets, Class<T> clazz) {
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result[] results = checkBatchGetAndReturnResult(gets, table);
             if (results == null) {
                 return new ArrayList<>();
@@ -216,7 +214,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
 
     @Override
     public <T> List<T> gets(String tableName, List<Get> gets, RowMapper<T> rowMapper) {
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             Result[] results = checkBatchGetAndReturnResult(gets, table);
             if (results == null) {
                 return new ArrayList<>();
@@ -258,7 +256,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
     @Override
     public <T> List<T> scan(Scan scan, Class<T> clazz) {
         String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 List<T> rs = new ArrayList<>();
                 for (Result result : scanner) {
@@ -277,7 +275,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
 
     @Override
     public <T> List<T> scan(String tableName, Scan scan, RowMapper<T> rowMapper) {
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 List<T> rs = new ArrayList<>();
                 int rowNum = 0;
@@ -298,7 +296,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
     @Override
     public List<HBaseRowData> scan(String tableName, Scan scan) {
         List<HBaseRowData> rowDataList = new ArrayList<>();
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 for (Result result : scanner) {
                     HBaseRowData data = convertResultToHBaseColData(result);
@@ -321,7 +319,7 @@ abstract class AbstractHTableAdapter implements HTableMutatorExecutor, IHBaseTab
     @Override
     public List<HBaseRowDataWithMultiVersions> scanWithMultiVersions(String tableName, Scan scan, int versions) {
         List<HBaseRowDataWithMultiVersions> rowDataListWithMultiVersions = new ArrayList<>();
-        return this.execute(tableName, table -> {
+        return this.executeGetOrScan(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 for (Result result : scanner) {
                     rowDataListWithMultiVersions.add(convertResultsToHBaseColDataListWithMultiVersion(result, versions));

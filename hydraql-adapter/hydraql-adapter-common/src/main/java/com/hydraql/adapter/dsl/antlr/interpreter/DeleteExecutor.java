@@ -1,6 +1,6 @@
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
-import com.hydraql.adapter.AbstractHQLAdapter;
+import com.hydraql.adapter.AbstractHBaseSqlAdapter;
 import com.hydraql.adapter.dsl.antlr.data.RowKeyRange;
 import com.hydraql.adapter.dsl.antlr.visitor.DeleteColListVisitor;
 import com.hydraql.adapter.dsl.antlr.visitor.RowKeyRangeVisitor;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpreter {
 
-    private final AbstractHQLAdapter sqlAdapter;
+    private final AbstractHBaseSqlAdapter sqlAdapter;
 
     private DeleteExecutor(DeleteExecutor.ExecutorBuilder builder) {
         super(builder.hql);
@@ -88,10 +88,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
             return;
         }
         Delete delete = sqlAdapter.constructDelete(eqRowKey, deleteColumns, ts);
-        sqlAdapter.execute(tableName, table -> {
-            table.delete(delete);
-            return true;
-        });
+        sqlAdapter.execSingleDelete(tableName, delete);
     }
 
     private void deleteInRowKeys(String tableName, List<RowKey<?>> rowKeys,
@@ -115,7 +112,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
             firstScan.setFilter(new FirstKeyOnlyFilter());
             List<Mutation> deletes = new ArrayList<>(deleteBatch);
             try {
-                sqlAdapter.execute(tableName, table -> {
+                sqlAdapter.executeGetOrScan(tableName, table -> {
                     try (ResultScanner scanner = table.getScanner(firstScan)) {
                         Result result;
                         while ((result = scanner.next()) != null) {
@@ -158,8 +155,8 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
 
     private static class ExecutorBuilder extends Builder<DeleteExecutor, Boolean> {
         private final String hql;
-        private final AbstractHQLAdapter sqlAdapter;
-        private ExecutorBuilder(String hql, AbstractHQLAdapter sqlAdapter) {
+        private final AbstractHBaseSqlAdapter sqlAdapter;
+        private ExecutorBuilder(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
             this.hql = hql;
             this.sqlAdapter = sqlAdapter;
         }
@@ -170,7 +167,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
         }
     }
 
-    public static DeleteExecutor of(String hql, AbstractHQLAdapter sqlAdapter) {
+    public static DeleteExecutor of(String hql, AbstractHBaseSqlAdapter sqlAdapter) {
         return new DeleteExecutor.ExecutorBuilder(hql, sqlAdapter).build();
     }
 }

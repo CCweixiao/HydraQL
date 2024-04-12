@@ -1,6 +1,6 @@
 package com.hydraql.example;
 
-import com.hydraql.adapter.executor.HedgedReadStrategy;
+import com.hydraql.adapter.hedgedread.HedgedReadStrategy;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.query.ScanParams;
 import com.hydraql.template.HBaseTableTemplate;

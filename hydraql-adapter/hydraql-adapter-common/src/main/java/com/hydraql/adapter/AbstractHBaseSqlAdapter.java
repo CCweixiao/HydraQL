@@ -1,12 +1,6 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.executor.HTableMutatorExecutor;
-import com.hydraql.common.constants.HBaseConfigKeys;
-import com.hydraql.common.constants.HMHBaseConstants;
-import com.hydraql.common.exception.HBaseSqlTableSchemaMissingException;
-import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.adapter.connection.HBaseConnectionUtil;
-import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.adapter.dsl.antlr.data.InsertRowData;
 import com.hydraql.adapter.dsl.antlr.data.RowKeyRange;
 import com.hydraql.adapter.dsl.antlr.interpreter.CreateVirtualTableExecutor;
@@ -16,6 +10,13 @@ import com.hydraql.adapter.dsl.antlr.interpreter.SelectExecutor;
 import com.hydraql.adapter.dsl.antlr.interpreter.ShowCreateVirtualTableExecutor;
 import com.hydraql.adapter.dsl.antlr.interpreter.ShowVirtualTablesExecutor;
 import com.hydraql.adapter.dsl.antlr.interpreter.UpsetExecutor;
+import com.hydraql.adapter.service.HQLService;
+import com.hydraql.adapter.service.HTableUpsertService;
+import com.hydraql.common.constants.HBaseConfigKeys;
+import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.exception.HBaseSqlTableSchemaMissingException;
+import com.hydraql.common.model.row.HBaseDataSet;
+import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.client.QueryExtInfo;
 import com.hydraql.dsl.client.rowkey.RowKey;
 import com.hydraql.dsl.context.HBaseSqlContext;
@@ -25,7 +26,11 @@ import com.hydraql.dsl.model.QueryHBaseColumn;
 import com.hydraql.dsl.model.TableQueryProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -35,21 +40,14 @@ import java.util.Map;
 /**
  * @author leojie 2020/11/28 8:34 下午
  */
-public abstract class AbstractHQLAdapter implements HTableMutatorExecutor, HQLService {
+public abstract class AbstractHBaseSqlAdapter extends HTableUpsertService implements HQLService {
     public static final TableName HQL_META_DATA_TABLE_NAME = TableName.valueOf("HQL.META_DATA");
     public static final byte[] HQL_META_DATA_TABLE_FAMILY = Bytes.toBytes( "f");
     public static final byte[] HQL_META_DATA_TABLE_QUALIFIER = Bytes.toBytes( "schema");
     public static final byte[] HQL_META_DATA_CREATE_HQL_QUALIFIER = Bytes.toBytes( "create_hql");
 
-    private final Configuration configuration;
-
-    public AbstractHQLAdapter(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-    @Override
-    public Configuration getConfiguration() {
-        return configuration;
+    public AbstractHBaseSqlAdapter(Configuration configuration) {
+        super(configuration);
     }
 
     @Override
@@ -85,7 +83,7 @@ public abstract class AbstractHQLAdapter implements HTableMutatorExecutor, HQLSe
         }
         Get get = new Get(Bytes.toBytes(tableName));
 
-        String[] tableSchemaMataData = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
+        String[] tableSchemaMataData = this.executeGetOrScan(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {
                 return null;

@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * @author leojie 2020/11/28 8:36 下午
  */
-public class HBaseSqlAdapter extends AbstractHQLAdapter {
+public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     public HBaseSqlAdapter(Configuration configuration) {
         super(configuration);
     }
@@ -64,7 +64,7 @@ public class HBaseSqlAdapter extends AbstractHQLAdapter {
 
         String tableSchemaJson = tableSchema.toJson();
         Get get = new Get(Bytes.toBytes(tableName));
-        String res = this.execute(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
+        String res = this.executeGetOrScan(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {
                 return "";

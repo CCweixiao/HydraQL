@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * @author leojie 2020/9/26 11:04 上午
  */
-public interface IHBaseTableOpAdapter {
+public interface HTableService {
 
     /**
      * 保存单条rowKey的数据，需构造Map类型的数据参数，其格式如下示例：<br/>
@@ -27,7 +27,7 @@ public interface IHBaseTableOpAdapter {
      * 3. 复杂数据类型，如：List/Map/Java对象等，会先被格式化成JSON字符串后再进行存储，默认使用FastJson框架来序列化/反序列化json数据<br/>
      * 4. rowKey只能是字符串类型</p>
      *
-     * <p>如果对数据类型有严格要求，请使用方法: {@link IHBaseTableOpAdapter#save(Object)} <br/><p/>
+     * <p>如果对数据类型有严格要求，请使用方法: {@link HTableService#save(Object)} <br/><p/>
      *
      * @param tableName HBase表名
      * @param rowKey    指定row key，row key默认被限定必须使用String类型
@@ -48,7 +48,7 @@ public interface IHBaseTableOpAdapter {
      * 2. 字段名称的命名格式必须是：family:qualifier <br/>
      * 3. 复杂数据类型，如：List/Map/Java对象等，会先被格式化成JSON字符串后再进行存储，默认使用FastJson框架来序列化/反序列化json数据<br/>
      * 4. rowKey只能是字符串类型
-     * <p>如果对数据类型有要求，请使用方法: {@link IHBaseTableOpAdapter#saveBatch(List<Object>)} <br/><p/>
+     * <p>如果对数据类型有要求，请使用方法: {@link HTableService#saveBatch(List<Object>)} <br/><p/>
      *
      * @param tableName 表名
      * @param data      需要保存的数据. 如样例格式数据

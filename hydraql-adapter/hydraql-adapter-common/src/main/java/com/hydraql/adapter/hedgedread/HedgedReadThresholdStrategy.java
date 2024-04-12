@@ -1,4 +1,4 @@
-package com.hydraql.adapter.executor;
+package com.hydraql.adapter.hedgedread;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author leojie@apache.org 2024/4/8 17:44
  */
-class HedgedReadThresholdStrategy implements HedgedReadStrategy {
+public class HedgedReadThresholdStrategy implements HedgedReadStrategy {
     private final long thresholdMillis;
     private final int maxThreads;
 

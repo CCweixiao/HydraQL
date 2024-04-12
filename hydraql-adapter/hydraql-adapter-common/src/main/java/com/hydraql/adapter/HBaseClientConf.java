@@ -1,6 +1,6 @@
 package com.hydraql.adapter;
 
-import com.hydraql.adapter.executor.HedgedReadStrategy;
+import com.hydraql.adapter.hedgedread.HedgedReadStrategy;
 import org.apache.hadoop.conf.Configuration;
 
 /**

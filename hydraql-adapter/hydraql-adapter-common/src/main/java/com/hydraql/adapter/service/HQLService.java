@@ -1,4 +1,4 @@
-package com.hydraql.adapter;
+package com.hydraql.adapter.service;
 
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.model.HBaseTableSchema;

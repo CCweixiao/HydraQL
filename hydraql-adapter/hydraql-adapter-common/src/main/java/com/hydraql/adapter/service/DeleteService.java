@@ -1,4 +1,4 @@
-package com.hydraql.adapter;
+package com.hydraql.adapter.service;
 
 import com.hydraql.common.exception.HBaseMetaDataException;
 import com.hydraql.common.exception.HBaseOperationsException;
@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 19:36
  */
-public interface HTableDeleteService {
+public interface DeleteService {
     default Delete buildDeleteCondition(String rowKey, String familyName, List<String> qualifiers) {
         if (StringUtil.isBlank(rowKey)) {
             throw new HBaseOperationsException("RowKey must not be empty.");

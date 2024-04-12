@@ -1,15 +1,11 @@
 package com.hydraql.adapter.context;
 
-import com.hydraql.adapter.HBaseClientConf;
 import com.hydraql.adapter.HBaseClientConfigKeys;
 import com.hydraql.adapter.connection.HBaseConnectionManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Connection;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -20,27 +16,6 @@ public interface ConnectionContext {
 
     default Connection getConnection() {
         return HBaseConnectionManager.create().getConnection(this.getConfiguration());
-    }
-
-    default void warmUpConnection() {
-        try(Admin admin = this.getConnection().getAdmin()) {
-            admin.listNamespaceDescriptors();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    default BufferedMutator getBufferedMutator(HTableContext tableContext) {
-        return HBaseConnectionManager.create().getBufferedMutator(tableContext,
-                this.getConfiguration(), this.getConnection());
-    }
-
-    default boolean hedgedReadIsOpen() {
-        return getHBaseClientConf().hedgedReadIsOpen();
-    }
-
-    default boolean hedgedReadWriteDisable() {
-        return getHBaseClientConf().isHedgedReadWriteDisable();
     }
 
     default Configuration getHedgedReadConfiguration() {
@@ -77,12 +52,8 @@ public interface ConnectionContext {
         return HBaseConnectionManager.create().getConnection(this.getHedgedReadConfiguration());
     }
 
-    default BufferedMutator getHedgedReadBufferedMutator(HTableContext tableContext) {
-        return HBaseConnectionManager.create().getBufferedMutator(tableContext,
-                this.getHedgedReadConfiguration(), this.getHedgedReadConnection());
-    }
-
-    default HBaseClientConf getHBaseClientConf() {
-        return new HBaseClientConf(this.getConfiguration());
+    default boolean warmUpConnection() {
+        boolean closed = this.getConnection().isClosed();
+        return !closed;
     }
 }
