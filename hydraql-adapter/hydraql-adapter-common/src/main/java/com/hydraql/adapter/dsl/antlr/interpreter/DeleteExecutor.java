@@ -112,7 +112,7 @@ public class DeleteExecutor extends BaseHqlExecutor<Boolean> implements Interpre
             firstScan.setFilter(new FirstKeyOnlyFilter());
             List<Mutation> deletes = new ArrayList<>(deleteBatch);
             try {
-                sqlAdapter.executeGetOrScan(tableName, table -> {
+                sqlAdapter.executeQuery(tableName, table -> {
                     try (ResultScanner scanner = table.getScanner(firstScan)) {
                         Result result;
                         while ((result = scanner.next()) != null) {

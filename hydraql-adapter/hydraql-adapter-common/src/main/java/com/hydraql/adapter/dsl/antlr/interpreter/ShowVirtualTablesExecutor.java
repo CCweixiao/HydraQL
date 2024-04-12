@@ -41,7 +41,7 @@ public class ShowVirtualTablesExecutor extends BaseHqlExecutor<List<String>> imp
 
     private List<String> queryAllVirtualTables() {
         Scan scan = new Scan();
-        return sqlAdapter.executeGetOrScan(AbstractHBaseSqlAdapter.
+        return sqlAdapter.executeQuery(AbstractHBaseSqlAdapter.
                 HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             ResultScanner scanner = table.getScanner(scan);
             List<String> tables = new ArrayList<>();

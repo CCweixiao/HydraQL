@@ -1,16 +1,12 @@
 package com.hydraql.adapter.hedgedread;
 
 import com.hydraql.adapter.HBaseClientConfigKeys;
+import com.hydraql.adapter.WrapperBufferedMutator;
+import com.hydraql.adapter.context.HTableContext;
+import com.hydraql.common.callback.MutatorCallback;
+import com.hydraql.common.callback.TableCallback;
 import com.hydraql.common.util.StringUtil;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Future;
+import org.apache.hadoop.hbase.client.Table;
 
 /**
  * @author leojie@apache.org 2024/4/8 17:29
@@ -55,44 +51,7 @@ public interface HedgedReadStrategy {
         }
     }
 
-    /**
-     * 不同hedged read strategy策略中需要实现的方法
-     *
-     * @param prefer 首选执行
-     * @param spare  备选执行
-     * @param <T>    范型类型
-     * @return 执行结果，可以是Void
-     * @throws IOException ioe
-     */
-    <T> T execute(Callable<T> prefer, Callable<T> spare) throws IOException;
+    <T> T execute(String tableName, TableCallback<T, Table> action);
 
-    default <T> CompletionService<T> getHedgedReadService(int maxThreads) {
-        return new ExecutorCompletionService<>(
-                HedgedReadExecutor.create().getExecutor(maxThreads));
-    }
-
-    default <T> T getFirstToComplete(CompletionService<T> hedgedService,
-                                     List<Future<T>> futures) throws InterruptedException {
-        if (futures.isEmpty()) {
-            throw new InterruptedException("let's retry.");
-        }
-
-        Future<T> future = null;
-        try {
-            future = hedgedService.take();
-            T t = future.get();
-            futures.remove(future);
-            return t;
-        } catch (ExecutionException | CancellationException e) {
-            futures.remove(future);
-        }
-
-        throw new InterruptedException("let's retry.");
-    }
-
-    default <T> void cancelAll(List<Future<T>> futures) {
-        for (Future<T> future : futures) {
-            future.cancel(false);
-        }
-    }
+    void mutate(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action);
 }

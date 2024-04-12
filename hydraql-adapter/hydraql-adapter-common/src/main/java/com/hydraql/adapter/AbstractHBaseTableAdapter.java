@@ -87,7 +87,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     @Override
     public <T> T get(Get get, Class<T> clazz) {
         String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -104,7 +104,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
     @Override
     public <T> T get(String tableName, Get get, RowMapper<T> rowMapper) {
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -121,7 +121,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
     @Override
     public HBaseRowData get(String tableName, Get get) {
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -133,7 +133,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     @Override
     public <T> List<T> getWithMultiVersions(Get get, int versions, Class<T> clazz) {
         String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return new ArrayList<>();
@@ -151,7 +151,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
     @Override
     public <T> List<T> getWithMultiVersions(String tableName, Get get, int versions, RowMapper<T> rowMapper) {
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return new ArrayList<>();
@@ -175,7 +175,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
     @Override
     public HBaseRowDataWithMultiVersions getWithMultiVersions(String tableName, Get get, int versions) {
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result result = checkGetAndReturnResult(get, table);
             if (result == null) {
                 return null;
@@ -193,7 +193,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
     @Override
     public <T> List<T> gets(String tableName, List<Get> gets, Class<T> clazz) {
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result[] results = checkBatchGetAndReturnResult(gets, table);
             if (results == null) {
                 return new ArrayList<>();
@@ -214,7 +214,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
     @Override
     public <T> List<T> gets(String tableName, List<Get> gets, RowMapper<T> rowMapper) {
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             Result[] results = checkBatchGetAndReturnResult(gets, table);
             if (results == null) {
                 return new ArrayList<>();
@@ -256,7 +256,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     @Override
     public <T> List<T> scan(Scan scan, Class<T> clazz) {
         String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 List<T> rs = new ArrayList<>();
                 for (Result result : scanner) {
@@ -275,7 +275,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
     @Override
     public <T> List<T> scan(String tableName, Scan scan, RowMapper<T> rowMapper) {
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 List<T> rs = new ArrayList<>();
                 int rowNum = 0;
@@ -296,7 +296,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     @Override
     public List<HBaseRowData> scan(String tableName, Scan scan) {
         List<HBaseRowData> rowDataList = new ArrayList<>();
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 for (Result result : scanner) {
                     HBaseRowData data = convertResultToHBaseColData(result);
@@ -319,7 +319,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     @Override
     public List<HBaseRowDataWithMultiVersions> scanWithMultiVersions(String tableName, Scan scan, int versions) {
         List<HBaseRowDataWithMultiVersions> rowDataListWithMultiVersions = new ArrayList<>();
-        return this.executeGetOrScan(tableName, table -> {
+        return this.executeQuery(tableName, table -> {
             try (ResultScanner scanner = table.getScanner(scan)) {
                 for (Result result : scanner) {
                     rowDataListWithMultiVersions.add(convertResultsToHBaseColDataListWithMultiVersion(result, versions));

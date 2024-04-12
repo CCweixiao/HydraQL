@@ -1,9 +1,11 @@
 package com.hydraql.adapter.context;
 
+import com.hydraql.adapter.HBaseClientConf;
 import com.hydraql.adapter.HBaseClientConfigKeys;
 import com.hydraql.adapter.connection.HBaseConnectionManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Connection;
 
 import java.util.Map;
@@ -14,8 +16,24 @@ import java.util.Map;
 public interface ConnectionContext {
     Configuration getConfiguration();
 
+    default HBaseClientConf getHBaseClientConf() {
+        return new HBaseClientConf(this.getConfiguration());
+    }
+
     default Connection getConnection() {
         return HBaseConnectionManager.create().getConnection(this.getConfiguration());
+    }
+
+    default void warmUpConnection() {
+        Connection conn = this.getConnection();
+        if (conn == null || conn.isClosed()) {
+            throw new IllegalArgumentException("Connection is null or closed.");
+        }
+    }
+
+    default BufferedMutator getBufferedMutator(HTableContext tableContext) {
+        return HBaseConnectionManager.create().getBufferedMutator(tableContext,
+                this.getConfiguration(), this.getConnection());
     }
 
     default Configuration getHedgedReadConfiguration() {
@@ -52,8 +70,15 @@ public interface ConnectionContext {
         return HBaseConnectionManager.create().getConnection(this.getHedgedReadConfiguration());
     }
 
-    default boolean warmUpConnection() {
-        boolean closed = this.getConnection().isClosed();
-        return !closed;
+    default void warmUpHedgedReadConnection() {
+        Connection conn = this.getHedgedReadConnection();
+        if (conn == null || conn.isClosed()) {
+            throw new IllegalArgumentException("Hedged read connection is null or closed.");
+        }
+    }
+
+    default BufferedMutator getHedgedReadBufferedMutator(HTableContext tableContext) {
+        return HBaseConnectionManager.create().getBufferedMutator(tableContext,
+                this.getHedgedReadConfiguration(), this.getHedgedReadConnection());
     }
 }

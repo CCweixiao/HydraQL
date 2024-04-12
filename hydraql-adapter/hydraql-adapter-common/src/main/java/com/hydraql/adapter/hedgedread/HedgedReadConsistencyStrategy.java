@@ -1,5 +1,13 @@
 package com.hydraql.adapter.hedgedread;
 
+import com.hydraql.adapter.WrapperBufferedMutator;
+import com.hydraql.adapter.context.HTableContext;
+import com.hydraql.adapter.service.AbstractHTableService;
+import com.hydraql.common.callback.MutatorCallback;
+import com.hydraql.common.callback.TableCallback;
+import com.hydraql.common.exception.HydraQLTableOpException;
+import org.apache.hadoop.hbase.client.Table;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,21 +22,51 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author leojie@apache.org 2024/4/8 19:43
  */
-public class HedgedReadConsistencyStrategy implements HedgedReadStrategy {
+public class HedgedReadConsistencyStrategy extends AbstractHedgedReadStrategy {
     private final int maxThreads;
     private final long overallTimeoutMillis;
 
-    public HedgedReadConsistencyStrategy(int maxThreads, long overallTimeoutMillis) {
+    public HedgedReadConsistencyStrategy(AbstractHTableService tableService) {
+        super(tableService);
         //todo 优化时间定义
-        this.maxThreads = maxThreads;
-        this.overallTimeoutMillis = overallTimeoutMillis;
+        this.maxThreads = getHBaseClientConf().getHedgedReadThreadpoolSize();
+        this.overallTimeoutMillis = getHBaseClientConf().getHedgedReadOverallTimeoutMillis();
     }
 
     @Override
-    public <T> T execute(Callable<T> prefer, Callable<T> spare) throws IOException {
-        if (prefer == null || spare == null) {
-            throw new IOException("Please pass two callable objects.");
+    public <T> T execute(String tableName, TableCallback<T, Table> action) {
+        Callable<T> prefer = () -> executeOnPrefer(tableName, action);
+        Callable<T> spare = () -> executeOnSpare(tableName, action);
+        try {
+            return execute(prefer, spare);
+        } catch (IOException e) {
+            throw new HydraQLTableOpException(e);
         }
+    }
+
+    @Override
+    public void mutate(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) {
+        //todo 完善
+        try {
+            if (!this.getHBaseClientConf().isHedgedReadWriteDisable()) {
+                Callable<Void> prefer = () -> {
+                    executeOnPreferWithBuffer(tableContext, action);
+                    return null;
+                };
+                Callable<Void> spare = () -> {
+                    executeOnSpareWithBuffer(tableContext, action);
+                    return null;
+                };
+                execute(prefer, spare);
+            } else {
+                executeOnPreferWithBuffer(tableContext, action);
+            }
+        } catch (IOException e) {
+            throw new HydraQLTableOpException(e);
+        }
+    }
+
+    private <T> T execute(Callable<T> prefer, Callable<T> spare) throws IOException {
         ArrayList<Future<T>> futures = new ArrayList<>();
         ThreadPoolExecutor executor = HedgedReadExecutor.create().getExecutor(maxThreads);
 
@@ -68,6 +106,7 @@ public class HedgedReadConsistencyStrategy implements HedgedReadStrategy {
         if (resultList.isEmpty()) {
             return null;
         }
+
         return resultList.get(0);
     }
 }

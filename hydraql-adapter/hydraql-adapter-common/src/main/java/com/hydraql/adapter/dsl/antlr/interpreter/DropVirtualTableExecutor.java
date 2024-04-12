@@ -32,7 +32,7 @@ public class DropVirtualTableExecutor extends BaseHqlExecutor<Boolean> implement
 
         String virtualTableName = new TableNameVisitor().extractTableName(dropTableCommandContext.table_ref());
         Get get = new Get(Bytes.toBytes(virtualTableName));
-        boolean virtualTableExists = sqlAdapter.executeGetOrScan(
+        boolean virtualTableExists = sqlAdapter.executeQuery(
                 AbstractHBaseSqlAdapter.HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {

@@ -68,7 +68,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
 
         if (rowKeyRange.isMatchGet()) {
             Get get = sqlAdapter.constructGet(rowKeyRange.getEqRow(), queryExtInfo, filter, selectColumns);
-            return sqlAdapter.executeGetOrScan(tableName, table -> {
+            return sqlAdapter.executeQuery(tableName, table -> {
                 Result result = table.get(get);
                 if (result == null) {
                     return null;
@@ -94,7 +94,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
             for (int i = 0; i < getArr.length; i++) {
                 getArr[i] = sqlAdapter.constructGet(queryInRows.get(i), queryExtInfo, filter, selectColumns);
             }
-            return sqlAdapter.executeGetOrScan(tableName, table -> {
+            return sqlAdapter.executeQuery(tableName, table -> {
                 HBaseDataSet dataSet = HBaseDataSet.of(tableName);
                 final Result[] results = table.get(Arrays.asList(getArr));
                 if (results != null) {
@@ -122,7 +122,7 @@ public class SelectExecutor extends BaseHqlExecutor<HBaseDataSet> implements Int
     private HBaseDataSet queryToDataSet(HBaseTableSchema tableSchema, QueryExtInfo queryExtInfo,
                                         List<QueryHBaseColumn> selectColumns, Scan scan) {
         String tableName = tableSchema.getTableName();
-        return sqlAdapter.executeGetOrScan(tableName, table -> {
+        return sqlAdapter.executeQuery(tableName, table -> {
             int limit = Integer.MAX_VALUE;
 
             if (queryExtInfo.isLimitSet()) {

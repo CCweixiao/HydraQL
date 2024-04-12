@@ -83,7 +83,7 @@ public abstract class AbstractHBaseSqlAdapter extends HTableUpsertService implem
         }
         Get get = new Get(Bytes.toBytes(tableName));
 
-        String[] tableSchemaMataData = this.executeGetOrScan(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
+        String[] tableSchemaMataData = this.executeQuery(HQL_META_DATA_TABLE_NAME.getNameAsString(), table -> {
             Result result = table.get(get);
             if (result == null) {
                 return null;
