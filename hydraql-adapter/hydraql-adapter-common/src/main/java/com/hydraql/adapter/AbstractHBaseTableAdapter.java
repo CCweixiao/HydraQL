@@ -1,22 +1,32 @@
 package com.hydraql.adapter;
 
+import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.service.DeleteService;
 import com.hydraql.adapter.service.GetService;
 import com.hydraql.adapter.service.HTableUpsertService;
-import com.hydraql.adapter.service.UpsertService;
+import com.hydraql.adapter.service.MutatorService;
 import com.hydraql.adapter.service.ScanService;
+import com.hydraql.adapter.service.UpsertService;
 import com.hydraql.common.HTableService;
 import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.meta.HBaseTableMeta;
+import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.common.meta.HBaseTableMeta;
-import com.hydraql.common.meta.ReflectFactory;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Mutation;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.util.Bytes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +42,7 @@ import static com.hydraql.adapter.HBaseClientConfigKeys.HBASE_CLIENT_SCANNER_CAC
  * @author leo.jie (leojie1314@gmail.com)
  */
 abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements HTableService,
-        GetService, UpsertService, DeleteService, ScanService {
+        GetService, UpsertService, MutatorService, DeleteService, ScanService {
 
     public AbstractHBaseTableAdapter(Configuration configuration) {
         super(configuration);
@@ -44,10 +54,20 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     }
 
     @Override
+    public void saveWithBuffer(HTableContext tableContext, String rowKey, Map<String, Object> data) {
+        this.execPutWithBuffer(tableContext, buildPut(rowKey, data));
+    }
+
+    @Override
     public <T> void save(T t) {
         final Class<?> clazz = t.getClass();
         HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
         this.execSinglePut(tableMeta.getTableName(), new Put(buildPut(t)));
+    }
+
+    @Override
+    public <T> void saveWithBuffer(HTableContext tableContext, T t) {
+        this.execPutWithBuffer(tableContext, new Put(buildPut(t)));
     }
 
     @Override
@@ -65,6 +85,20 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     }
 
     @Override
+    public void saveBatchWithBuffer(HTableContext tableContext, Map<String, Map<String, Object>> data) {
+        if (data == null || data.isEmpty()) {
+            return;
+        }
+        List<Mutation> puts = new ArrayList<>(data.size());
+        data.forEach((row, d) -> {
+            if (d != null && !d.isEmpty()) {
+                puts.add(buildPut(row, d));
+            }
+        });
+        this.execBatchPuts(tableContext, puts);
+    }
+
+    @Override
     public <T> void saveBatch(List<T> list) {
         if (list == null || list.isEmpty()) {
             return;
@@ -76,6 +110,19 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
             putList.add(new Put(buildPut(t)));
         }
         this.execBatchPuts(tableMeta.getTableName(), putList);
+    }
+
+    @Override
+    public <T> void saveBatchWithBuffer(HTableContext tableContext, List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+
+        List<Mutation> putList = new ArrayList<>(list.size());
+        for (T t : list) {
+            putList.add(new Put(buildPut(t)));
+        }
+        this.saveBatchWithBuffer(tableContext, putList);
     }
 
     @Override
@@ -345,8 +392,18 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     }
 
     @Override
+    public void deleteWithBuffer(HTableContext tableContext, String rowKey) {
+        this.execDeleteWithBuffer(tableContext, new Delete(Bytes.toBytes(rowKey)));
+    }
+
+    @Override
     public void delete(String tableName, String rowKey, String familyName) {
         this.delete(tableName, rowKey, familyName, new ArrayList<>());
+    }
+
+    @Override
+    public void deleteWithBuffer(HTableContext tableContext, String rowKey, String familyName) {
+        this.execDeleteWithBuffer(tableContext, buildDeleteCondition(rowKey, familyName, new ArrayList<>()));
     }
 
     @Override
@@ -362,11 +419,26 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
     }
 
     @Override
+    public void deleteWithBuffer(HTableContext tableContext, String rowKey, String familyName, List<String> qualifiers) {
+        Delete delete = buildDeleteCondition(rowKey, familyName, qualifiers);
+        this.execDeleteWithBuffer(tableContext, delete);
+    }
+
+    @Override
     public void delete(String tableName, String rowKey, String familyName, String... qualifiers) {
         if (qualifiers == null || qualifiers.length == 0) {
             this.delete(tableName, rowKey, familyName);
         } else {
             this.delete(tableName, rowKey, familyName, Arrays.asList(qualifiers));
+        }
+    }
+
+    @Override
+    public void deleteWithBuffer(HTableContext tableContext, String rowKey, String familyName, String... qualifiers) {
+        if (qualifiers == null || qualifiers.length == 0) {
+            this.deleteWithBuffer(tableContext, rowKey, familyName);
+        } else {
+            this.deleteWithBuffer(tableContext, rowKey, familyName, Arrays.asList(qualifiers));
         }
     }
 
@@ -382,6 +454,18 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
             deleteList.add(new Delete(buildDelete(t)));
         }
         this.execBatchDeletes(tableMeta.getTableName(), deleteList);
+    }
+
+    @Override
+    public void deleteBatchWithBuffer(HTableContext tableContext, List<String> rowKeys) {
+        if (rowKeys == null || rowKeys.isEmpty()) {
+            return;
+        }
+        List<Mutation> deleteList = new ArrayList<>(rowKeys.size());
+        for (String rowKey : rowKeys) {
+            deleteList.add(new Delete(Bytes.toBytes(rowKey)));
+        }
+        this.execBatchDeletes(tableContext, deleteList);
     }
 
     @Override
@@ -413,6 +497,32 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
         } else {
             this.deleteBatch(tableName, rowKeys, familyName, Arrays.asList(qualifiers));
         }
+    }
+
+    @Override
+    public void deleteBatchWithBuffer(HTableContext tableContext, List<String> rowKeys, String familyName) {
+        List<Mutation> mutations = rowKeys.stream().map(rowKey -> buildDeleteCondition(rowKey, familyName,
+                new ArrayList<>())).collect(Collectors.toList());
+        this.execBatchDeletes(tableContext, mutations);
+    }
+
+    @Override
+    public void deleteBatchWithBuffer(HTableContext tableContext, List<String> rowKeys, String familyName, String... qualifiers) {
+        if (qualifiers == null || qualifiers.length == 0) {
+            this.deleteBatchWithBuffer(tableContext, rowKeys, familyName);
+        } else {
+            this.deleteBatchWithBuffer(tableContext, rowKeys, familyName, Arrays.asList(qualifiers));
+        }
+    }
+
+    @Override
+    public void deleteBatchWithBuffer(HTableContext tableContext, List<String> rowKeys, String familyName, List<String> qualifiers) {
+        if (rowKeys == null || rowKeys.isEmpty()) {
+            throw new IllegalArgumentException("the row keys of the table will be deleted is not empty.");
+        }
+        List<Mutation> mutations = rowKeys.stream().map(rowKey -> buildDeleteCondition(rowKey, familyName, qualifiers))
+                .collect(Collectors.toList());
+        this.execBatchDeletes(tableContext, mutations);
     }
 
     protected int getClientScannerCachingFromConfig() {

@@ -1,11 +1,13 @@
 package com.hydraql.adapter.service;
 
 import com.hydraql.adapter.hedgedread.HedgedReadConsistencyStrategy;
+import com.hydraql.adapter.hedgedread.HedgedReadEmptyStrategy;
 import com.hydraql.adapter.hedgedread.HedgedReadFirstOneStrategy;
 import com.hydraql.adapter.hedgedread.HedgedReadHashStrategy;
 import com.hydraql.adapter.hedgedread.HedgedReadStrategy;
 import com.hydraql.adapter.hedgedread.HedgedReadThresholdStrategy;
 import com.hydraql.common.callback.TableCallback;
+import com.hydraql.adapter.hedgedread.UnsupportedHedgedReadStrategyException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
@@ -44,7 +46,7 @@ public abstract class HTableQueryService extends AbstractHTableService {
     }
 
     protected HedgedReadStrategy createHedgedReadStrategy() {
-        HedgedReadStrategy strategy = null;
+        HedgedReadStrategy strategy;
         if (hedgedReadIsOpen()) {
             HedgedReadStrategy.Level level = getHBaseClientConf().getHedgedReadStrategy();
             switch (level) {
@@ -60,9 +62,14 @@ public abstract class HTableQueryService extends AbstractHTableService {
                 case CONSISTENCY:
                     strategy = new HedgedReadConsistencyStrategy(this);
                     break;
-                default:
+                case NONE:
+                    strategy = new HedgedReadEmptyStrategy(this);
                     break;
+                default:
+                    throw new UnsupportedHedgedReadStrategyException("Illegal hedged read strategy level " + level);
             }
+        } else {
+            strategy = new HedgedReadEmptyStrategy(this);
         }
         return strategy;
     }

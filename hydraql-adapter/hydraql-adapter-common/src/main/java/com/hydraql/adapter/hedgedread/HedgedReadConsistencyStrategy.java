@@ -5,7 +5,7 @@ import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.service.AbstractHTableService;
 import com.hydraql.common.callback.MutatorCallback;
 import com.hydraql.common.callback.TableCallback;
-import com.hydraql.common.exception.HydraQLTableOpException;
+import com.hydraql.common.exception.HTableServiceException;
 import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class HedgedReadConsistencyStrategy extends AbstractHedgedReadStrategy {
         try {
             return execute(prefer, spare);
         } catch (IOException e) {
-            throw new HydraQLTableOpException(e);
+            throw new HTableServiceException(e);
         }
     }
 
@@ -62,7 +62,7 @@ public class HedgedReadConsistencyStrategy extends AbstractHedgedReadStrategy {
                 executeOnPreferWithBuffer(tableContext, action);
             }
         } catch (IOException e) {
-            throw new HydraQLTableOpException(e);
+            throw new HTableServiceException(e);
         }
     }
 

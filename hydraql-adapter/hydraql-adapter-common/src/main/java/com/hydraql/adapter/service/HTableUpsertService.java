@@ -4,7 +4,7 @@ import com.hydraql.adapter.WrapperBufferedMutator;
 import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.hedgedread.HedgedReadStrategy;
 import com.hydraql.common.callback.MutatorCallback;
-import com.hydraql.common.exception.HydraQLTableOpException;
+import com.hydraql.common.exception.HTableServiceException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Mutation;
@@ -45,8 +45,19 @@ public abstract class HTableUpsertService extends HTableQueryService {
         this.executeMutationBatch(tableContext, puts);
     }
 
+    public void execPutWithBuffer(HTableContext tableContext, Mutation put) {
+        this.executeMutation(tableContext, put);
+    }
+
     public void execBatchDeletes(HTableContext tableContext, List<Mutation> deletes) {
         this.executeMutationBatch(tableContext, deletes);
+    }
+
+    public void execDeleteWithBuffer(HTableContext tableContext, Mutation delete) {
+        if (delete == null) {
+            return;
+        }
+        this.executeMutation(tableContext, delete);
     }
 
     public void execBatchDeletes(String tableName, List<Mutation> deletes) {
@@ -65,7 +76,19 @@ public abstract class HTableUpsertService extends HTableQueryService {
         try {
             this.mutate(tableContext, mutator -> mutator.mutate(mutations));
         } catch (IOException e) {
-            throw new HydraQLTableOpException(e);
+            throw new HTableServiceException(e);
+        }
+    }
+
+    private void executeMutation(HTableContext tableContext, Mutation mutation) {
+        if (mutation == null) {
+            return;
+        }
+
+        try {
+            this.mutate(tableContext, mutator -> mutator.mutate(mutation));
+        } catch (IOException e) {
+            throw new HTableServiceException(e);
         }
     }
 }

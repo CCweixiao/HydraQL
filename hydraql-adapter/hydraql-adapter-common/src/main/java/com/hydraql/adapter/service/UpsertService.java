@@ -22,8 +22,9 @@ public interface UpsertService {
 
     default Put buildPut(String rowKey, Map<String, Object> data) {
         if (StringUtil.isBlank(rowKey)) {
-            throw new IllegalArgumentException("rowKey must not be empty.");
+            throw new IllegalArgumentException("Row key must not be empty.");
         }
+
         Put put = new Put(Bytes.toBytes(rowKey));
         data.forEach((fieldName, fieldValue) -> {
             String[] familyQualifierArr = fieldName.split(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);

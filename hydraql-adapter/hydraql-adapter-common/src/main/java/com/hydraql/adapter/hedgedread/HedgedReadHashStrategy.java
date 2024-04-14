@@ -5,7 +5,7 @@ import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.service.AbstractHTableService;
 import com.hydraql.common.callback.MutatorCallback;
 import com.hydraql.common.callback.TableCallback;
-import com.hydraql.common.exception.HydraQLTableOpException;
+import com.hydraql.common.exception.HTableServiceException;
 import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * @author leojie@apache.org 2024/4/8 20:07
  */
-public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy{
+public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy {
     private final static LongAdder COUNTER = new LongAdder();
 
     public HedgedReadHashStrategy(AbstractHTableService tableService) {
@@ -27,7 +27,7 @@ public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy{
             try {
                 return executeOnPrefer(tableName, action);
             } catch (IOException e) {
-                throw new HydraQLTableOpException(e);
+                throw new HTableServiceException(e);
             }
         } else {
             try {
@@ -38,7 +38,7 @@ public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy{
                     return executeOnSpare(tableName, action);
                 }
             } catch (IOException e) {
-                throw new HydraQLTableOpException(e);
+                throw new HTableServiceException(e);
             }
         }
     }
@@ -49,7 +49,7 @@ public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy{
             try {
                 executeOnPreferWithBuffer(tableContext, action);
             } catch (IOException e) {
-                throw new HydraQLTableOpException(e);
+                throw new HTableServiceException(e);
             }
             return;
         }
@@ -62,7 +62,7 @@ public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy{
                 executeOnPreferWithBuffer(tableContext, action);
             }
         } catch (IOException e) {
-            throw new HydraQLTableOpException(e);
+            throw new HTableServiceException(e);
         }
     }
 }
