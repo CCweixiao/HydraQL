@@ -1,7 +1,7 @@
 package com.hydraql.common.type.handler;
 
 import com.hydraql.common.exception.HBaseColumnTypeCastException;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.type.AbstractTypeHandler;
 
 /**
@@ -30,7 +30,7 @@ public class ByteHandler extends AbstractTypeHandler<Byte> {
 
     @Override
     public String toString(Object val) {
-        MyAssert.checkArgument(this.matchConverterType(val.getClass()), "The type of value " + val + " is not Byte or byte.");
+        Assert.checkArgument(this.matchConverterType(val.getClass()), "The type of value " + val + " is not Byte or byte.");
 
         byte b = (byte) val;
         return String.valueOf(b);

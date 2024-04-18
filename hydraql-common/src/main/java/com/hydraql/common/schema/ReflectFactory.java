@@ -1,12 +1,11 @@
-package com.hydraql.common.meta;
+package com.hydraql.common.schema;
 
 import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
-import com.hydraql.common.annotations.HBaseColumn;
-import com.hydraql.common.annotations.HBaseRowKey;
-import com.hydraql.common.annotations.HBaseTable;
+import com.hydraql.common.annotation.HBaseRowKey;
+import com.hydraql.common.annotation.HBaseTable;
 import com.hydraql.common.exception.InvalidTableModelClassException;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 
@@ -21,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import static com.hydraql.common.constants.HMHBaseConstants.DEFAULT_NAMESPACE_NAME;
-import static com.hydraql.common.constants.HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR;
+import static com.hydraql.common.constants.HBaseConstants.DEFAULT_NAMESPACE_NAME;
+import static com.hydraql.common.constants.HBaseConstants.FAMILY_QUALIFIER_SEPARATOR;
 
 /**
  * @author leojie 2022/11/20 10:50
@@ -30,7 +29,7 @@ import static com.hydraql.common.constants.HMHBaseConstants.FAMILY_QUALIFIER_SEP
 public class ReflectFactory {
 
     private static volatile ReflectFactory factory;
-    private final ConcurrentMap<Class<?>, HBaseTableMeta> tableMetas = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, HBaseTableSchema> tableMetas = new ConcurrentHashMap<>();
     private final Object lock = new Object();
 
     private ReflectFactory() {
@@ -49,15 +48,15 @@ public class ReflectFactory {
 
     public void unregister(Class<?> clazz) {
         synchronized (lock) {
-            HBaseTableMeta existsTableMeta = tableMetas.get(clazz);
+            HBaseTableSchema existsTableMeta = tableMetas.get(clazz);
             if (existsTableMeta != null) {
                 tableMetas.remove(clazz);
             }
         }
     }
 
-    public HBaseTableMeta register(Class<?> clazz) {
-        HBaseTableMeta existsTableMeta = tableMetas.get(clazz);
+    public HBaseTableSchema register(Class<?> clazz) {
+        HBaseTableSchema existsTableMeta = tableMetas.get(clazz);
         if (existsTableMeta != null) {
             return existsTableMeta;
         }
@@ -76,7 +75,7 @@ public class ReflectFactory {
             int rowCount = 0;
             int colCount = 0;
 
-            List<FieldStruct> fieldStructList = new LinkedList<>();
+            List<HBaseField> fieldStructList = new LinkedList<>();
             Method getMethod;
             Method setMethod;
 
@@ -85,12 +84,12 @@ public class ReflectFactory {
                     continue;
                 }
                 boolean fieldIsRow = field.isAnnotationPresent(HBaseRowKey.class);
-                boolean filedIsCol = field.isAnnotationPresent(HBaseColumn.class);
+                boolean filedIsCol = field.isAnnotationPresent(com.hydraql.common.annotation.HBaseColumn.class);
                 if (!fieldIsRow && !filedIsCol) {
                     continue;
                 }
 
-                FieldStruct fieldStruct = new FieldStruct();
+                HBaseField fieldStruct = new HBaseField();
                 if (fieldIsRow) {
                     fieldStruct.setRowKey(true);
                     rowCount += 1;
@@ -158,7 +157,7 @@ public class ReflectFactory {
                 throw new InvalidTableModelClassException(
                         String.format("HBase table model class %s should contain at least one field definition.", clazz.getName()));
             }
-            HBaseTableMeta tableMeta = new HBaseTableMeta();
+            HBaseTableSchema tableMeta = new HBaseTableSchema();
             tableMeta.setTableName(tableName);
             tableMeta.setMethodAccess(methodAccess);
             tableMeta.setFieldAccess(fieldAccess);
@@ -178,7 +177,7 @@ public class ReflectFactory {
      * @return table name, including namespace
      */
     private static String getTableName(Class<?> clazz) {
-        MyAssert.checkNotNull(clazz);
+        Assert.checkNotNull(clazz);
 
         if (clazz.isAnnotationPresent(HBaseTable.class)) {
             HBaseTable table = clazz.getAnnotation(HBaseTable.class);
@@ -211,8 +210,8 @@ public class ReflectFactory {
         String family = getTableDefaultFamily(clazz);
         boolean defaultFamilyIsEmpty = StringUtil.isBlank(family);
 
-        if (field.isAnnotationPresent(HBaseColumn.class)) {
-            HBaseColumn column = field.getAnnotation(HBaseColumn.class);
+        if (field.isAnnotationPresent(com.hydraql.common.annotation.HBaseColumn.class)) {
+            com.hydraql.common.annotation.HBaseColumn column = field.getAnnotation(com.hydraql.common.annotation.HBaseColumn.class);
             if (StringUtil.isNotBlank(column.qualifier())) {
                 qualifier = column.qualifier();
             }

@@ -1,6 +1,6 @@
 package com.hydraql.adapter.schema;
 
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseFamilyNotUniqueException;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.TableName;
@@ -196,7 +196,7 @@ public abstract class BaseHTableDesc {
     }
 
     public String getNamespaceName() {
-        return HMHBaseConstants.getNamespaceName(name);
+        return HBaseConstants.getNamespaceName(name);
     }
 
     public String getTableNameWithNamespace() {
@@ -205,8 +205,8 @@ public abstract class BaseHTableDesc {
             throw new IllegalArgumentException("The table name is not empty.");
         }
         String namespaceName = getNamespaceName();
-        if (!tabName.contains(HMHBaseConstants.TABLE_NAME_SPLIT_CHAR)) {
-            return namespaceName.concat(HMHBaseConstants.TABLE_NAME_SPLIT_CHAR).concat(tabName);
+        if (!tabName.contains(HBaseConstants.TABLE_NAME_SPLIT_CHAR)) {
+            return namespaceName.concat(HBaseConstants.TABLE_NAME_SPLIT_CHAR).concat(tabName);
         } else {
             return tabName;
         }

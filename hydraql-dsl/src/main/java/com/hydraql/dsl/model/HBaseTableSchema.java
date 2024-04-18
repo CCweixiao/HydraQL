@@ -2,10 +2,10 @@ package com.hydraql.dsl.model;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseColumnNotFoundException;
 import com.hydraql.common.lang.Converter;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import java.util.*;
@@ -78,7 +78,7 @@ public class HBaseTableSchema {
                 return this;
             }
             String familyName = column.getFamily();
-            this.columnSchemaMap.put(familyName + HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR
+            this.columnSchemaMap.put(familyName + HBaseConstants.FAMILY_QUALIFIER_SEPARATOR
                     + column.getColumnName(), column);
             return this;
         }
@@ -90,7 +90,7 @@ public class HBaseTableSchema {
             }
             if (StringUtil.isBlank(family)) {
                 if (!isRow) {
-                    MyAssert.checkArgument(StringUtil.isBlank(this.getDefaultFamily()),
+                    Assert.checkArgument(StringUtil.isBlank(this.getDefaultFamily()),
                             String.format("The family and default family of column:[%s] are both empty.", columnName));
                     family = this.getDefaultFamily();
                 }
@@ -178,7 +178,7 @@ public class HBaseTableSchema {
     }
 
     public HBaseColumn findColumn(String family, String columnName) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(columnName), "The column name must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(columnName), "The column name must not be empty.");
         if (this.columnSchemaMap == null || this.columnSchemaMap.isEmpty()) {
             throw new HBaseColumnNotFoundException("Please add column for the table schema: " + this.getTableName());
         }
@@ -190,7 +190,7 @@ public class HBaseTableSchema {
             }
             family = this.getDefaultFamily();
         }
-        column = this.columnSchemaMap.get(family + HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR + columnName);
+        column = this.columnSchemaMap.get(family + HBaseConstants.FAMILY_QUALIFIER_SEPARATOR + columnName);
         if (column == null) {
             throw new HBaseColumnNotFoundException(String.format("The column of %s:%s is not defined.", family, columnName));
         }
@@ -279,7 +279,7 @@ public class HBaseTableSchema {
         if (StringUtil.isBlank(tableName)) {
             throw new IllegalArgumentException("The table name is not allowed to be empty.");
         }
-        String fullTableName = HMHBaseConstants.getFullTableName(tableName);
+        String fullTableName = HBaseConstants.getFullTableName(tableName);
         return new Builder(fullTableName);
     }
 

@@ -13,7 +13,7 @@ import com.hydraql.adapter.dsl.antlr.interpreter.UpsetExecutor;
 import com.hydraql.adapter.service.HQLService;
 import com.hydraql.adapter.service.HTableUpsertService;
 import com.hydraql.common.constants.HBaseConfigKeys;
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseSqlTableSchemaMissingException;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.antlr.HydraQLParser;
@@ -76,7 +76,7 @@ public abstract class AbstractHBaseSqlAdapter extends HTableUpsertService implem
 
     public HBaseTableSchema getTableSchema(String tableName) {
         String uniqueKey = HBaseConnectionUtil.generateUniqueConnectionKey(this.getConfiguration());
-        uniqueKey = uniqueKey + "#" + HMHBaseConstants.getFullTableName(tableName);
+        uniqueKey = uniqueKey + "#" + HBaseConstants.getFullTableName(tableName);
         HBaseTableSchema tableSchema = HBaseSqlContext.getInstance().getTableSchema(uniqueKey);
         if (tableSchema != null) {
             return tableSchema;

@@ -1,6 +1,6 @@
 package com.hydraql.common;
 
-import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.callback.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
@@ -86,7 +86,7 @@ public interface HTableService {
 
     /**
      * 构造一个{@link GetRowParam}参数对象，查询单条数据，不识别查询参数中的versions <br/>
-     * 自定义一个字段数据映射器：{@link com.hydraql.common.mapper.RowMapper} <br/>
+     * 自定义一个字段数据映射器：{@link RowMapper} <br/>
      * 来实现把Result的字段和值绑定到需要的容器中，比如：数据对象或Map
      *
      * @param tableName 表名
@@ -124,7 +124,7 @@ public interface HTableService {
 
     /**
      * 构造{@link GetRowParam}条件来查询数据 <br/>
-     * 自定义一个字段数据映射器：{@link com.hydraql.common.mapper.RowMapper} <br/>
+     * 自定义一个字段数据映射器：{@link RowMapper} <br/>
      * 来实现把Result的字段和值绑定到需要的容器中，比如：数据对象或Map <br/>
      * 结果集的数量根据指定的查询版本数定，注意，不足版本数的字段值为null
      *
@@ -169,7 +169,7 @@ public interface HTableService {
 
     /**
      * 构造{@link GetRowsParam}查询多条rowKey的数据，默认只返回最新版本的数据 <br/>
-     * 自定义一个字段数据映射器：{@link com.hydraql.common.mapper.RowMapper} <br/>
+     * 自定义一个字段数据映射器：{@link RowMapper} <br/>
      * 来实现把Result的字段和值绑定到需要的容器中，比如：数据对象或Map <br/>
      *
      * @param tableName     表名
@@ -208,7 +208,7 @@ public interface HTableService {
 
     /**
      * 构造{@link com.hydraql.common.query.ScanParams}条件来扫描多条数据，默认只返回最新版本的数据，<br/>
-     * 并把查询结果Result的字段和值绑定到自定义的{@link com.hydraql.common.mapper.RowMapper}字段转换器上
+     * 并把查询结果Result的字段和值绑定到自定义的{@link RowMapper}字段转换器上
      *
      * @param tableName  表名
      * @param scanParams scan查询参数

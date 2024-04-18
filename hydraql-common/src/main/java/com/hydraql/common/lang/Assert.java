@@ -4,10 +4,11 @@ package com.hydraql.common.lang;
 /**
  * @author leojie 2022/11/20 09:19
  */
-public class MyAssert {
+public class Assert {
     public static void notNull(Object obj, String message) {
         checkArgument(obj != null, message);
     }
+
     public static void checkArgument(boolean expression) {
         if (!expression) {
             throw new IllegalArgumentException();

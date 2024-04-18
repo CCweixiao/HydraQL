@@ -1,4 +1,4 @@
-package com.hydraql.common.meta.model;
+package com.hydraql.common.schema.model;
 
 /**
  * @author leojie 2022/11/20 11:23

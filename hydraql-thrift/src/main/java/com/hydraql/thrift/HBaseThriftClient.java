@@ -1,17 +1,17 @@
 package com.hydraql.thrift;
 
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseSdkUnsupportedFunctionException;
 import com.hydraql.common.exception.HBaseThriftException;
-import com.hydraql.common.lang.MyAssert;
-import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.lang.Assert;
+import com.hydraql.common.callback.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.common.meta.HBaseTableMeta;
-import com.hydraql.common.meta.ReflectFactory;
+import com.hydraql.common.schema.HBaseTableSchema;
+import com.hydraql.common.schema.ReflectFactory;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.HBaseThriftProtocol;
 import com.hydraql.common.util.StringUtil;
@@ -58,8 +58,8 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
     @Override
     public void save(String tableName, String rowKey, Map<String, Object> data) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
-        MyAssert.checkArgument(StringUtil.isNotBlank(rowKey), "The row key must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(rowKey), "The row key must not be empty.");
         if (data == null || data.isEmpty()) {
             return;
         }
@@ -74,13 +74,13 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
     @Override
     public void saveBatch(String tableName, Map<String, Map<String, Object>> data) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
         if (data == null || data.isEmpty()) {
             return;
         }
         List<BatchMutation> batchMutations = new ArrayList<>(data.size());
         data.forEach((rowKey, colAndValMap) -> {
-            MyAssert.checkArgument(StringUtil.isNotBlank(rowKey), "The row key must not be empty.");
+            Assert.checkArgument(StringUtil.isNotBlank(rowKey), "The row key must not be empty.");
             if (null != colAndValMap && !colAndValMap.isEmpty()) {
                 List<Mutation> mutations = new ArrayList<>(colAndValMap.size());
                 colAndValMap.forEach((col, value) -> {
@@ -107,7 +107,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
             return;
         }
         final Class<?> clazz0 = lst.get(0).getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz0);
+        HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(clazz0);
         List<BatchMutation> batchMutationList = this.createBatchMutationList(lst, tableMeta);
         this.saveBatch(tableMeta.getTableName(), batchMutationList);
     }
@@ -345,8 +345,8 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
     @Override
     public void delete(String tableName, String rowKey, String familyName, List<String> qualifiers) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
-        MyAssert.checkArgument(StringUtil.isNotBlank(rowKey), "The row key must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(rowKey), "The row key must not be empty.");
         if (StringUtil.isNotBlank(familyName)) {
             if (qualifiers != null && !qualifiers.isEmpty()) {
                 List<Mutation> mutations = new ArrayList<>(qualifiers.size());
@@ -409,8 +409,8 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
     @Override
     public void deleteBatch(String tableName, List<String> rowKeys, String familyName, List<String> qualifiers) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
-        MyAssert.checkArgument(rowKeys != null && !rowKeys.isEmpty(), "The row key list must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
+        Assert.checkArgument(rowKeys != null && !rowKeys.isEmpty(), "The row key list must not be empty.");
 
         List<BatchMutation> rowBatches = new ArrayList<>(rowKeys.size());
 
@@ -461,7 +461,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
 
     private int scannerOpen(String tableName, ScanParams scanQueryParams, Map<String, String> attributes) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(tableName), "The table name must not be empty.");
         TScan scan = buildScan(scanQueryParams);
         ByteBuffer tableNameByte = ColumnType.toByteBuffer(tableName);
         try {
@@ -474,7 +474,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
     public List<String> getMetaTableRegions() {
         try {
-            List<TRegionInfo> regions = hbaseClient.getTableRegions(ColumnType.toByteBufferFromStr(HMHBaseConstants.META_TABLE_NAME));
+            List<TRegionInfo> regions = hbaseClient.getTableRegions(ColumnType.toByteBufferFromStr(HBaseConstants.META_TABLE_NAME));
             return regions.stream().map(r -> ColumnType.toStrFromBuffer(r.bufferForName()))
                     .collect(Collectors.toList());
         } catch (TException e) {

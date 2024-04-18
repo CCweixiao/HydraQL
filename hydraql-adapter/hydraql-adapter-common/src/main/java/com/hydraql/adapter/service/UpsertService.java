@@ -1,11 +1,11 @@
 package com.hydraql.adapter.service;
 
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseMetaDataException;
-import com.hydraql.common.lang.MyAssert;
-import com.hydraql.common.meta.FieldStruct;
-import com.hydraql.common.meta.HBaseTableMeta;
-import com.hydraql.common.meta.ReflectFactory;
+import com.hydraql.common.lang.Assert;
+import com.hydraql.common.schema.HBaseField;
+import com.hydraql.common.schema.HBaseTableSchema;
+import com.hydraql.common.schema.ReflectFactory;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.type.TypeHandler;
 import com.hydraql.common.util.StringUtil;
@@ -27,7 +27,7 @@ public interface UpsertService {
 
         Put put = new Put(Bytes.toBytes(rowKey));
         data.forEach((fieldName, fieldValue) -> {
-            String[] familyQualifierArr = fieldName.split(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+            String[] familyQualifierArr = fieldName.split(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
             TypeHandler<?> fieldTypeHandler = ColumnType.findTypeHandler(fieldValue.getClass());
             put.addColumn(Bytes.toBytes(familyQualifierArr[0]), Bytes.toBytes(familyQualifierArr[1]),
                     ColumnType.StringType.getTypeHandler().toBytes(fieldTypeHandler.toString(fieldValue)));
@@ -37,14 +37,14 @@ public interface UpsertService {
 
     default <T> Put buildPut(T t) throws HBaseMetaDataException {
         Class<?> clazz = t.getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
-        List<FieldStruct> fieldStructList = tableMeta.getFieldStructList();
-        FieldStruct rowFieldStruct = fieldStructList.get(0);
+        HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(clazz);
+        List<HBaseField> fieldStructList = tableMeta.getFieldStructList();
+        HBaseField rowFieldStruct = fieldStructList.get(0);
         if (!rowFieldStruct.isRowKey()) {
             throw new HBaseMetaDataException("The first field is not row key, please check hbase table mata data.");
         }
         Object value = tableMeta.getMethodAccess().invoke(t, rowFieldStruct.getGetterMethodIndex());
-        MyAssert.checkArgument(value != null, "The value of row key must not be null.");
+        Assert.checkArgument(value != null, "The value of row key must not be null.");
         Put put = new Put(rowFieldStruct.getTypeHandler().toBytes(rowFieldStruct.getType(), value));
 
         fieldStructList.forEach(fieldStruct -> {

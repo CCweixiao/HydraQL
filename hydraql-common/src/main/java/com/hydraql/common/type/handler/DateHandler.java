@@ -1,6 +1,6 @@
 package com.hydraql.common.type.handler;
 
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.type.AbstractTypeHandler;
 import com.hydraql.common.util.BytesUtil;
 
@@ -35,7 +35,7 @@ public class DateHandler extends AbstractTypeHandler<Date> {
 
     @Override
     public String toString(Object val) {
-        MyAssert.checkArgument(this.matchConverterType(val.getClass()), "The type of value " + val + " is not Date.");
+        Assert.checkArgument(this.matchConverterType(val.getClass()), "The type of value " + val + " is not Date.");
         Date d = (Date) val;
         return String.valueOf(d.getTime());
     }

@@ -1,6 +1,6 @@
 package com.hydraql.common.util;
 
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import sun.misc.Unsafe;
 
 import java.io.DataInput;
@@ -1959,8 +1959,8 @@ public final class BytesUtil {
      * @param target the array to search for as a sub-sequence of {@code array}
      */
     public static int indexOf(byte[] array, byte[] target) {
-        MyAssert.checkNotNull(array, "array");
-        MyAssert.checkNotNull(target, "target");
+        Assert.checkNotNull(array, "array");
+        Assert.checkNotNull(target, "target");
         if (target.length == 0) {
             return 0;
         }
@@ -2005,7 +2005,7 @@ public final class BytesUtil {
      * Convert a byte range into a hex string
      */
     public static String toHex(byte[] b, int offset, int length) {
-        MyAssert.checkArgument(length <= Integer.MAX_VALUE / 2);
+        Assert.checkArgument(length <= Integer.MAX_VALUE / 2);
         int numChars = length * 2;
         char[] ch = new char[numChars];
         for (int i = 0; i < numChars; i += 2) {
@@ -2039,7 +2039,7 @@ public final class BytesUtil {
     }
 
     public static byte[] fromHex(String hex) {
-        MyAssert.checkArgument(hex.length() % 2 == 0, "length must be a multiple of 2");
+        Assert.checkArgument(hex.length() % 2 == 0, "length must be a multiple of 2");
         int len = hex.length();
         byte[] b = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

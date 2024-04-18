@@ -1,6 +1,6 @@
 package com.hydraql.dsl.client.rowkey;
 
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.EncodingUtil;
 import com.hydraql.dsl.client.rowkey.func.RowKeyFunc;
@@ -15,7 +15,7 @@ public class BytesRowKey implements RowKey<byte[]> {
     private final byte[] value;
 
     public BytesRowKey(byte[] value) {
-        MyAssert.checkNotNull(value);
+        Assert.checkNotNull(value);
         this.value = value.clone();
     }
 

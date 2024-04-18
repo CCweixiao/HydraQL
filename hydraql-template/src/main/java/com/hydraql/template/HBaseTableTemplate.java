@@ -1,7 +1,7 @@
 package com.hydraql.template;
 
 import com.hydraql.adapter.HBaseTableAdapter;
-import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.callback.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;

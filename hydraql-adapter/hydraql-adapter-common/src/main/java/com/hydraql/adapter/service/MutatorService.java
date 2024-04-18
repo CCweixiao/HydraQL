@@ -1,8 +1,8 @@
 package com.hydraql.adapter.service;
 
 import com.hydraql.adapter.context.HTableContext;
-import com.hydraql.common.meta.HBaseTableMeta;
-import com.hydraql.common.meta.ReflectFactory;
+import com.hydraql.common.schema.HBaseTableSchema;
+import com.hydraql.common.schema.ReflectFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public interface MutatorService {
 
     default <T> String getTableName(T t) {
         final Class<?> clazz = t.getClass();
-        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(clazz);
+        HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(clazz);
         return tableMeta.getTableName();
     }
 }

@@ -1,4 +1,4 @@
-package com.hydraql.common.annotations;
+package com.hydraql.common.annotation;
 
 
 import java.lang.annotation.Documented;

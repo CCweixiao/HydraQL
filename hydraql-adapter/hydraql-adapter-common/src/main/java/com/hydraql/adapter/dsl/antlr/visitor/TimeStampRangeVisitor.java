@@ -2,7 +2,7 @@ package com.hydraql.adapter.dsl.antlr.visitor;
 
 
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.adapter.dsl.antlr.data.TimeStampRange;
 import com.hydraql.dsl.model.HBaseTableSchema;
@@ -75,7 +75,7 @@ public class TimeStampRangeVisitor extends BaseVisitor<TimeStampRange> {
     }
 
     public TimeStampRange extractTimeStampRange(HydraQLParser.Timestamp_range_clauseContext tsRangeContext) {
-        MyAssert.checkNotNull(tsRangeContext);
+        Assert.checkNotNull(tsRangeContext);
         return tsRangeContext.accept(this);
     }
 

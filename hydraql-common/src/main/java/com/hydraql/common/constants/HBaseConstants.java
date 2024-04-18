@@ -6,7 +6,7 @@ import com.hydraql.common.util.StringUtil;
 /**
  * @author leojie 2020/9/25 10:37 下午
  */
-public class HMHBaseConstants {
+public class HBaseConstants {
     public static final String META_TABLE_NAME = "hbase:meta";
     public static final String DEFAULT_SYS_TABLE_NAMESPACE = "hbase";
     public static final String TABLE_NAME_SPLIT_CHAR = ":";
@@ -83,7 +83,7 @@ public class HMHBaseConstants {
         return family.concat(FAMILY_QUALIFIER_SEPARATOR).concat(column);
     }
 
-    private HMHBaseConstants() {
+    private HBaseConstants() {
 
     }
 }

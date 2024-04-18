@@ -14,12 +14,12 @@ import com.hydraql.adapter.schema.ColumnFamilyDesc;
 import com.hydraql.adapter.schema.HTableDesc;
 import com.hydraql.adapter.util.RegionSplitter;
 import com.hydraql.adapter.util.SplitKeyUtil;
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseFamilyHasExistsException;
 import com.hydraql.common.exception.HBaseFamilyNotFoundException;
 import com.hydraql.common.exception.HBaseOperationsException;
 import com.hydraql.common.exception.NoSuchColumnFamilyException;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.model.HBaseRegionRecord;
 import com.hydraql.common.model.HBaseTableRecord;
 import com.hydraql.common.model.NamespaceDesc;
@@ -55,8 +55,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.hydraql.common.constants.HMHBaseConstants.DISABLE_REPLICATION_SCOPE;
-import static com.hydraql.common.constants.HMHBaseConstants.ENABLE_REPLICATION_SCOPE;
+import static com.hydraql.common.constants.HBaseConstants.DISABLE_REPLICATION_SCOPE;
+import static com.hydraql.common.constants.HBaseConstants.ENABLE_REPLICATION_SCOPE;
 
 /**
  * @author leojie 2020/9/25 11:11 下午
@@ -145,7 +145,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
 
     @Override
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc) {
-        MyAssert.checkNotNull(tableDesc);
+        Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
             TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
@@ -156,7 +156,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
 
     @Override
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, String startKey, String endKey, int numRegions, boolean isAsync) {
-        MyAssert.checkNotNull(tableDesc);
+        Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
             TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
@@ -204,7 +204,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
 
     @Override
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, String[] splitKeys, boolean isAsync) {
-        MyAssert.checkNotNull(tableDesc);
+        Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
             TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
@@ -226,7 +226,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
 
     @Override
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, SplitGoEnum splitGoEnum, int numRegions, boolean isAsync) {
-        MyAssert.checkNotNull(tableDesc);
+        Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
             TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
@@ -460,7 +460,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
 
     @Override
     public <CF extends BaseColumnFamilyDesc> boolean addFamily(String tableName, CF familyDesc, boolean isAsync) {
-        MyAssert.checkNotNull(familyDesc);
+        Assert.checkNotNull(familyDesc);
         return this.execute(admin -> {
             tableNotExistsThrowError(admin, tableName);
             ColumnFamilyDesc columnFamilyDesc = (ColumnFamilyDesc) familyDesc;
@@ -504,7 +504,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
 
     @Override
     public <CF extends BaseColumnFamilyDesc> boolean modifyFamily(String tableName, CF familyDesc, boolean isAsync) {
-        MyAssert.checkNotNull(familyDesc);
+        Assert.checkNotNull(familyDesc);
         return this.execute(admin -> {
             tableNotExistsThrowError(admin, tableName);
             ColumnFamilyDesc columnFamilyDesc = (ColumnFamilyDesc) familyDesc;
@@ -802,7 +802,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
         return this.execute(admin -> {
             List<RecordFilter> recordFilters = new ArrayList<>();
             RecordFilter recordFilter = RecordFilter.newBuilder(Field.NAMESPACE, false)
-                    .notEqual(new FieldValue(HMHBaseConstants.DEFAULT_SYS_TABLE_NAMESPACE, FieldValueType.STRING));
+                    .notEqual(new FieldValue(HBaseConstants.DEFAULT_SYS_TABLE_NAMESPACE, FieldValueType.STRING));
             recordFilters.add(recordFilter);
             final ClusterMetrics clusterMetrics = admin.getClusterMetrics();
             List<Record> records = Mode.TABLE.getRecords(clusterMetrics);
@@ -913,9 +913,9 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
         List<RecordFilter> recordFilters = new ArrayList<>();
 
         RecordFilter namespaceFilter = RecordFilter.newBuilder(Field.NAMESPACE, false)
-                .equal(new FieldValue(HMHBaseConstants.getNamespaceName(tableName), FieldValueType.STRING));
+                .equal(new FieldValue(HBaseConstants.getNamespaceName(tableName), FieldValueType.STRING));
         RecordFilter tableFilter = RecordFilter.newBuilder(Field.TABLE, false)
-                .equal(new FieldValue(HMHBaseConstants.getTableName(tableName), FieldValueType.STRING));
+                .equal(new FieldValue(HBaseConstants.getTableName(tableName), FieldValueType.STRING));
         recordFilters.add(namespaceFilter);
         recordFilters.add(tableFilter);
         return recordFilters;

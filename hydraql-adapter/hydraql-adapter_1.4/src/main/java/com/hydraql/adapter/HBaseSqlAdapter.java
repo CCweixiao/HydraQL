@@ -4,7 +4,7 @@ import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.dsl.antlr.data.InsertColData;
 import com.hydraql.adapter.dsl.antlr.data.InsertRowData;
 import com.hydraql.adapter.dsl.antlr.data.RowKeyRange;
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseOperationsException;
 import com.hydraql.common.exception.HBaseSqlAnalysisException;
 import com.hydraql.common.util.StringUtil;
@@ -56,7 +56,7 @@ public class HBaseSqlAdapter extends AbstractHBaseSqlAdapter {
     @Override
     public boolean saveTableSchemaMeta(HBaseTableSchema tableSchema, String hql, boolean ifNotExists) {
         HBaseAdminAdapter adminAdapter = new HBaseAdminAdapter(this.getConfiguration());
-        String tableName = HMHBaseConstants.getFullTableName(tableSchema.getTableName());
+        String tableName = HBaseConstants.getFullTableName(tableSchema.getTableName());
         if (!adminAdapter.tableExists(tableName)) {
             throw new HBaseSqlAnalysisException(String.format("The virtual table %s was created failed, " +
                     "because the original table %s does not exist.", tableName, tableName));

@@ -1,4 +1,4 @@
-package com.hydraql.common.mapper;
+package com.hydraql.common.callback;
 
 import java.util.List;
 

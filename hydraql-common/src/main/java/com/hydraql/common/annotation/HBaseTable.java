@@ -1,6 +1,6 @@
-package com.hydraql.common.annotations;
+package com.hydraql.common.annotation;
 
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,7 +22,7 @@ public @interface HBaseTable {
      *
      * @return namespace name
      */
-    String namespace() default HMHBaseConstants.DEFAULT_NAMESPACE_NAME;
+    String namespace() default HBaseConstants.DEFAULT_NAMESPACE_NAME;
 
     /**
      * Define the table name for the table model, <br/>

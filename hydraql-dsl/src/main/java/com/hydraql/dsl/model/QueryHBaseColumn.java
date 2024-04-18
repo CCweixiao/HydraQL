@@ -1,6 +1,6 @@
 package com.hydraql.dsl.model;
 
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.util.StringUtil;
 
 /**
@@ -37,7 +37,7 @@ public class QueryHBaseColumn {
         String alias = column.getColumnName();
         String family = column.getFamily();
         if (!column.columnIsRow() && StringUtil.isNotBlank(family)) {
-            alias = HMHBaseConstants.getColumnName(family, alias);
+            alias = HBaseConstants.getColumnName(family, alias);
         }
         return new QueryHBaseColumn.Builder(column).alias(alias).build();
     }

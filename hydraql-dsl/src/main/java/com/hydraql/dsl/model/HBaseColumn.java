@@ -1,7 +1,7 @@
 package com.hydraql.dsl.model;
 
-import com.hydraql.common.constants.HMHBaseConstants;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.constants.HBaseConstants;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.BytesUtil;
 import com.hydraql.common.util.StringUtil;
@@ -49,7 +49,7 @@ public class HBaseColumn {
         private boolean columnIsRow = false;
 
         public Builder(String family, String columnName) {
-            MyAssert.checkArgument(StringUtil.isNotBlank(columnName), "The mame of column must not be empty.");
+            Assert.checkArgument(StringUtil.isNotBlank(columnName), "The mame of column must not be empty.");
             this.family = family;
             this.columnName = columnName;
         }
@@ -138,7 +138,7 @@ public class HBaseColumn {
         sb.append("—— ");
         if (!this.columnIsRow()) {
             sb.append(this.getFamily());
-            sb.append(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+            sb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
         }
         sb.append(this.getColumnName());
         sb.append(": ");
@@ -163,6 +163,6 @@ public class HBaseColumn {
         if (this.columnIsRow()) {
             return this.getColumnName();
         }
-        return HMHBaseConstants.getColumnName(this.getFamily(), this.getColumnName());
+        return HBaseConstants.getColumnName(this.getFamily(), this.getColumnName());
     }
 }

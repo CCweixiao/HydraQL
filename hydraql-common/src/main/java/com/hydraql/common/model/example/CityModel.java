@@ -1,8 +1,8 @@
 package com.hydraql.common.model.example;
 
-import com.hydraql.common.annotations.HBaseColumn;
-import com.hydraql.common.annotations.HBaseRowKey;
-import com.hydraql.common.annotations.HBaseTable;
+import com.hydraql.common.annotation.HBaseColumn;
+import com.hydraql.common.annotation.HBaseRowKey;
+import com.hydraql.common.annotation.HBaseTable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

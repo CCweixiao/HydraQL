@@ -1,7 +1,7 @@
 package com.hydraql.common.type.handler;
 
 import com.hydraql.common.exception.HBaseColumnTypeCastException;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.type.AbstractTypeHandler;
 
 import java.nio.charset.Charset;
@@ -35,7 +35,7 @@ public class EnumHandler extends AbstractTypeHandler<Enum<?>> {
 
     @Override
     public String toString(Object val) {
-        MyAssert.checkArgument(this.matchConverterType(val.getClass()), "The type of value " + val + " is not Enum.");
+        Assert.checkArgument(this.matchConverterType(val.getClass()), "The type of value " + val + " is not Enum.");
         return val.toString();
     }
 }

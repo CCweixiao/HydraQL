@@ -1,15 +1,14 @@
-package com.hydraql.common.meta;
+package com.hydraql.common.schema;
 
 import com.hydraql.common.type.TypeHandler;
 
 /**
  * @author leojie 2022/11/20 16:49
  */
-public class FieldStruct {
+public class HBaseField {
     private boolean isRowKey;
     private String family;
     private String qualifier;
-
     private String familyAndQualifier;
     private int setterMethodIndex;
     private String setterMethodName;
@@ -20,7 +19,7 @@ public class FieldStruct {
 
     private TypeHandler<?> typeHandler;
 
-    public FieldStruct() {
+    public HBaseField() {
     }
 
     public boolean isRowKey() {

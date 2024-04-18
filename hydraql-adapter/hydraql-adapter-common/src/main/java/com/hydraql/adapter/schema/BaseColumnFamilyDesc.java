@@ -1,6 +1,6 @@
 package com.hydraql.adapter.schema;
 
-import com.hydraql.common.constants.HMHBaseConstants;
+import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.KeepDeletedCells;
 import org.apache.hadoop.hbase.io.compress.Compression;
@@ -454,7 +454,7 @@ public abstract class BaseColumnFamilyDesc {
 
     public String humanReadableTTL(long interval) {
         StringBuilder sb = new StringBuilder();
-        if (interval == HMHBaseConstants.DEFAULT_TTL) {
+        if (interval == HBaseConstants.DEFAULT_TTL) {
             sb.append("FOREVER");
             return sb.toString();
         } else if (interval < 60L) {

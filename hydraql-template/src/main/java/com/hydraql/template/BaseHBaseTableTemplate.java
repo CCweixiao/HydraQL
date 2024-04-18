@@ -2,7 +2,7 @@ package com.hydraql.template;
 
 import com.hydraql.adapter.service.ScanService;
 import com.hydraql.common.HTableService;
-import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.callback.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import org.apache.hadoop.hbase.client.Get;

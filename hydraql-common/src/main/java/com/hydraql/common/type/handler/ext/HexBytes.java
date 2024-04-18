@@ -1,6 +1,6 @@
 package com.hydraql.common.type.handler.ext;
 
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.util.EncodingUtil;
 
 import java.util.Arrays;
@@ -12,12 +12,12 @@ public class HexBytes {
     private final byte[] data;
 
     public HexBytes(byte[] data) {
-        MyAssert.checkNotNull(data);
+        Assert.checkNotNull(data);
         this.data = data.clone();
     }
 
     public HexBytes(String hexStr) {
-        MyAssert.checkNotNull(hexStr);
+        Assert.checkNotNull(hexStr);
         this.data = EncodingUtil.parseBytesFromHexString(hexStr);
     }
 

@@ -1,7 +1,7 @@
 package com.hydraql.boot.example.pojo;
 
 
-import com.hydraql.common.annotations.HBaseRowKey;
+import com.hydraql.common.annotation.HBaseRowKey;
 
 /**
  * <p>People pojo</p>

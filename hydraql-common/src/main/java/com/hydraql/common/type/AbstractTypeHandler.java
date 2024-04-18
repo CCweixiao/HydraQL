@@ -2,7 +2,7 @@ package com.hydraql.common.type;
 
 import com.hydraql.common.exception.HBaseColumnTypeCastException;
 import com.hydraql.common.exception.HBaseTypeHandlerException;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 
 import java.nio.ByteBuffer;
 /**
@@ -24,7 +24,7 @@ public abstract class AbstractTypeHandler<T> implements TypeHandler<T> {
 
     @Override
     public byte[] toBytes(Class<?> type, Object value) {
-        MyAssert.notNull(type, "The class type of value must be not null.");
+        Assert.notNull(type, "The class type of value must be not null.");
         if (value == null) {
             return null;
         }
@@ -58,7 +58,7 @@ public abstract class AbstractTypeHandler<T> implements TypeHandler<T> {
 
     @Override
     public Object toObject(Class<?> type, byte[] bytes) {
-        MyAssert.notNull(type, "The type of value must be not null.");
+        Assert.notNull(type, "The type of value must be not null.");
         if (!matchConverterType(type)) {
             throw new HBaseTypeHandlerException(String.format("Wrong type %s to handle.", type.getName()));
         }

@@ -1,4 +1,4 @@
-package com.hydraql.common.meta;
+package com.hydraql.common.schema;
 
 import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
@@ -8,13 +8,13 @@ import java.util.List;
 /**
  * @author leojie 2022/11/20 11:07
  */
-public class HBaseTableMeta {
+public class HBaseTableSchema {
     private String tableName;
     private MethodAccess methodAccess;
     private FieldAccess fieldAccess;
-    private List<FieldStruct> fieldStructList;
+    private List<HBaseField> fieldStructList;
 
-    public HBaseTableMeta() {
+    public HBaseTableSchema() {
     }
 
     public MethodAccess getMethodAccess() {
@@ -42,11 +42,11 @@ public class HBaseTableMeta {
         this.tableName = tableName;
     }
 
-    public List<FieldStruct> getFieldStructList() {
+    public List<HBaseField> getFieldStructList() {
         return fieldStructList;
     }
 
-    public void setFieldStructList(List<FieldStruct> fieldStructList) {
+    public void setFieldStructList(List<HBaseField> fieldStructList) {
         this.fieldStructList = fieldStructList;
     }
 }

@@ -1,8 +1,8 @@
-package com.hydraql.common.meta;
+package com.hydraql.common.schema;
 
-import com.hydraql.common.annotations.HBaseColumn;
-import com.hydraql.common.annotations.HBaseRowKey;
-import com.hydraql.common.annotations.HBaseTable;
+import com.hydraql.common.annotation.HBaseColumn;
+import com.hydraql.common.annotation.HBaseRowKey;
+import com.hydraql.common.annotation.HBaseTable;
 import com.hydraql.common.exception.InvalidTableModelClassException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -96,7 +96,7 @@ public class ReflectFactoryTest {
 
     @Test
     public void testGetHBaseTableMeta2() {
-        HBaseTableMeta tableMeta = ReflectFactory.getInstance().register(User2.class);
+        HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(User2.class);
         Assert.assertNotNull(tableMeta);
         Assert.assertEquals(5, tableMeta.getFieldStructList().size());
         Assert.assertTrue(tableMeta.getFieldStructList().get(0).isRowKey());

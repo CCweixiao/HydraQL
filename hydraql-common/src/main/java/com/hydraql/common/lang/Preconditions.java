@@ -4,6 +4,12 @@ package com.hydraql.common.lang;
  * @author leojie 2023/7/21 14:41
  */
 public class Preconditions {
+    public static void checkIsNotNull(Object obj) {
+        if (obj == null) {
+            throw new NullPointerException();
+        }
+    }
+
     public static void checkArgument(boolean expression) {
         if (!expression) {
             throw new IllegalArgumentException();

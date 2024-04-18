@@ -1,6 +1,6 @@
 package com.hydraql.dsl.client.rowkey.func;
 
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.util.DigestUtil;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.dsl.client.rowkey.BaseRowKey;
@@ -29,14 +29,14 @@ public class Md5PrefixRowKeyFunc implements RowKeyFunc<String> {
     @Override
     public String evalFuncReturnRowValue(BaseRowKey<String> rowKey) {
         String oriValue = rowKey.getOriValue();
-        MyAssert.checkArgument(StringUtil.isNotBlank(oriValue), "The value of row is not empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(oriValue), "The value of row is not empty.");
         String prefix = DigestUtil.md5Hex(oriValue).substring(0, prefixLength);
         return prefix.concat(prefixContactChar).concat(oriValue);
     }
 
     @Override
     public String evalFuncReturnRowValue(HBaseColumn row, String value) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(value), "The value of row is not empty.");
+        Assert.checkArgument(StringUtil.isNotBlank(value), "The value of row is not empty.");
         String prefix = DigestUtil.md5Hex(value).substring(0, prefixLength);
         return prefix.concat(prefixContactChar).concat(value);
     }

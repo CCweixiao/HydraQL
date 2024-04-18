@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.hydraql.common.constants.HMHBaseConstants;
-import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.constants.HBaseConstants;
+import com.hydraql.common.callback.RowMapper;
 import com.hydraql.common.model.data.HBaseColData;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.BaseGetRowParam;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
-import com.hydraql.common.meta.FieldStruct;
-import com.hydraql.common.meta.HBaseTableMeta;
-import com.hydraql.common.meta.ReflectFactory;
+import com.hydraql.common.schema.HBaseField;
+import com.hydraql.common.schema.HBaseTableSchema;
+import com.hydraql.common.schema.ReflectFactory;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -61,8 +61,8 @@ public interface GetService {
     default <T> T mapperRowToT(Result result, Class<T> clazz) throws Exception {
         //TODO 这里的反射调用构造函数是否可以再优化
         T t = clazz.getDeclaredConstructor().newInstance();
-        HBaseTableMeta hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
-        List<FieldStruct> fieldStructs = hBaseTableMeta.getFieldStructList();
+        HBaseTableSchema hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
+        List<HBaseField> fieldStructs = hBaseTableMeta.getFieldStructList();
         fieldStructs.forEach(fieldStruct -> {
             if (fieldStruct.isRowKey()) {
                 Object rowKey = fieldStruct.getTypeHandler().toObject(fieldStruct.getType(), result.getRow());
@@ -83,11 +83,11 @@ public interface GetService {
         if (versions == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("You must specify an exact number of versions.");
         }
-        HBaseTableMeta hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
-        List<FieldStruct> fieldStructs = hBaseTableMeta.getFieldStructList();
-        FieldStruct rowKeyField = null;
+        HBaseTableSchema hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
+        List<HBaseField> fieldStructs = hBaseTableMeta.getFieldStructList();
+        HBaseField rowKeyField = null;
         Object rowKey = null;
-        for (FieldStruct field : fieldStructs) {
+        for (HBaseField field : fieldStructs) {
             if (field.isRowKey()) {
                 rowKeyField = field;
                 rowKey = field.getTypeHandler().toObject(field.getType(), result.getRow());;
@@ -103,7 +103,7 @@ public interface GetService {
             rowDataList.add(t);
         }
 
-        for (FieldStruct field : fieldStructs) {
+        for (HBaseField field : fieldStructs) {
             if (field.isRowKey()) {
                 continue;
             }
@@ -139,11 +139,11 @@ public interface GetService {
 
             if (i > 0) {
                 preFieldSb.append(Bytes.toString(CellUtil.cloneFamily(cells.get(i - 1))));
-                preFieldSb.append(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+                preFieldSb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
                 preFieldSb.append(Bytes.toString(CellUtil.cloneQualifier(cells.get(i - 1))));
             }
             currentFieldSb.append(Bytes.toString(CellUtil.cloneFamily(cells.get(i))));
-            currentFieldSb.append(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+            currentFieldSb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
             currentFieldSb.append(Bytes.toString(CellUtil.cloneQualifier(cells.get(i))));
             String value = Bytes.toString(cells.get(i).getValueArray(), cells.get(i).getValueOffset(), cells.get(i).getValueLength());
             HBaseColData colData = new HBaseColData(value, cells.get(i).getTimestamp());
@@ -173,7 +173,7 @@ public interface GetService {
         for (Cell cell : cells) {
             colNameSb.delete(0, colNameSb.length());
             colNameSb.append(Bytes.toString(CellUtil.cloneFamily(cell)));
-            colNameSb.append(HMHBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+            colNameSb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
             colNameSb.append(Bytes.toString(CellUtil.cloneQualifier(cell)));
             String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             builder = builder.appendColData(colNameSb.toString(), value, cell.getTimestamp());

@@ -1,8 +1,8 @@
-package com.hydraql.common.meta;
+package com.hydraql.common.schema;
 
 import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
-import com.hydraql.common.meta.model.CityModel;
+import com.hydraql.common.schema.model.CityModel;
 import org.junit.Test;
 
 import java.lang.reflect.Field;

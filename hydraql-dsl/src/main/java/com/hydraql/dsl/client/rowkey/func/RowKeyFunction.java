@@ -1,7 +1,7 @@
 package com.hydraql.dsl.client.rowkey.func;
 
 import com.hydraql.common.exception.HBaseFuncNotSupportedException;
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 import com.hydraql.common.util.StringUtil;
 
 /**
@@ -34,7 +34,7 @@ public enum RowKeyFunction {
     }
 
     public static RowKeyFunction findRowKeyFunc(String funcName) {
-        MyAssert.checkArgument(StringUtil.isNotBlank(funcName), "The function name must not ne empty");
+        Assert.checkArgument(StringUtil.isNotBlank(funcName), "The function name must not ne empty");
         funcName = funcName.trim().toLowerCase();
         for (RowKeyFunction function : RowKeyFunction.values()) {
             if (funcName.equals(function.getFuncName())) {

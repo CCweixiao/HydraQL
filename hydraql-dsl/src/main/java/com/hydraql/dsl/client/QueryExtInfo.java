@@ -1,6 +1,6 @@
 package com.hydraql.dsl.client;
 
-import com.hydraql.common.lang.MyAssert;
+import com.hydraql.common.lang.Assert;
 
 import java.util.Date;
 
@@ -21,7 +21,7 @@ public class QueryExtInfo {
     public QueryExtInfo() {}
 
     public void setMaxVersions(int maxVersions) {
-        MyAssert.checkArgument(maxVersions > 0, String.format("The max version must > 0, but the " +
+        Assert.checkArgument(maxVersions > 0, String.format("The max version must > 0, but the " +
                 "current max version is %s.", maxVersions));
         this.maxVersions = maxVersions;
         this.isMaxVersionSet = true;
@@ -32,15 +32,15 @@ public class QueryExtInfo {
     }
 
     public void setTimeRange(Date minStamp, Date maxStamp) {
-        MyAssert.checkNotNull(minStamp);
-        MyAssert.checkNotNull(maxStamp);
+        Assert.checkNotNull(minStamp);
+        Assert.checkNotNull(maxStamp);
         setTimeRange(minStamp.getTime(), maxStamp.getTime());
     }
 
     public void setTimeRange(long minStamp, long maxStamp) {
-        MyAssert.checkArgument(minStamp > 0, "Minimum timestamp must be a positive number.");
-        MyAssert.checkArgument(maxStamp > 0, "Maximum timestamp must be a positive number.");
-        MyAssert.checkArgument(minStamp <= maxStamp, String.format("Minimum timestamp must be <= maximum timestamp," +
+        Assert.checkArgument(minStamp > 0, "Minimum timestamp must be a positive number.");
+        Assert.checkArgument(maxStamp > 0, "Maximum timestamp must be a positive number.");
+        Assert.checkArgument(minStamp <= maxStamp, String.format("Minimum timestamp must be <= maximum timestamp," +
                 " but current max timestamp is %s, min timestamp is %s.", maxStamp, minStamp));
         this.minStamp = minStamp;
         this.maxStamp = maxStamp;
@@ -48,7 +48,7 @@ public class QueryExtInfo {
     }
 
     public void setLimit(int limit) {
-        MyAssert.checkArgument(limit > 0, "The value of limit must be > 0," +
+        Assert.checkArgument(limit > 0, "The value of limit must be > 0," +
                 " but the current limit is "+ limit);
         this.limit = limit;
         this.isLimitSet = true;

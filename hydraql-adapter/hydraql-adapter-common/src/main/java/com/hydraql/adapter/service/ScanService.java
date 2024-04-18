@@ -1,6 +1,6 @@
 package com.hydraql.adapter.service;
 
-import com.hydraql.common.mapper.RowMapper;
+import com.hydraql.common.callback.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.ScanParams;
