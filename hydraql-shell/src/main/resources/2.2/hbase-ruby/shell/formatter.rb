@@ -34,7 +34,7 @@ module Shell
         @max_width = 0
         if $stdout.tty?
           begin
-            @max_width = Java.jline.TerminalFactory.get.getWidth
+            @max_width = [Java.jline.TerminalFactory.get.getWidth, 160].min
           rescue NameError => e
             # nocommit debug log and ignore
           end

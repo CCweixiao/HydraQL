@@ -30,7 +30,7 @@ module Shell
 
       def refresh_width()
         if $stdout.tty?
-          @max_width = Java.jline.TerminalFactory.get.getWidth
+          @max_width = [Java.jline.TerminalFactory.get.getWidth, 160].min
         else
           @max_width = 0
         end
