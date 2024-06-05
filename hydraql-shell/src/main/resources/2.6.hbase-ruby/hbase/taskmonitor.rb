@@ -66,7 +66,7 @@ module Hbase
 
     def initialize(configuration)
       @conf = configuration
-      @conn = org.apache.hadoop.hbase.client.ConnectionFactory.createConnection(@conf)
+      @conn = com.hydraql.adapter.connection.HBaseConnectionManagerRuby.getConnection(@conf)
       @admin = @conn.getAdmin
     end
 

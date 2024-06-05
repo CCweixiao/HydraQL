@@ -24,6 +24,7 @@ java_import org.apache.hadoop.hbase.replication.ReplicationPeerConfig
 java_import org.apache.hadoop.hbase.util.Bytes
 java_import org.apache.hadoop.hbase.zookeeper.ZKConfig
 java_import org.apache.hadoop.hbase.TableName
+java_import com.hydraql.adapter.connection.HBaseConnectionManagerRuby
 
 # Used for replication administrative operations.
 
@@ -33,7 +34,7 @@ module Hbase
 
     def initialize(configuration)
       @configuration = configuration
-      @admin = ConnectionFactory.createConnection(configuration).getAdmin
+      @admin = HBaseConnectionManagerRuby.getConnection(configuration).getAdmin
     end
 
     #----------------------------------------------------------------------------------------------
