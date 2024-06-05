@@ -16,7 +16,9 @@ elif [ "$version" == "2.2" ]; then
    mvn -T 4C clean -U install -Dmaven.test.skip=true -Dhydraql.hbase.profile=2.2 -Dhydraql.hbase.version=2.2.6
 elif [ "$version" == "2.5" ]; then
    mvn -T 4C clean -U install -Dmaven.test.skip=true -Dhydraql.hbase.profile=2.5 -Dhydraql.hbase.version=2.5.3
+elif [ "$version" == "2.6" ]; then
+   mvn -T 4C clean -U install -Dmaven.test.skip=true -Dhydraql.hbase.profile=2.6 -Dhydraql.hbase.version=2.6.0
 else
-  echo "The temporarily supported HBase profile versions are [1.2, 1.4, 2.2, 2.5]"
+  echo "The temporarily supported HBase profile versions are [1.2, 1.4, 2.2, 2.5, 2.6]"
 fi
 

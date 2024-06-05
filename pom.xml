@@ -75,6 +75,7 @@
         <hbase1.4.version>1.4.3</hbase1.4.version>
         <hbase2.2.version>2.2.6</hbase2.2.version>
         <hbase2.5.version>2.5.3</hbase2.5.version>
+        <hbase2.6.version>2.6.0</hbase2.6.version>
         <hbase.thrift.1.4.version>1.4.3</hbase.thrift.1.4.version>
         <commons.pool2.version>2.6.2</commons.pool2.version>
         <guava.version>30.0-jre</guava.version>
@@ -115,7 +116,7 @@
         <repository>
             <id>central-repos</id>
             <name>Central Repository</name>
-            <url>http://repo.maven.apache.org/maven2</url>
+            <url>https://repo.maven.apache.org/maven2</url>
         </repository>
         <repository>
             <id>snapshot</id>
@@ -337,6 +338,45 @@
             <properties>
                 <hydraql.hbase.adapter.version>2.5</hydraql.hbase.adapter.version>
                 <hydraql.hbase.version>${hbase2.5.version}</hydraql.hbase.version>
+            </properties>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.hbase</groupId>
+                        <artifactId>hbase-server</artifactId>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.jruby.jcodings</groupId>
+                                <artifactId>jcodings</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.jruby.joni</groupId>
+                                <artifactId>joni</artifactId>
+                            </exclusion>
+                        </exclusions>
+                        <scope>provided</scope>
+                        <version>${hydraql.hbase.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.hbase</groupId>
+                        <artifactId>hbase-thrift</artifactId>
+                        <version>${hydraql.hbase.version}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <profile>
+            <id>hydraql-hbase-2.6</id>
+            <activation>
+                <property>
+                    <name>hydraql.hbase.profile</name>
+                    <value>2.6</value>
+                </property>
+            </activation>
+            <properties>
+                <hydraql.hbase.adapter.version>2.6</hydraql.hbase.adapter.version>
+                <hydraql.hbase.version>${hbase2.6.version}</hydraql.hbase.version>
             </properties>
             <dependencyManagement>
                 <dependencies>
