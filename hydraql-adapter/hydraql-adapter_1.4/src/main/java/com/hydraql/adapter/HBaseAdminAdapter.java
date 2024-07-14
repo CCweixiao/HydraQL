@@ -62,7 +62,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             }
             List<HTableDesc> tableDescList = new ArrayList<>(tableDescriptors.length);
             for (HTableDescriptor tableDescriptor : tableDescriptors) {
-                HTableDesc tableDesc = HTableDesc.createDefault(tableDescriptor.getNameAsString()).convertTo(tableDescriptor);
+                HTableDesc tableDesc = HTableDesc.createDefault(tableDescriptor.getNameAsString()).convertFrom(tableDescriptor);
                 tableDescList.add(tableDesc);
             }
             return tableDescList;
@@ -90,7 +90,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
                 return new ArrayList<>();
             }
             return Arrays.stream(tableDescriptors).map(t ->
-                    HTableDesc.createDefault(t.getNameAsString()).convertTo(t)).collect(Collectors.toList());
+                    HTableDesc.createDefault(t.getNameAsString()).convertFrom(t)).collect(Collectors.toList());
         });
     }
 
@@ -102,7 +102,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
             final Collection<HColumnDescriptor> families = tableDescriptor.getFamilies();
             return families.stream().map(c ->
-                    ColumnFamilyDesc.createDefault(c.getNameAsString()).convertTo(c)).collect(Collectors.toList());
+                    ColumnFamilyDesc.createDefault(c.getNameAsString()).convertFrom(c)).collect(Collectors.toList());
         });
     }
 
@@ -111,21 +111,21 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public HTableDesc getTableDesc(String tableName) {
         return this.execute(admin -> {
             HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
-            return HTableDesc.createDefault(tableDescriptor.getNameAsString()).convertTo(tableDescriptor);
+            return HTableDesc.createDefault(tableDescriptor.getNameAsString()).convertFrom(tableDescriptor);
         });
     }
 
     @Override
     public List<String> listTableNamesByNamespace(String namespaceName) {
         return listTableDescByNamespace(namespaceName).stream()
-                .map(HTableDesc::getTableNameAsString).collect(Collectors.toList());
+                .map(HTableDesc::getName).collect(Collectors.toList());
     }
 
     @Override
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             admin.createTable(tableDescriptor);
             return true;
@@ -136,7 +136,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, String startKey, String endKey, int numRegions, boolean isAsync) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             boolean preSplit = (StringUtil.isNotBlank(startKey) && StringUtil.isNotBlank(endKey) && numRegions > 0);
 
@@ -184,7 +184,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, String[] splitKeys, boolean isAsync) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             boolean preSplit = splitKeys != null && splitKeys.length > 0;
 
@@ -206,7 +206,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, SplitGoEnum splitGoEnum, int numRegions, boolean isAsync) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            HTableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             boolean preSplit = splitGoEnum != null && numRegions > 0;
 
@@ -460,11 +460,11 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             tableNotExistsThrowError(admin, tableName);
             ColumnFamilyDesc columnFamilyDesc = (ColumnFamilyDesc) familyDesc;
             final HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
-            if (tableDescriptor.hasFamily(Bytes.toBytes(columnFamilyDesc.getNameAsString()))) {
+            if (tableDescriptor.hasFamily(Bytes.toBytes(columnFamilyDesc.getName()))) {
                 throw new HBaseFamilyHasExistsException(String.format("The family %s in the table %s has created.",
-                        columnFamilyDesc.getNameAsString(), tableName));
+                        columnFamilyDesc.getName(), tableName));
             }
-            admin.addColumn(TableName.valueOf(tableName), columnFamilyDesc.convertFor());
+            admin.addColumn(TableName.valueOf(tableName), columnFamilyDesc.convertTo());
             return true;
         });
     }
@@ -495,12 +495,12 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             tableNotExistsThrowError(admin, tableName);
             ColumnFamilyDesc columnFamilyDesc = (ColumnFamilyDesc) familyDesc;
             final HTableDescriptor tableDescriptor = admin.getTableDescriptor(TableName.valueOf(tableName));
-            if (!tableDescriptor.hasFamily(Bytes.toBytes(columnFamilyDesc.getNameAsString()))) {
+            if (!tableDescriptor.hasFamily(Bytes.toBytes(columnFamilyDesc.getName()))) {
                 throw new HBaseFamilyNotFoundException(String.format("The family %s in the table %s is not exists.",
-                        columnFamilyDesc.getNameAsString(), tableName));
+                        columnFamilyDesc.getName(), tableName));
             }
-            HColumnDescriptor oldColumnDescriptor = tableDescriptor.getFamily(Bytes.toBytes(columnFamilyDesc.getNameAsString()));
-            HColumnDescriptor newColumnDescriptor = columnFamilyDesc.convertFor();
+            HColumnDescriptor oldColumnDescriptor = tableDescriptor.getFamily(Bytes.toBytes(columnFamilyDesc.getName()));
+            HColumnDescriptor newColumnDescriptor = columnFamilyDesc.convertTo();
             if (!oldColumnDescriptor.equals(newColumnDescriptor)) {
                 if (isAsync) {
                     admin.modifyColumn(TableName.valueOf(tableName), newColumnDescriptor);

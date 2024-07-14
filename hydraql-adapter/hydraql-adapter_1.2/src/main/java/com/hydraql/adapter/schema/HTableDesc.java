@@ -2,6 +2,9 @@ package com.hydraql.adapter.schema;
 
 import org.apache.hadoop.hbase.HTableDescriptor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author leojie 2021/6/23 9:48 下午
  */
@@ -16,8 +19,25 @@ public class HTableDesc extends BaseHTableDesc implements Comparable<HTableDesc>
 
     public static class Builder extends BaseHTableDesc.Builder<HTableDesc> {
 
+        private static final List<String> IGNORE_VALUE_KEYS = new ArrayList<>(3);
+
+        static {
+            IGNORE_VALUE_KEYS.add("IS_META");
+            IGNORE_VALUE_KEYS.add("MERGE_ENABLED");
+            IGNORE_VALUE_KEYS.add("SPLIT_ENABLED");
+        }
+
         private Builder(String name) {
             super(name);
+        }
+
+        @Override
+        public boolean ignoreValue(String key) {
+            boolean unsupported = super.ignoreValue(key);
+            if (unsupported) {
+                return true;
+            }
+            return IGNORE_VALUE_KEYS.contains(key);
         }
 
         @Override
@@ -27,29 +47,33 @@ public class HTableDesc extends BaseHTableDesc implements Comparable<HTableDesc>
     }
 
     public static Builder newBuilder(String name) {
-        return new HTableDesc.Builder(name);
+        return new Builder(name);
+    }
+
+    public static BaseHTableDesc.Builder<HTableDesc> copyFrom(String name, HTableDesc td) {
+        return new Builder(name).copyFrom(td);
     }
 
     public static HTableDesc createDefault(String name) {
         return newBuilder(name).build();
     }
 
-    public HTableDescriptor convertFor() {
-        return this.tableDescriptorConverter.convertFor();
+    public HTableDescriptor convertTo() {
+        return this.tableDescriptorConverter.convertTo();
     }
 
-    public HTableDesc parseFrom(HTableDescriptor tableDescriptor) {
-        return this.tableDescriptorConverter.convertTo(tableDescriptor);
+    public HTableDesc convertFrom(HTableDescriptor tableDescriptor) {
+        return this.tableDescriptorConverter.convertFrom(tableDescriptor);
     }
 
     @Override
     public int compareTo(HTableDesc o) {
-        return this.convertFor().compareTo(o.convertFor());
+        return this.convertTo().compareTo(o.convertTo());
     }
 
     @Override
     public int hashCode() {
-        return this.convertFor().hashCode();
+        return this.convertTo().hashCode();
     }
 
     @Override
@@ -58,11 +82,11 @@ public class HTableDesc extends BaseHTableDesc implements Comparable<HTableDesc>
         if (!res) {
             return false;
         }
-        return this.convertFor().equals(((HTableDesc) obj).convertFor());
+        return this.convertTo().equals(((HTableDesc) obj).convertTo());
     }
 
     @Override
     public String toString() {
-        return this.convertFor().toString();
+        return this.convertTo().toString();
     }
 }

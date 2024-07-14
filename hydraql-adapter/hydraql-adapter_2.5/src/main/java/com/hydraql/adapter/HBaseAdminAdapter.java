@@ -1,18 +1,5 @@
 package com.hydraql.adapter;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.common.exception.HBaseFamilyHasExistsException;
-import com.hydraql.common.exception.HBaseFamilyNotFoundException;
-import com.hydraql.common.exception.HBaseOperationsException;
-import com.hydraql.common.exception.NoSuchColumnFamilyException;
-import com.hydraql.common.lang.Assert;
-import com.hydraql.common.model.HBaseRegionRecord;
-import com.hydraql.common.model.HBaseTableRecord;
-import com.hydraql.common.model.NamespaceDesc;
-import com.hydraql.common.model.SnapshotDesc;
-import com.hydraql.common.util.DateAndTimeUtil;
-import com.hydraql.common.util.SplitGoEnum;
-import com.hydraql.common.util.StringUtil;
 import com.hydraql.adapter.hbtop.HBaseMetricOperations;
 import com.hydraql.adapter.hbtop.Record;
 import com.hydraql.adapter.hbtop.RecordFilter;
@@ -27,14 +14,42 @@ import com.hydraql.adapter.schema.ColumnFamilyDesc;
 import com.hydraql.adapter.schema.HTableDesc;
 import com.hydraql.adapter.util.RegionSplitter;
 import com.hydraql.adapter.util.SplitKeyUtil;
+import com.hydraql.common.constants.HBaseConstants;
+import com.hydraql.common.exception.HBaseFamilyHasExistsException;
+import com.hydraql.common.exception.HBaseFamilyNotFoundException;
+import com.hydraql.common.exception.HBaseOperationsException;
+import com.hydraql.common.exception.NoSuchColumnFamilyException;
+import com.hydraql.common.lang.Assert;
+import com.hydraql.common.model.HBaseRegionRecord;
+import com.hydraql.common.model.HBaseTableRecord;
+import com.hydraql.common.model.NamespaceDesc;
+import com.hydraql.common.model.SnapshotDesc;
+import com.hydraql.common.util.DateAndTimeUtil;
+import com.hydraql.common.util.SplitGoEnum;
+import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.*;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.ClusterMetrics;
+import org.apache.hadoop.hbase.NamespaceDescriptor;
+import org.apache.hadoop.hbase.ServerMetrics;
+import org.apache.hadoop.hbase.ServerName;
+import org.apache.hadoop.hbase.Size;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
+import org.apache.hadoop.hbase.client.RegionInfo;
+import org.apache.hadoop.hbase.client.SnapshotDescription;
+import org.apache.hadoop.hbase.client.TableDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.util.Bytes;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,6 +64,7 @@ import static com.hydraql.common.constants.HBaseConstants.ENABLE_REPLICATION_SCO
 public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBaseMetricOperations {
     public static final Logger LOG = LoggerFactory.getLogger(HBaseAdminAdapter.class);
     public static final Pattern REGION_COMPILE = Pattern.compile("\\.(\\w+)\\.");
+
     public HBaseAdminAdapter(Configuration configuration) {
         super(configuration);
     }
@@ -68,7 +84,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             }
             return tableDescriptors.stream().map(tableDescriptor ->
                     HTableDesc.createDefault(tableDescriptor.getTableName().getNameAsString())
-                            .convertTo(tableDescriptor)).collect(Collectors.toList());
+                            .convertFrom(tableDescriptor)).collect(Collectors.toList());
         });
     }
 
@@ -94,7 +110,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             }
             return tableDescriptors.stream()
                     .map(t -> HTableDesc.createDefault(t.getTableName().getNameAsString())
-                            .convertTo(t)).collect(Collectors.toList());
+                            .convertFrom(t)).collect(Collectors.toList());
         });
     }
 
@@ -105,8 +121,8 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             tableNotExistsThrowError(admin, tableName);
             TableDescriptor tableDescriptor = admin.getDescriptor(TableName.valueOf(tableName));
             final ColumnFamilyDescriptor[] families = tableDescriptor.getColumnFamilies();
-            return Arrays.stream(families).map(c ->
-                    ColumnFamilyDesc.createDefault(c.getNameAsString()).convertTo(c)).collect(Collectors.toList());
+            return Arrays.stream(families).map(c -> ColumnFamilyDesc.createDefault(c.getNameAsString())
+                    .convertFrom(c)).collect(Collectors.toList());
         });
     }
 
@@ -116,22 +132,21 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
         return this.execute(admin -> {
             tableNotExistsThrowError(admin, tableName);
             TableDescriptor tableDescriptor = admin.getDescriptor(TableName.valueOf(tableName));
-            return HTableDesc.createDefault(tableDescriptor.getTableName().getNameAsString())
-                    .convertTo(tableDescriptor);
+            return HTableDesc.createDefault(tableName).convertFrom(tableDescriptor);
         });
     }
 
     @Override
     public List<String> listTableNamesByNamespace(String namespaceName) {
         return listTableDescByNamespace(namespaceName).stream()
-                .map(HTableDesc::getTableNameAsString).collect(Collectors.toList());
+                .map(HTableDesc::getName).collect(Collectors.toList());
     }
 
     @Override
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             admin.createTable(tableDescriptor);
             return true;
@@ -142,7 +157,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, String startKey, String endKey, int numRegions, boolean isAsync) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             boolean preSplit = (StringUtil.isNotBlank(startKey) && StringUtil.isNotBlank(endKey) && numRegions > 0);
 
@@ -190,7 +205,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, String[] splitKeys, boolean isAsync) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             boolean preSplit = splitKeys != null && splitKeys.length > 0;
 
@@ -212,7 +227,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     public <HTD extends BaseHTableDesc> boolean createTable(HTD tableDesc, SplitGoEnum splitGoEnum, int numRegions, boolean isAsync) {
         Assert.checkNotNull(tableDesc);
         return this.execute(admin -> {
-            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertFor();
+            TableDescriptor tableDescriptor = ((HTableDesc) tableDesc).convertTo();
             tableExistsThrowError(admin, tableDescriptor.getTableName().getNameAsString());
             boolean preSplit = splitGoEnum != null && numRegions > 0;
 
@@ -449,14 +464,14 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             tableNotExistsThrowError(admin, tableName);
             ColumnFamilyDesc columnFamilyDesc = (ColumnFamilyDesc) familyDesc;
             final TableDescriptor tableDescriptor = admin.getDescriptor(TableName.valueOf(tableName));
-            if (tableDescriptor.hasColumnFamily(Bytes.toBytes(columnFamilyDesc.getNameAsString()))) {
+            if (tableDescriptor.hasColumnFamily(Bytes.toBytes(columnFamilyDesc.getName()))) {
                 throw new HBaseFamilyHasExistsException(String.format("The family %s in the table %s has created.",
-                        columnFamilyDesc.getNameAsString(), tableName));
+                        columnFamilyDesc.getName(), tableName));
             }
             if (isAsync) {
-                admin.addColumnFamilyAsync(TableName.valueOf(tableName), columnFamilyDesc.convertFor());
+                admin.addColumnFamilyAsync(TableName.valueOf(tableName), columnFamilyDesc.convertTo());
             } else {
-                admin.addColumnFamily(TableName.valueOf(tableName), columnFamilyDesc.convertFor());
+                admin.addColumnFamily(TableName.valueOf(tableName), columnFamilyDesc.convertTo());
             }
             return true;
         });
@@ -493,17 +508,21 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
             tableNotExistsThrowError(admin, tableName);
             ColumnFamilyDesc columnFamilyDesc = (ColumnFamilyDesc) familyDesc;
             final TableDescriptor tableDescriptor = admin.getDescriptor(TableName.valueOf(tableName));
-            if (!tableDescriptor.hasColumnFamily(Bytes.toBytes(columnFamilyDesc.getNameAsString()))) {
+            if (!tableDescriptor.hasColumnFamily(Bytes.toBytes(columnFamilyDesc.getName()))) {
                 throw new HBaseFamilyNotFoundException(String.format("The family %s in the table %s is not exists.",
-                        columnFamilyDesc.getNameAsString(), tableName));
+                        columnFamilyDesc.getName(), tableName));
             }
-            ColumnFamilyDescriptor oldColumnDescriptor = tableDescriptor.getColumnFamily(Bytes.toBytes(columnFamilyDesc.getNameAsString()));
-            ColumnFamilyDescriptor newColumnDescriptor = columnFamilyDesc.convertFor();
-            if (!oldColumnDescriptor.equals(newColumnDescriptor)) {
+            ColumnFamilyDescriptor originalColumnDescriptor =
+                    tableDescriptor.getColumnFamily(Bytes.toBytes(columnFamilyDesc.getName()));
+            ColumnFamilyDescriptor modifyColumnDescriptor = columnFamilyDesc.convertTo();
+            boolean same = ColumnFamilyDescriptorBuilder.ModifyableColumnFamilyDescriptor.COMPARATOR.compare(originalColumnDescriptor,
+                    modifyColumnDescriptor) == 0;
+
+            if (!same) {
                 if (isAsync) {
-                    admin.modifyColumnFamilyAsync(TableName.valueOf(tableName), newColumnDescriptor);
+                    admin.modifyColumnFamilyAsync(TableName.valueOf(tableName), modifyColumnDescriptor);
                 } else {
-                    admin.modifyColumnFamily(TableName.valueOf(tableName), newColumnDescriptor);
+                    admin.modifyColumnFamily(TableName.valueOf(tableName), modifyColumnDescriptor);
                 }
             }
             return true;

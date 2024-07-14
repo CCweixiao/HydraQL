@@ -1,36 +1,114 @@
 package com.hydraql.adapter.schema;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.common.exception.HBaseFamilyNotUniqueException;
-import com.hydraql.common.util.StringUtil;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.client.Durability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author leojie 2023/5/19 20:35
  */
 public abstract class BaseHTableDesc {
-    public static final String NAMESPACE_DEFAULT = "default";
-    public static final String TABLE_NAME_SPLIT_CHAR = ":";
+    public static final String DURABILITY = "DURABILITY";
+    private static final Durability DEFAULT_DURABILITY = Durability.USE_DEFAULT;
+
+    /**
+     * The number of region replicas for the table.
+     */
+    public static final String REGION_REPLICATION = "REGION_REPLICATION";
+    public static final int DEFAULT_REGION_REPLICATION = 1;
+
+    /**
+     * the maximum size of the store file after which a
+     * region split occurs.
+     */
     public static final String MAX_FILESIZE = "MAX_FILESIZE";
-    public static final long MAX_FILESIZE_DEFAULT = 10737418240L;
+    public static final long DEFAULT_MAX_FILESIZE = HConstants.DEFAULT_MAX_FILE_SIZE;
+
     public static final String READONLY = "READONLY";
+    /**
+     * Constant that denotes whether the table is READONLY by default and is false
+     */
+    public static final boolean DEFAULT_READONLY = false;
+
     public static final String COMPACTION_ENABLED = "COMPACTION_ENABLED";
+    /**
+     * Constant that denotes whether the table is compaction enabled by default
+     */
+    public static final boolean DEFAULT_COMPACTION_ENABLED = true;
+
+    /**
+     * the maximum size of the memstore after which
+     * its contents are flushed onto the disk
+     */
     public static final String MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
-    public static final long MEMSTORE_FLUSHSIZE_DEFAULT = 134217728L;
+    public static final long DEFAULT_MEMSTORE_FLUSH_SIZE = 1024 * 1024 * 128L;
+
     public static final String SPLIT_POLICY = "SPLIT_POLICY";
+    public static final String FLUSH_POLICY = "FLUSH_POLICY";
+
+    public static final String NORMALIZATION_ENABLED = "NORMALIZATION_ENABLED";
+    public static final boolean DEFAULT_NORMALIZATION_ENABLED = false;
+
+    public static final String MERGE_ENABLED = "MERGE_ENABLED";
+    /**
+     * Constant that denotes whether the table is merge enabled by default
+     */
+    public static final boolean DEFAULT_MERGE_ENABLED = true;
+
+    public static final String SPLIT_ENABLED = "SPLIT_ENABLED";
+    /**
+     * Constant that denotes whether the table is split enabled by default
+     */
+    public static final boolean DEFAULT_SPLIT_ENABLED = true;
+
+
+    public static final String PRIORITY = "PRIORITY";
+    /**
+     * Relative priority of the table used for rpc scheduling
+     */
+    private static final int DEFAULT_PRIORITY = HConstants.NORMAL_QOS;
+
+    /**
+     * Used by rest interface to access this metadata attribute
+     * which denotes if it is a catalog table, either <code> hbase:meta </code>.
+     */
+    public static final String IS_META = "IS_META";
+
+
+    public final static Map<String, String> DEFAULT_VALUES = new HashMap<>();
+
+    static {
+        DEFAULT_VALUES.put(MAX_FILESIZE, String.valueOf(DEFAULT_MAX_FILESIZE));
+        DEFAULT_VALUES.put(READONLY, String.valueOf(DEFAULT_READONLY));
+        DEFAULT_VALUES.put(MEMSTORE_FLUSHSIZE, String.valueOf(DEFAULT_MEMSTORE_FLUSH_SIZE));
+        DEFAULT_VALUES.put(DURABILITY, DEFAULT_DURABILITY.name());
+        DEFAULT_VALUES.put(REGION_REPLICATION, String.valueOf(DEFAULT_REGION_REPLICATION));
+        DEFAULT_VALUES.put(COMPACTION_ENABLED, String.valueOf(DEFAULT_COMPACTION_ENABLED));
+        DEFAULT_VALUES.put(NORMALIZATION_ENABLED, String.valueOf(DEFAULT_NORMALIZATION_ENABLED));
+        DEFAULT_VALUES.put(MERGE_ENABLED, String.valueOf(DEFAULT_MERGE_ENABLED));
+        DEFAULT_VALUES.put(SPLIT_ENABLED, String.valueOf(DEFAULT_SPLIT_ENABLED));
+        DEFAULT_VALUES.put(PRIORITY, String.valueOf(DEFAULT_PRIORITY));
+        DEFAULT_VALUES.put(SPLIT_POLICY, "");
+        DEFAULT_VALUES.put(FLUSH_POLICY, "");
+        DEFAULT_VALUES.put(IS_META, String.valueOf(false));
+    }
 
     private final String name;
-    private final long maxFileSize;
-    private final boolean readOnly;
-    private final long memStoreFlushSize;
-    private final boolean compactionEnabled;
+    private final Long maxFileSize;
+    private final Boolean readOnly;
+    private final Long memStoreFlushSize;
+    private final Boolean compactionEnabled;
+    private final Boolean normalizationEnabled;
+    private final Boolean mergeEnabled;
+    private final Boolean splitEnabled;
+    private final String durability;
+    private final Integer priority;
     private final String regionSplitPolicyClassName;
+    private final String flushPolicyClassName;
     private final Map<String, String> configuration;
     private final Map<String, String> values;
     private final List<BaseColumnFamilyDesc> columnFamilyDescList;
@@ -41,82 +119,162 @@ public abstract class BaseHTableDesc {
         this.readOnly = builder.readOnly;
         this.memStoreFlushSize = builder.memStoreFlushSize;
         this.compactionEnabled = builder.compactionEnabled;
+        this.normalizationEnabled = builder.normalizationEnabled;
+        this.mergeEnabled = builder.mergeEnabled;
+        this.splitEnabled = builder.splitEnabled;
+        this.durability = builder.durability;
+        this.priority = builder.priority;
+        this.regionSplitPolicyClassName = builder.regionSplitPolicyClassName;
+        this.flushPolicyClassName = builder.flushPolicyClassName;
         this.configuration = builder.configuration;
         this.values = builder.values;
         this.columnFamilyDescList = builder.columnFamilyDescList;
-        this.regionSplitPolicyClassName = builder.regionSplitPolicyClassName;
     }
 
-    public abstract static class Builder<HTD extends BaseHTableDesc> implements HTableSchemaInterceptor {
+    public abstract static class Builder<HTD extends BaseHTableDesc> implements ConfigFilter {
         private final String name;
-        private long maxFileSize = MAX_FILESIZE_DEFAULT;
-        private boolean readOnly = false;
-        private long memStoreFlushSize = MEMSTORE_FLUSHSIZE_DEFAULT;
-        private boolean compactionEnabled = true;
+        private Long maxFileSize;
+        private Boolean readOnly;
+        private Long memStoreFlushSize;
+        private Boolean compactionEnabled;
+        private Boolean normalizationEnabled;
+        private Boolean mergeEnabled;
+        private Boolean splitEnabled;
+        private String durability;
+        private Integer priority;
         private String regionSplitPolicyClassName;
+        private String flushPolicyClassName;
         private final Map<String, String> configuration;
         private final Map<String, String> values;
         private final List<BaseColumnFamilyDesc> columnFamilyDescList;
 
         protected Builder(String name) {
             this.name = name;
-            this.columnFamilyDescList = new ArrayList<>();
             this.configuration = new HashMap<>();
             this.values = new HashMap<>();
+            this.columnFamilyDescList = new ArrayList<>();
         }
 
-        public Builder<HTD> maxFileSize(long maxFileSize) {
-            verifyKey(MAX_FILESIZE);
+        @Override
+        public Map<String, String> defaultValues() {
+            return DEFAULT_VALUES;
+        }
+
+        public Builder<HTD> maxFileSize(Long maxFileSize) {
+            if (intercept(MAX_FILESIZE, maxFileSize)) {
+                return this;
+            }
             if (maxFileSize <= 0) {
-                maxFileSize = MAX_FILESIZE_DEFAULT;
+                return this;
             }
             this.maxFileSize = maxFileSize;
             this.setValue(MAX_FILESIZE, String.valueOf(maxFileSize));
             return this;
         }
 
-        public Builder<HTD> readOnly(boolean readOnly) {
-            verifyKey(READONLY);
+        public Builder<HTD> readOnly(Boolean readOnly) {
+            if (intercept(READONLY, readOnly)) {
+                return this;
+            }
             this.readOnly = readOnly;
             this.setValue(READONLY, String.valueOf(readOnly));
             return this;
         }
 
-        public Builder<HTD> memStoreFlushSize(long memStoreFlushSize) {
-            verifyKey(MEMSTORE_FLUSHSIZE);
+        public Builder<HTD> memStoreFlushSize(Long memStoreFlushSize) {
+            if (intercept(MEMSTORE_FLUSHSIZE, memStoreFlushSize)) {
+                return this;
+            }
             if (memStoreFlushSize <= 0) {
-                memStoreFlushSize = MEMSTORE_FLUSHSIZE_DEFAULT;
+                return this;
             }
             this.memStoreFlushSize = memStoreFlushSize;
             this.setValue(MEMSTORE_FLUSHSIZE, String.valueOf(memStoreFlushSize));
             return this;
         }
 
-        public Builder<HTD> compactionEnabled(boolean compactionEnabled) {
-            verifyKey(COMPACTION_ENABLED);
+        public Builder<HTD> compactionEnabled(Boolean compactionEnabled) {
+            if (intercept(COMPACTION_ENABLED, compactionEnabled)) {
+                return this;
+            }
             this.compactionEnabled = compactionEnabled;
             this.setValue(COMPACTION_ENABLED, String.valueOf(compactionEnabled));
             return this;
         }
 
+        public Builder<HTD> normalizationEnabled(Boolean normalizationEnabled) {
+            if (intercept(NORMALIZATION_ENABLED, normalizationEnabled)) {
+                return this;
+            }
+            this.normalizationEnabled = normalizationEnabled;
+            this.setValue(NORMALIZATION_ENABLED, String.valueOf(normalizationEnabled));
+            return this;
+        }
+
+        public Builder<HTD> mergeEnabled(Boolean mergeEnabled) {
+            if (intercept(MERGE_ENABLED, mergeEnabled)) {
+                return this;
+            }
+            this.mergeEnabled = mergeEnabled;
+            this.setValue(MERGE_ENABLED, String.valueOf(mergeEnabled));
+            return this;
+        }
+
+        public Builder<HTD> splitEnabled(Boolean splitEnabled) {
+            if (intercept(SPLIT_ENABLED, splitEnabled)) {
+                return this;
+            }
+            this.splitEnabled = splitEnabled;
+            this.setValue(SPLIT_ENABLED, String.valueOf(splitEnabled));
+            return this;
+        }
+
+        public Builder<HTD> durability(String durability) {
+            if (intercept(DURABILITY, durability)) {
+                return this;
+            }
+            this.durability = durability;
+            this.setValue(DURABILITY, String.valueOf(durability));
+            return this;
+        }
+
+        public Builder<HTD> priority(Integer priority) {
+            if (intercept(PRIORITY, priority)) {
+                return this;
+            }
+            this.priority = priority;
+            this.setValue(PRIORITY, String.valueOf(priority));
+            return this;
+        }
+
         public Builder<HTD> regionSplitPolicyClassName(String regionSplitPolicyClassName) {
-            verifyKey(SPLIT_POLICY);
+            if (intercept(SPLIT_POLICY, regionSplitPolicyClassName)) {
+                return this;
+            }
             this.regionSplitPolicyClassName = regionSplitPolicyClassName;
             this.setValue(SPLIT_POLICY, regionSplitPolicyClassName);
             return this;
         }
 
-        public Builder<HTD> setConfiguration(String key, String value) {
-            if (StringUtil.isBlank(key)) {
+        public Builder<HTD> flushPolicyClassName(String flushPolicyClassName) {
+            if (intercept(FLUSH_POLICY, flushPolicyClassName)) {
                 return this;
             }
-            verifyConfiguration(key, value);
+            this.flushPolicyClassName = flushPolicyClassName;
+            this.setValue(FLUSH_POLICY, flushPolicyClassName);
+            return this;
+        }
+
+        public Builder<HTD> setConfiguration(String key, String value) {
+            if (intercept(key, value, false)) {
+                return this;
+            }
             this.configuration.put(key, value);
             return this;
         }
 
         public Builder<HTD> setValue(String key, String value) {
-            if (StringUtil.isBlank(key)) {
+            if (intercept(key, value)) {
                 return this;
             }
             this.values.put(key, value);
@@ -124,124 +282,119 @@ public abstract class BaseHTableDesc {
         }
 
         public Builder<HTD> addFamilyDesc(BaseColumnFamilyDesc columnFamilyDesc) {
-            String familyName = columnFamilyDesc.getNameAsString();
+            String name = columnFamilyDesc.getName();
             for (BaseColumnFamilyDesc familyDesc : this.columnFamilyDescList) {
-                if (familyName.equals(familyDesc.getNameAsString())) {
-                    throw new IllegalArgumentException(String.format("Column family %s already exists", familyName));
+                if (name.equals(familyDesc.getName())) {
+                    throw new IllegalArgumentException(String.format("Column family %s already exists", name));
                 }
             }
             this.columnFamilyDescList.add(columnFamilyDesc);
             return this;
         }
 
+        public Builder<HTD> copyFrom(HTD htd) {
+            maxFileSize(htd.getMaxFileSize())
+                    .memStoreFlushSize(htd.getMemStoreFlushSize())
+                    .readOnly(htd.getReadOnly())
+                    .durability(htd.getDurability())
+                    .priority(htd.getPriority())
+                    .compactionEnabled(htd.getCompactionEnabled())
+                    .normalizationEnabled(htd.getNormalizationEnabled())
+                    .mergeEnabled(htd.getMergeEnabled())
+                    .splitEnabled(htd.getSplitEnabled())
+                    .regionSplitPolicyClassName(htd.getRegionSplitPolicyClassName())
+                    .flushPolicyClassName(htd.getFlushPolicyClassName());
+            if (!htd.getColumnFamilyDescList().isEmpty()) {
+                htd.getColumnFamilyDescList().forEach(this::addFamilyDesc);
+            }
+            if (!htd.getConfiguration().isEmpty()) {
+                htd.getConfiguration().forEach(this::setConfiguration);
+            }
+            if (!htd.getValues().isEmpty()) {
+                htd.getValues().forEach(this::setValue);
+            }
+            return this;
+        }
+
         public abstract HTD build();
     }
 
-    public String getTableNameAsString() {
+    public String getName() {
         return name;
     }
 
-    public TableName getTableName() {
-        return TableName.valueOf(name);
-    }
-
-    public long getMaxFileSize() {
+    public Long getMaxFileSize() {
         return maxFileSize;
     }
 
-    public boolean isReadOnly() {
+    public Boolean getReadOnly() {
         return readOnly;
     }
 
-    public long getMemStoreFlushSize() {
+    public Long getMemStoreFlushSize() {
         return memStoreFlushSize;
     }
 
-    public boolean isCompactionEnabled() {
+    public Boolean getCompactionEnabled() {
         return compactionEnabled;
+    }
+
+    public Boolean getNormalizationEnabled() {
+        return normalizationEnabled;
+    }
+
+    public Boolean getMergeEnabled() {
+        return mergeEnabled;
+    }
+
+    public Boolean getSplitEnabled() {
+        return splitEnabled;
+    }
+
+    public String getDurability() {
+        return durability;
+    }
+
+    public Integer getPriority() {
+        return priority;
     }
 
     public String getRegionSplitPolicyClassName() {
         return regionSplitPolicyClassName;
     }
 
-    public Map<String, String> getConfiguration() {
-        return configuration;
+    public String getFlushPolicyClassName() {
+        return flushPolicyClassName;
     }
 
-    public void setConfiguration(String key, String value) {
-        if (StringUtil.isBlank(key)) {
-            return;
-        }
-        this.configuration.put(key, value);
+    public Map<String, String> getConfiguration() {
+        return configuration;
     }
 
     public Map<String, String> getValues() {
         return values;
     }
 
-    public void setValue(String key, String value) {
-        if (StringUtil.isBlank(key)) {
-            return;
-        }
-        this.values.put(key, value);
-    }
-
     public List<BaseColumnFamilyDesc> getColumnFamilyDescList() {
         return columnFamilyDescList;
     }
 
-    public void append(BaseColumnFamilyDesc columnFamilyDesc) {
+    public void appendColumnFamily(BaseColumnFamilyDesc columnFamilyDesc) {
+        if (columnFamilyDesc == null) {
+            throw new IllegalArgumentException("columnFamilyDesc is null");
+        }
+        if (this.getColumnFamilyDescList().isEmpty()) {
+            this.columnFamilyDescList.add(columnFamilyDesc);
+            return;
+        }
+        for (BaseColumnFamilyDesc cf : this.getColumnFamilyDescList()) {
+            if (cf.getName().equals(columnFamilyDesc.getName())) {
+                throw new IllegalArgumentException(String.format("Column family %s already exists", columnFamilyDesc.getName()));
+            }
+        }
         this.columnFamilyDescList.add(columnFamilyDesc);
     }
 
-    public String getNamespaceName() {
-        return HBaseConstants.getNamespaceName(name);
-    }
-
-    public String getTableNameWithNamespace() {
-        String tabName = this.getTableNameAsString();
-        if (StringUtil.isBlank(tabName)) {
-            throw new IllegalArgumentException("The table name is not empty.");
-        }
-        String namespaceName = getNamespaceName();
-        if (!tabName.contains(HBaseConstants.TABLE_NAME_SPLIT_CHAR)) {
-            return namespaceName.concat(HBaseConstants.TABLE_NAME_SPLIT_CHAR).concat(tabName);
-        } else {
-            return tabName;
-        }
-    }
-
-    public boolean columnFamilyExists(BaseColumnFamilyDesc columnFamilyDesc) {
-        if (columnFamilyIsEmpty()) {
-            return false;
-        }
-        for (BaseColumnFamilyDesc familyDesc : this.columnFamilyDescList) {
-            if (familyDesc.getNameAsString().equals(columnFamilyDesc.getNameAsString())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean columnFamilyIsEmpty() {
-        return this.columnFamilyDescList == null || this.columnFamilyDescList.isEmpty();
-    }
-
-    public void checkHasSameColumnFamilyOrNot() {
-        if (columnFamilyIsEmpty()) {
-            return;
-        }
-
-        final Map<String, Long> familyCountMap = this.columnFamilyDescList.stream()
-                .collect(Collectors.groupingBy(BaseColumnFamilyDesc::getNameAsString, Collectors.counting()));
-        familyCountMap.forEach((familyName, count) -> {
-            if (count > 1) {
-                throw new HBaseFamilyNotUniqueException(
-                        String.format("The family %s in the same table should be unique.", familyName));
-            }
-        });
-    }
 
     @Override
     public int hashCode() {

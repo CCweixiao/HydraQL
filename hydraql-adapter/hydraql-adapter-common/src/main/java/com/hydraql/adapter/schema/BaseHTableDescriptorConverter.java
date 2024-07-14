@@ -13,12 +13,19 @@ public abstract class BaseHTableDescriptorConverter<D extends BaseHTableDesc, S>
         this.hTableDesc = hTableDesc;
     }
 
-    protected S convertFor() {
+    protected S convertTo() {
         return this.convert(this.hTableDesc);
     }
 
-    protected D convertTo(S tableDescriptor) {
+    protected D convertFrom(S tableDescriptor) {
         return this.reverse().convert(tableDescriptor);
+    }
+
+    protected boolean compareNeedSet(Object source, Object target) {
+        if (target == null) {
+            return false;
+        }
+        return !Objects.equals(source, target);
     }
 
     @Override

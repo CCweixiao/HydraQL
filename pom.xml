@@ -73,7 +73,7 @@
         <spring-boot-2.version>2.1.7.RELEASE</spring-boot-2.version>
         <hbase1.2.version>1.2.0</hbase1.2.version>
         <hbase1.4.version>1.4.3</hbase1.4.version>
-        <hbase2.2.version>2.2.6</hbase2.2.version>
+        <hbase2.2.version>2.2.7</hbase2.2.version>
         <hbase2.5.version>2.5.3</hbase2.5.version>
         <hbase2.6.version>2.6.0</hbase2.6.version>
         <hbase.thrift.1.4.version>1.4.3</hbase.thrift.1.4.version>

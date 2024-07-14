@@ -1,8 +1,6 @@
 package com.hydraql.adapter.schema;
 
-import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
-
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,29 +20,28 @@ public class ColumnFamilyDesc extends BaseColumnFamilyDesc implements Comparable
     }
 
     public static class Builder extends BaseColumnFamilyDesc.Builder<ColumnFamilyDesc> {
-        public static final Set<String> UNSUPPORTED_ATTRIBUTES =
-                new HashSet<>();
+        public static final Set<String> IGNORE_VALUE_KEYS = new HashSet<>();
 
         static {
-            UNSUPPORTED_ATTRIBUTES.add(CACHE_DATA_IN_L1);
+            IGNORE_VALUE_KEYS.add(CACHE_DATA_IN_L1);
         }
 
         private Builder(String name) {
             super(name);
         }
+
         @Override
-        public ColumnFamilyDesc build() {
-            return new ColumnFamilyDesc(this);
+        public boolean ignoreValue(String key) {
+            boolean unsupported = super.ignoreValue(key);
+            if (unsupported) {
+                return true;
+            }
+            return IGNORE_VALUE_KEYS.contains(key);
         }
 
         @Override
-        public void verifyKey(String key) {
-            if (StringUtil.isBlank(key)) {
-                throw new IllegalArgumentException("Column family attribute key is blank");
-            }
-            if (UNSUPPORTED_ATTRIBUTES.contains(key)) {
-                throw new IllegalArgumentException(String.format("Column family attribute key '%s' is not supported", key));
-            }
+        public ColumnFamilyDesc build() {
+            return new ColumnFamilyDesc(this);
         }
     }
 
@@ -52,26 +49,30 @@ public class ColumnFamilyDesc extends BaseColumnFamilyDesc implements Comparable
         return new ColumnFamilyDesc.Builder(name);
     }
 
+    public static BaseColumnFamilyDesc.Builder<ColumnFamilyDesc> copyFrom(String name, ColumnFamilyDesc cf) {
+        return new Builder(name).copyFrom(cf);
+    }
+
     public static ColumnFamilyDesc createDefault(String name) {
         return newBuilder(name).build();
     }
 
-    public ColumnFamilyDescriptor convertFor() {
-        return this.familyDescriptorConverter.convertFor();
+    public ColumnFamilyDescriptor convertTo() {
+        return this.familyDescriptorConverter.convertTo();
     }
 
-    public ColumnFamilyDesc convertTo(ColumnFamilyDescriptor columnDescriptor) {
-        return this.familyDescriptorConverter.convertTo(columnDescriptor);
+    public ColumnFamilyDesc convertFrom(ColumnFamilyDescriptor columnDescriptor) {
+        return this.familyDescriptorConverter.convertFrom(columnDescriptor);
     }
 
     @Override
     public int compareTo(ColumnFamilyDesc o) {
-        return ColumnFamilyDescriptor.COMPARATOR.compare(this.convertFor(), o.convertFor());
+        return ColumnFamilyDescriptor.COMPARATOR.compare(this.convertTo(), o.convertTo());
     }
 
     @Override
     public int hashCode() {
-        return this.convertFor().hashCode();
+        return this.convertTo().hashCode();
     }
 
     @Override
@@ -80,11 +81,11 @@ public class ColumnFamilyDesc extends BaseColumnFamilyDesc implements Comparable
         if (!res) {
             return false;
         }
-        return this.convertFor().equals(((ColumnFamilyDesc) obj).convertFor());
+        return this.convertTo().equals(((ColumnFamilyDesc) obj).convertTo());
     }
 
     @Override
     public String toString() {
-        return this.convertFor().toString();
+        return this.convertTo().toString();
     }
 }

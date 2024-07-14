@@ -1,11 +1,6 @@
 package com.hydraql.adapter.schema;
 
 import com.hydraql.common.lang.Converter;
-import com.hydraql.common.util.StringUtil;
-import org.apache.hadoop.hbase.KeepDeletedCells;
-import org.apache.hadoop.hbase.io.compress.Compression;
-import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
-import org.apache.hadoop.hbase.regionserver.BloomType;
 
 import java.util.Objects;
 
@@ -18,63 +13,19 @@ public abstract class BaseColumnFamilyDescriptorConverter<CF extends BaseColumnF
         this.columnFamilyDesc = columnFamilyDesc;
     }
 
-    protected CD convertFor() {
+    protected CD convertTo() {
         return this.convert(this.columnFamilyDesc);
     }
 
-    protected CF convertTo(CD columnFamilyDescriptor) {
+    protected CF convertFrom(CD columnFamilyDescriptor) {
         return this.reverse().convert(columnFamilyDescriptor);
     }
 
-    protected Compression.Algorithm getCompression(String compression) {
-        if (StringUtil.isBlank(compression)) {
-            return Compression.Algorithm.NONE;
+    protected boolean compareNeedSet(Object source, Object target) {
+        if (target == null) {
+            return false;
         }
-        for (Compression.Algorithm value : Compression.Algorithm.values()) {
-            if (compression.equalsIgnoreCase(value.getName())) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Unsupported compression type " + compression);
-    }
-
-    protected BloomType getBloomType(String bloomType) {
-        if (StringUtil.isBlank(bloomType)) {
-            // return default value
-            return BloomType.ROW;
-        }
-        for (BloomType value : BloomType.values()) {
-            if (bloomType.equals(value.name())) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Unsupported bloom type " + bloomType);
-    }
-
-    protected KeepDeletedCells getKeepDeletedCells(String keepDeletedCells) {
-        if (StringUtil.isBlank(keepDeletedCells)) {
-            // return default value
-            return KeepDeletedCells.FALSE;
-        }
-        for (KeepDeletedCells value : KeepDeletedCells.values()) {
-            if (keepDeletedCells.equals(value.name())) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Unsupported keepDeletedCells " + keepDeletedCells);
-    }
-
-    protected DataBlockEncoding getDataBlockEncoding(String dataBlockEncoding) {
-        if (StringUtil.isBlank(dataBlockEncoding)) {
-            // return default value
-            return DataBlockEncoding.NONE;
-        }
-        for (DataBlockEncoding value : DataBlockEncoding.values()) {
-            if (dataBlockEncoding.equals(value.name())) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Unsupported dataBlockEncoding " + dataBlockEncoding);
+        return !Objects.equals(source, target);
     }
 
     @Override

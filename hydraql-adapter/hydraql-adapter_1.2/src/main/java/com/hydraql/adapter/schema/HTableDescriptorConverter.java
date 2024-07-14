@@ -18,53 +18,103 @@ public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTa
     }
 
     @Override
-    protected HTableDescriptor doForward(HTableDesc tableDesc) {
-        TableName tableName = TableName.valueOf(tableDesc.getTableNameAsString());
-        HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
-        tableDescriptor.setMaxFileSize(tableDesc.getMaxFileSize());
-        tableDescriptor.setMemStoreFlushSize(tableDesc.getMemStoreFlushSize());
-        tableDescriptor.setReadOnly(tableDesc.isReadOnly());
-        tableDescriptor.setCompactionEnabled(tableDesc.isCompactionEnabled());
-        List<BaseColumnFamilyDesc> familyDescList = tableDesc.getColumnFamilyDescList();
-        if (familyDescList != null && !familyDescList.isEmpty()) {
-            for (BaseColumnFamilyDesc familyDesc : familyDescList) {
-                tableDescriptor.addFamily(((ColumnFamilyDesc) familyDesc).convertFor());
-            }
-        }
-        Map<String, String> configuration = tableDesc.getConfiguration();
-        if (configuration != null && !configuration.isEmpty()) {
-            configuration.forEach(tableDescriptor::setConfiguration);
+    protected HTableDescriptor doForward(HTableDesc htd) {
+        HTableDescriptor td = new HTableDescriptor(TableName.valueOf(htd.getName()));
+
+        if (compareNeedSet(td.getMaxFileSize(), htd.getMaxFileSize())) {
+            td.setMaxFileSize(htd.getMaxFileSize());
         }
 
-        Map<String, String> values = tableDesc.getValues();
-        if (values != null && !values.isEmpty()) {
-            values.forEach(tableDescriptor::setValue);
+        if (compareNeedSet(td.getMemStoreFlushSize(), htd.getMemStoreFlushSize())) {
+            td.setMemStoreFlushSize(htd.getMemStoreFlushSize());
         }
-        return tableDescriptor;
+
+        if (compareNeedSet(td.isReadOnly(), htd.getReadOnly())) {
+            td.setReadOnly(htd.getReadOnly());
+        }
+
+        if (compareNeedSet(td.isCompactionEnabled(), htd.getCompactionEnabled())) {
+            td.setCompactionEnabled(htd.getCompactionEnabled());
+        }
+
+        if (compareNeedSet(td.isNormalizationEnabled(), htd.getNormalizationEnabled())) {
+            td.setNormalizationEnabled(htd.getNormalizationEnabled());
+        }
+
+        if (compareNeedSet(td.getRegionSplitPolicyClassName(), htd.getRegionSplitPolicyClassName())) {
+            td.setRegionSplitPolicyClassName(htd.getRegionSplitPolicyClassName());
+        }
+
+        if (compareNeedSet(td.getFlushPolicyClassName(), htd.getFlushPolicyClassName())) {
+            td.setFlushPolicyClassName(htd.getFlushPolicyClassName());
+        }
+
+        List<BaseColumnFamilyDesc> familyDescList = htd.getColumnFamilyDescList();
+        if (!familyDescList.isEmpty()) {
+            for (BaseColumnFamilyDesc familyDesc : familyDescList) {
+                td.addFamily(((ColumnFamilyDesc) familyDesc).convertTo());
+            }
+        }
+
+        Map<String, String> configuration = htd.getConfiguration();
+        if (!configuration.isEmpty()) {
+            for (String key : configuration.keySet()) {
+                String defaultVal = td.getConfigurationValue(key);
+                String newVal = configuration.get(key);
+                if (defaultVal == null) {
+                    td.setConfiguration(key, newVal);
+                    continue;
+                }
+                if (compareNeedSet(defaultVal, newVal)) {
+                    td.setConfiguration(key, newVal);
+                }
+            }
+        }
+        Map<String, String> values = htd.getValues();
+        if (!values.isEmpty()) {
+            for (String key : values.keySet()) {
+                String defaultVal = BaseHTableDesc.DEFAULT_VALUES.get(key);
+                String newVal = values.get(key);
+                if (defaultVal == null) {
+                    td.setValue(key, newVal);
+                    continue;
+                }
+                if (compareNeedSet(defaultVal, newVal)) {
+                    td.setValue(key, newVal);
+                }
+            }
+        }
+        return td;
     }
 
     @Override
-    protected HTableDesc doBackward(HTableDescriptor tableDescriptor) {
-        HTableDesc tableDesc =
-                HTableDesc.newBuilder(tableDescriptor.getTableName().getNameAsString())
-                .maxFileSize(tableDescriptor.getMaxFileSize())
-                .memStoreFlushSize(tableDescriptor.getMemStoreFlushSize())
-                .readOnly(tableDescriptor.isReadOnly())
-                .compactionEnabled(tableDescriptor.isCompactionEnabled())
-                .build();
-        for (HColumnDescriptor cf : tableDescriptor.getColumnFamilies()) {
-            ColumnFamilyDesc columnFamilyDesc = ColumnFamilyDesc.createDefault(cf.getNameAsString()).convertTo(cf);
-            tableDesc.append(columnFamilyDesc);
+    protected HTableDesc doBackward(HTableDescriptor td) {
+        BaseHTableDesc.Builder<HTableDesc> builder = HTableDesc.newBuilder(td.getTableName().getNameAsString());
+        builder.maxFileSize(td.getMaxFileSize())
+                .memStoreFlushSize(td.getMemStoreFlushSize())
+                .readOnly(td.isReadOnly())
+                .durability(td.getDurability().name())
+                .compactionEnabled(td.isCompactionEnabled())
+                .normalizationEnabled(td.isNormalizationEnabled())
+                .regionSplitPolicyClassName(td.getRegionSplitPolicyClassName())
+                .flushPolicyClassName(td.getFlushPolicyClassName());
+
+        for (HColumnDescriptor cf : td.getColumnFamilies()) {
+            ColumnFamilyDesc cfd = ColumnFamilyDesc.createDefault(cf.getNameAsString()).convertFrom(cf);
+            builder.addFamilyDesc(cfd);
         }
-        Map<String, String> configuration = tableDescriptor.getConfiguration();
-        if (configuration != null && !configuration.isEmpty()) {
-            configuration.forEach(tableDesc::setConfiguration);
+
+        Map<String, String> configuration = td.getConfiguration();
+        if (!configuration.isEmpty()) {
+            configuration.forEach(builder::setConfiguration);
         }
-        Map<ImmutableBytesWritable, ImmutableBytesWritable> values = tableDescriptor.getValues();
-        if (values != null && !values.isEmpty()) {
-            values.forEach((key, value) ->
-                    tableDesc.setValue(Bytes.toString(key.get()), Bytes.toString(value.get())));
+
+        Map<ImmutableBytesWritable, ImmutableBytesWritable> values = td.getValues();
+        if (!values.isEmpty()) {
+            for (ImmutableBytesWritable key : values.keySet()) {
+                builder.setValue(Bytes.toString(key.get()), Bytes.toString(values.get(key).get()));
+            }
         }
-        return tableDesc;
+        return builder.build();
     }
 }
