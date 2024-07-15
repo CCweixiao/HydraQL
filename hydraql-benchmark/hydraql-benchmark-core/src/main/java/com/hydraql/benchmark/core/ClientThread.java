@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -48,17 +49,16 @@ public class ClientThread implements Runnable {
 
   /**
    * Constructor.
-   *
-   * @param db                   the DB implementation to use
-   * @param dotransactions       true to do transactions, false to insert data
-   * @param workload             the workload to use
-   * @param props                the properties defining the experiment
-   * @param opcount              the number of operations (transactions or inserts) to do
+   * @param db the DB implementation to use
+   * @param dotransactions true to do transactions, false to insert data
+   * @param workload the workload to use
+   * @param props the properties defining the experiment
+   * @param opcount the number of operations (transactions or inserts) to do
    * @param targetperthreadperms target number of operations per thread per ms
-   * @param completeLatch        The latch tracking the completion of all clients.
+   * @param completeLatch The latch tracking the completion of all clients.
    */
-  public ClientThread(DB db, boolean dotransactions, Workload workload, Properties props, int opcount,
-                      double targetperthreadperms, CountDownLatch completeLatch) {
+  public ClientThread(DB db, boolean dotransactions, Workload workload, Properties props,
+      int opcount, double targetperthreadperms, CountDownLatch completeLatch) {
     this.db = db;
     this.dotransactions = dotransactions;
     this.workload = workload;
@@ -104,10 +104,11 @@ public class ClientThread implements Runnable {
       return;
     }
 
-    //NOTE: Switching to using nanoTime and parkNanos for time management here such that the measurements
+    // NOTE: Switching to using nanoTime and parkNanos for time management here such that the
+    // measurements
     // and the client thread have the same view on time.
 
-    //spread the thread operations out so they don't all hit the DB at the same time
+    // spread the thread operations out so they don't all hit the DB at the same time
     // GH issue 4 - throws exception if _target>1 because random.nextInt argument must be >0
     // and the sleep() doesn't make sense for granularities < 1 ms anyway
     if ((targetOpsPerMs > 0) && (targetOpsPerMs <= 1.0)) {
@@ -168,7 +169,7 @@ public class ClientThread implements Runnable {
   }
 
   private void throttleNanos(long startTimeNanos) {
-    //throttle the operations
+    // throttle the operations
     if (targetOpsPerMs > 0) {
       // delay until next tick
       long deadline = startTimeNanos + opsdone * targetOpsTickNs;

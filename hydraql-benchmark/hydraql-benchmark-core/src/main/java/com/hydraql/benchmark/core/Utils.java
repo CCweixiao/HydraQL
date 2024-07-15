@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010 Yahoo! Inc., 2016 YCSB contributors. All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -45,12 +46,11 @@ public final class Utils {
 
   /**
    * 64 bit FNV hash. Produces more "random" hashes than (say) String.hashCode().
-   *
    * @param val The value to hash.
    * @return The hash value
    */
   public static long fnvhash64(long val) {
-    //from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
+    // from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
     long hashval = FNV_OFFSET_BASIS_64;
 
     for (int i = 0; i < 8; i++) {
@@ -59,7 +59,7 @@ public final class Utils {
 
       hashval = hashval ^ octet;
       hashval = hashval * FNV_PRIME_64;
-      //hashval = hashval ^ octet;
+      // hashval = hashval ^ octet;
     }
     return Math.abs(hashval);
   }
@@ -72,14 +72,9 @@ public final class Utils {
    * @throws NullPointerException if the byte array is null.
    */
   public static long bytesToLong(final byte[] bytes) {
-    return (bytes[0] & 0xFFL) << 56
-        | (bytes[1] & 0xFFL) << 48
-        | (bytes[2] & 0xFFL) << 40
-        | (bytes[3] & 0xFFL) << 32
-        | (bytes[4] & 0xFFL) << 24
-        | (bytes[5] & 0xFFL) << 16
-        | (bytes[6] & 0xFFL) << 8
-        | (bytes[7] & 0xFFL) << 0;
+    return (bytes[0] & 0xFFL) << 56 | (bytes[1] & 0xFFL) << 48 | (bytes[2] & 0xFFL) << 40
+        | (bytes[3] & 0xFFL) << 32 | (bytes[4] & 0xFFL) << 24 | (bytes[5] & 0xFFL) << 16
+        | (bytes[6] & 0xFFL) << 8 | (bytes[7] & 0xFFL) << 0;
   }
 
   /**
@@ -101,10 +96,9 @@ public final class Utils {
   }
 
   /**
-   * Parses the byte array into a double.
-   * The byte array must be at least 8 bytes long and have been encoded using
-   * {@link #doubleToBytes}. If the array is longer than 8 bytes, only the
-   * first 8 bytes are parsed.
+   * Parses the byte array into a double. The byte array must be at least 8 bytes long and have been
+   * encoded using {@link #doubleToBytes}. If the array is longer than 8 bytes, only the first 8
+   * bytes are parsed.
    * @param bytes The byte array to parse, at least 8 bytes.
    * @return A double value read from the byte array.
    * @throws IllegalArgumentException if the byte array is not 8 bytes wide.
@@ -126,14 +120,12 @@ public final class Utils {
   }
 
   /**
-   * Measure the estimated active thread count in the current thread group.
-   * Since this calls {@link Thread.activeCount} it should be called from the
-   * main thread or one started by the main thread. Threads included in the
-   * count can be in any state.
-   * For a more accurate count we could use {@link Thread.getAllStackTraces().size()}
-   * but that freezes the JVM and incurs a high overhead.
-   * @return An estimated thread count, good for showing the thread count
-   * over time.
+   * Measure the estimated active thread count in the current thread group. Since this calls
+   * {@link Thread.activeCount} it should be called from the main thread or one started by the main
+   * thread. Threads included in the count can be in any state. For a more accurate count we could
+   * use {@link Thread.getAllStackTraces().size()} but that freezes the JVM and incurs a high
+   * overhead.
+   * @return An estimated thread count, good for showing the thread count over time.
    */
   public static int getActiveThreadCount() {
     return Thread.activeCount();
@@ -150,19 +142,20 @@ public final class Utils {
     return (int) (getUsedMemoryBytes() / 1024 / 1024);
   }
 
-  /** @return The current system load average if supported by the JDK.
-   * If it's not supported, the value will be negative. */
+  /**
+   * @return The current system load average if supported by the JDK. If it's not supported, the
+   *         value will be negative.
+   */
   public static double getSystemLoadAverage() {
-    final OperatingSystemMXBean osBean =
-        ManagementFactory.getOperatingSystemMXBean();
+    final OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
     return osBean.getSystemLoadAverage();
   }
 
-  /** @return The total number of garbage collections executed for all
-   * memory pools. */
+  /**
+   * @return The total number of garbage collections executed for all memory pools.
+   */
   public static long getGCTotalCollectionCount() {
-    final List<GarbageCollectorMXBean> gcBeans =
-        ManagementFactory.getGarbageCollectorMXBeans();
+    final List<GarbageCollectorMXBean> gcBeans = ManagementFactory.getGarbageCollectorMXBeans();
     long count = 0;
     for (final GarbageCollectorMXBean bean : gcBeans) {
       if (bean.getCollectionCount() < 0) {
@@ -175,8 +168,7 @@ public final class Utils {
 
   /** @return The total time, in milliseconds, spent in GC. */
   public static long getGCTotalTime() {
-    final List<GarbageCollectorMXBean> gcBeans =
-        ManagementFactory.getGarbageCollectorMXBeans();
+    final List<GarbageCollectorMXBean> gcBeans = ManagementFactory.getGarbageCollectorMXBeans();
     long time = 0;
     for (final GarbageCollectorMXBean bean : gcBeans) {
       if (bean.getCollectionTime() < 0) {
@@ -188,28 +180,21 @@ public final class Utils {
   }
 
   /**
-   * Returns a map of garbage collectors and their stats.
-   * The first object in the array is the total count since JVM start and the
-   * second is the total time (ms) since JVM start.
-   * If a garbage collectors does not support the collector MXBean, then it
-   * will not be represented in the map.
-   * @return A non-null map of garbage collectors and their metrics. The map
-   * may be empty.
+   * Returns a map of garbage collectors and their stats. The first object in the array is the total
+   * count since JVM start and the second is the total time (ms) since JVM start. If a garbage
+   * collectors does not support the collector MXBean, then it will not be represented in the map.
+   * @return A non-null map of garbage collectors and their metrics. The map may be empty.
    */
   public static Map<String, Long[]> getGCStatst() {
-    final List<GarbageCollectorMXBean> gcBeans =
-        ManagementFactory.getGarbageCollectorMXBeans();
+    final List<GarbageCollectorMXBean> gcBeans = ManagementFactory.getGarbageCollectorMXBeans();
     final Map<String, Long[]> map = new HashMap<String, Long[]>(gcBeans.size());
     for (final GarbageCollectorMXBean bean : gcBeans) {
-      if (!bean.isValid() || bean.getCollectionCount() < 0 ||
-          bean.getCollectionTime() < 0) {
+      if (!bean.isValid() || bean.getCollectionCount() < 0 || bean.getCollectionTime() < 0) {
         continue;
       }
 
-      final Long[] measurements = new Long[]{
-          bean.getCollectionCount(),
-          bean.getCollectionTime()
-      };
+      final Long[] measurements =
+          new Long[] { bean.getCollectionCount(), bean.getCollectionTime() };
       map.put(bean.getName().replace(" ", "_"), measurements);
     }
     return map;
@@ -220,8 +205,8 @@ public final class Utils {
    * @param array The array to randomly shuffle.
    * @return The shuffled array.
    */
-  public static <T> T [] shuffleArray(final T[] array) {
-    for (int i = array.length -1; i > 0; i--) {
+  public static <T> T[] shuffleArray(final T[] array) {
+    for (int i = array.length - 1; i > 0; i--) {
       final int idx = ThreadLocalRandom.current().nextInt(i + 1);
       final T temp = array[idx];
       array[idx] = array[i];

@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hydraql.common.model;
 
 /**
@@ -5,49 +23,49 @@ package com.hydraql.common.model;
  */
 @Deprecated
 public class HBaseCellResult {
-    private Object rowKey;
-    private String familyName;
-    private String columnName;
-    private Object value;
-    private long timestamp;
+  private Object rowKey;
+  private String familyName;
+  private String columnName;
+  private Object value;
+  private long timestamp;
 
-    public Object getRowKey() {
-        return rowKey;
-    }
+  public Object getRowKey() {
+    return rowKey;
+  }
 
-    public void setRowKey(Object rowKey) {
-        this.rowKey = rowKey;
-    }
+  public void setRowKey(Object rowKey) {
+    this.rowKey = rowKey;
+  }
 
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
+  public void setFamilyName(String familyName) {
+    this.familyName = familyName;
+  }
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
+  public void setValue(Object value) {
+    this.value = value;
+  }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
 
-    public String getFamilyName() {
-        return familyName;
-    }
+  public String getFamilyName() {
+    return familyName;
+  }
 
-    public String getColumnName() {
-        return columnName;
-    }
+  public String getColumnName() {
+    return columnName;
+  }
 
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
+  public void setColumnName(String columnName) {
+    this.columnName = columnName;
+  }
 
-    public Object getValue() {
-        return value;
-    }
+  public Object getValue() {
+    return value;
+  }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
+  public long getTimestamp() {
+    return timestamp;
+  }
 }

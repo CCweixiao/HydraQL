@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core.measurements;
@@ -44,7 +45,8 @@ class SeriesUnit {
 public class OneMeasurementTimeSeries extends OneMeasurement {
 
   /**
-   * Granularity for time series; measurements will be averaged in chunks of this granularity. Units are milliseconds.
+   * Granularity for time series; measurements will be averaged in chunks of this granularity. Units
+   * are milliseconds.
    */
   public static final String GRANULARITY = "timeseries.granularity";
   public static final String GRANULARITY_DEFAULT = "1000";
@@ -59,7 +61,7 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
   private long operations = 0;
   private long totallatency = 0;
 
-  //keep a windowed version of these stats for printing status
+  // keep a windowed version of these stats for printing status
   private int windowoperations = 0;
   private long windowtotallatency = 0;
 
@@ -113,13 +115,13 @@ public class OneMeasurementTimeSeries extends OneMeasurement {
     }
   }
 
-
   @Override
   public void exportMeasurements(MeasurementsExporter exporter) throws IOException {
     checkEndOfUnit(true);
 
     exporter.write(getName(), "Operations", operations);
-    exporter.write(getName(), "AverageLatency(us)", (((double) totallatency) / ((double) operations)));
+    exporter.write(getName(), "AverageLatency(us)",
+      (((double) totallatency) / ((double) operations)));
     exporter.write(getName(), "MinLatency(us)", min);
     exporter.write(getName(), "MaxLatency(us)", max);
 

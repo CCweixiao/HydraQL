@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -39,8 +40,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Turn seconds remaining into more useful units.
- * i.e. if there are hours or days worth of seconds, use them.
+ * Turn seconds remaining into more useful units. i.e. if there are hours or days worth of seconds,
+ * use them.
  */
 final class RemainingFormatter {
   private RemainingFormatter() {
@@ -80,7 +81,7 @@ final class RemainingFormatter {
  */
 public final class Client {
   private Client() {
-    //not used
+    // not used
   }
 
   public static final String DEFAULT_RECORD_COUNT = "0";
@@ -112,8 +113,7 @@ public final class Client {
   public static final String EXPORTER_PROPERTY = "exporter";
 
   /**
-   * If set to the path of a file, YCSB will write all output to this file
-   * instead of STDOUT.
+   * If set to the path of a file, YCSB will write all output to this file instead of STDOUT.
    */
   public static final String EXPORT_FILE_PROPERTY = "exportfile";
 
@@ -123,9 +123,9 @@ public final class Client {
   public static final String THREAD_COUNT_PROPERTY = "threadcount";
 
   /**
-   * Indicates how many inserts to do if less than recordcount.
-   * Useful for partitioning the load among multiple servers if the client is the bottleneck.
-   * Additionally workloads should support the "insertstart" property which tells them which record to start at.
+   * Indicates how many inserts to do if less than recordcount. Useful for partitioning the load
+   * among multiple servers if the client is the bottleneck. Additionally workloads should support
+   * the "insertstart" property which tells them which record to start at.
    */
   public static final String INSERT_COUNT_PROPERTY = "insertcount";
 
@@ -174,30 +174,39 @@ public final class Client {
   public static void usageMessage() {
     System.out.println("Usage: java com.hydraql.benchmark.core.Client [options]");
     System.out.println("Options:");
-    System.out.println("  -threads n: execute using n threads (default: 1) - can also be specified as the \n" +
-        "        \"threadcount\" property using -p");
-    System.out.println("  -target n: attempt to do n operations per second (default: unlimited) - can also\n" +
-        "       be specified as the \"target\" property using -p");
+    System.out.println(
+      "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
+          + "        \"threadcount\" property using -p");
+    System.out.println(
+      "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
+          + "       be specified as the \"target\" property using -p");
     System.out.println("  -load:  run the loading phase of the workload");
     System.out.println("  -t:  run the transactions phase of the workload (default)");
-    System.out.println("  -db dbname: specify the name of the DB to use (default: com.hydraql.benchmark.core.BasicDB) - \n" +
-        "        can also be specified as the \"db\" property using -p");
-    System.out.println("  -P propertyfile: load properties from the given file. Multiple files can");
+    System.out.println(
+      "  -db dbname: specify the name of the DB to use (default: com.hydraql.benchmark.core.BasicDB) - \n"
+          + "        can also be specified as the \"db\" property using -p");
+    System.out
+        .println("  -P propertyfile: load properties from the given file. Multiple files can");
     System.out.println("           be specified, and will be processed in the order specified");
-    System.out.println("  -p name=value:  specify a property to be passed to the DB and workloads;");
+    System.out
+        .println("  -p name=value:  specify a property to be passed to the DB and workloads;");
     System.out.println("          multiple properties can be specified, and override any");
     System.out.println("          values in the propertyfile");
     System.out.println("  -s:  show status during run (default: no status)");
-    System.out.println("  -l label:  use label for status (e.g. to label one experiment out of a whole batch)");
+    System.out.println(
+      "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)");
     System.out.println("");
     System.out.println("Required properties:");
-    System.out.println("  " + WORKLOAD_PROPERTY + ": the name of the workload class to use (e.g. " +
-        "com.hydraql.benchmark.core.workloads.CoreWorkload)");
+    System.out.println("  " + WORKLOAD_PROPERTY + ": the name of the workload class to use (e.g. "
+        + "com.hydraql.benchmark.core.workloads.CoreWorkload)");
     System.out.println("");
-    System.out.println("To run the transaction phase from multiple servers, start a separate client on each.");
-    System.out.println("To run the load phase from multiple servers, start a separate client on each; additionally,");
-    System.out.println("use the \"insertcount\" and \"insertstart\" properties to divide up the records " +
-        "to be inserted");
+    System.out.println(
+      "To run the transaction phase from multiple servers, start a separate client on each.");
+    System.out.println(
+      "To run the load phase from multiple servers, start a separate client on each; additionally,");
+    System.out
+        .println("use the \"insertcount\" and \"insertstart\" properties to divide up the records "
+            + "to be inserted");
   }
 
   public static boolean checkRequiredProperties(Properties props) {
@@ -209,11 +218,8 @@ public final class Client {
     return true;
   }
 
-
   /**
-   * Exports the measurements to either sysout or a file using the exporter
-   * loaded from conf.
-   *
+   * Exports the measurements to either sysout or a file using the exporter loaded from conf.
    * @throws IOException Either failed to write to output stream or failed to close it.
    */
   private static void exportMeasurements(Properties props, int opcount, long runtime)
@@ -231,13 +237,13 @@ public final class Client {
 
       // if no exporter is provided the default text one will be used
       String exporterStr = props.getProperty(EXPORTER_PROPERTY,
-          "com.hydraql.benchmark.core.measurements.exporter.TextMeasurementsExporter");
+        "com.hydraql.benchmark.core.measurements.exporter.TextMeasurementsExporter");
       try {
-        exporter = (MeasurementsExporter) Class.forName(exporterStr).getConstructor(OutputStream.class)
-            .newInstance(out);
+        exporter = (MeasurementsExporter) Class.forName(exporterStr)
+            .getConstructor(OutputStream.class).newInstance(out);
       } catch (Exception e) {
-        System.err.println("Could not find exporter " + exporterStr
-            + ", will use default text reporter.");
+        System.err.println(
+          "Could not find exporter " + exporterStr + ", will use default text reporter.");
         e.printStackTrace();
         exporter = new TextMeasurementsExporter(out);
       }
@@ -253,7 +259,7 @@ public final class Client {
         exporter.write("TOTAL_GCS_" + entry.getKey(), "Count", entry.getValue()[0]);
         exporter.write("TOTAL_GC_TIME_" + entry.getKey(), "Time(ms)", entry.getValue()[1]);
         exporter.write("TOTAL_GC_TIME_%_" + entry.getKey(), "Time(%)",
-            ((double) entry.getValue()[1] / runtime) * (double) 100);
+          ((double) entry.getValue()[1] / runtime) * (double) 100);
         totalGCCount += entry.getValue()[0];
         totalGCTime += entry.getValue()[1];
       }
@@ -287,12 +293,12 @@ public final class Client {
 
     long maxExecutionTime = Integer.parseInt(props.getProperty(MAX_EXECUTION_TIME, "0"));
 
-    //get number of threads, target and db
+    // get number of threads, target and db
     int threadcount = Integer.parseInt(props.getProperty(THREAD_COUNT_PROPERTY, "1"));
     String dbname = props.getProperty(DB_PROPERTY, "com.hydraql.benchmark.core.BasicDB");
     int target = Integer.parseInt(props.getProperty(TARGET_PROPERTY, "0"));
 
-    //compute the target throughput
+    // compute the target throughput
     double targetperthreadperms = -1;
     if (target > 0) {
       double targetperthread = ((double) target) / ((double) threadcount);
@@ -313,19 +319,20 @@ public final class Client {
     System.err.println("Starting test.");
     final CountDownLatch completeLatch = new CountDownLatch(threadcount);
 
-    final List<ClientThread> clients = initDb(dbname, props, threadcount, targetperthreadperms,
-        workload, tracer, completeLatch);
+    final List<ClientThread> clients =
+        initDb(dbname, props, threadcount, targetperthreadperms, workload, tracer, completeLatch);
 
     if (status) {
       boolean standardstatus = false;
-      if (props.getProperty(Measurements.MEASUREMENT_TYPE_PROPERTY, "").compareTo("timeseries") == 0) {
+      if (props.getProperty(Measurements.MEASUREMENT_TYPE_PROPERTY, "")
+          .compareTo("timeseries") == 0) {
         standardstatus = true;
       }
       int statusIntervalSeconds = Integer.parseInt(props.getProperty("status.interval", "10"));
       boolean trackJVMStats = props.getProperty(Measurements.MEASUREMENT_TRACK_JVM_PROPERTY,
-          Measurements.MEASUREMENT_TRACK_JVM_PROPERTY_DEFAULT).equals("true");
-      statusthread = new StatusThread(completeLatch, clients, label, standardstatus, statusIntervalSeconds,
-          trackJVMStats);
+        Measurements.MEASUREMENT_TRACK_JVM_PROPERTY_DEFAULT).equals("true");
+      statusthread = new StatusThread(completeLatch, clients, label, standardstatus,
+          statusIntervalSeconds, trackJVMStats);
       statusthread.start();
     }
 
@@ -376,7 +383,8 @@ public final class Client {
         if (status) {
           // wake up status thread if it's asleep
           statusthread.interrupt();
-          // at this point we assume all the monitored threads are already gone as per above join loop.
+          // at this point we assume all the monitored threads are already gone as per above join
+          // loop.
           try {
             statusthread.join();
           } catch (InterruptedException ignored) {
@@ -406,10 +414,10 @@ public final class Client {
   }
 
   private static List<ClientThread> initDb(String dbname, Properties props, int threadcount,
-                                           double targetperthreadperms, Workload workload, Tracer tracer,
-                                           CountDownLatch completeLatch) {
+      double targetperthreadperms, Workload workload, Tracer tracer, CountDownLatch completeLatch) {
     boolean initFailed = false;
-    boolean dotransactions = Boolean.valueOf(props.getProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true)));
+    boolean dotransactions =
+        Boolean.valueOf(props.getProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true)));
 
     final List<ClientThread> clients = new ArrayList<>(threadcount);
     try (final TraceScope span = tracer.newScope(CLIENT_INIT_SPAN)) {
@@ -420,12 +428,14 @@ public final class Client {
         if (props.containsKey(INSERT_COUNT_PROPERTY)) {
           opcount = Integer.parseInt(props.getProperty(INSERT_COUNT_PROPERTY, "0"));
         } else {
-          opcount = Integer.parseInt(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
+          opcount =
+              Integer.parseInt(props.getProperty(RECORD_COUNT_PROPERTY, DEFAULT_RECORD_COUNT));
         }
       }
-      if (threadcount > opcount){
+      if (threadcount > opcount) {
         threadcount = opcount;
-        System.out.println("Warning: the threadcount is bigger than recordcount, the threadcount will be recordcount!");
+        System.out.println(
+          "Warning: the threadcount is bigger than recordcount, the threadcount will be recordcount!");
       }
       for (int threadid = 0; threadid < threadcount; threadid++) {
         DB db;
@@ -444,8 +454,8 @@ public final class Client {
           ++threadopcount;
         }
 
-        ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount, targetperthreadperms,
-            completeLatch);
+        ClientThread t = new ClientThread(db, dotransactions, workload, props, threadopcount,
+            targetperthreadperms, completeLatch);
         t.setThreadId(threadid);
         t.setThreadCount(threadcount);
         clients.add(t);
@@ -461,11 +471,11 @@ public final class Client {
 
   private static Tracer getTracer(Properties props, Workload workload) {
     return new Tracer.Builder("YCSB " + workload.getClass().getSimpleName())
-        .conf(getHTraceConfiguration(props))
-        .build();
+        .conf(getHTraceConfiguration(props)).build();
   }
 
-  private static void initWorkload(Properties props, Thread warningthread, Workload workload, Tracer tracer) {
+  private static void initWorkload(Properties props, Thread warningthread, Workload workload,
+      Tracer tracer) {
     try {
       try (final TraceScope span = tracer.newScope(CLIENT_WORKLOAD_INIT_SPAN)) {
         workload.init(props);
@@ -489,9 +499,9 @@ public final class Client {
   }
 
   private static Thread setupWarningThread() {
-    //show a warning message that creating the workload is taking a while
-    //but only do so if it is taking longer than 2 seconds
-    //(showing the message right away if the setup wasn't taking very long was confusing people)
+    // show a warning message that creating the workload is taking a while
+    // but only do so if it is taking longer than 2 seconds
+    // (showing the message right away if the setup wasn't taking very long was confusing people)
     return new Thread() {
       @Override
       public void run() {
@@ -615,7 +625,7 @@ public final class Client {
           System.exit(0);
         }
 
-        //Issue #5 - remove call to stringPropertyNames to make compilable under Java 1.5
+        // Issue #5 - remove call to stringPropertyNames to make compilable under Java 1.5
         for (Enumeration e = myfileprops.propertyNames(); e.hasMoreElements();) {
           String prop = (String) e.nextElement();
 
@@ -632,7 +642,8 @@ public final class Client {
         int eq = args[argindex].indexOf('=');
         if (eq < 0) {
           usageMessage();
-          System.out.println("Argument '-p' expected to be in key=value format (e.g., -p operationcount=99999)");
+          System.out.println(
+            "Argument '-p' expected to be in key=value format (e.g., -p operationcount=99999)");
           System.exit(0);
         }
 
@@ -654,18 +665,20 @@ public final class Client {
     if (argindex != args.length) {
       usageMessage();
       if (argindex < args.length) {
-        System.out.println("An argument value without corresponding argument specifier (e.g., -p, -s) was found. "
-            + "We expected an argument specifier and instead found " + args[argindex]);
+        System.out.println(
+          "An argument value without corresponding argument specifier (e.g., -p, -s) was found. "
+              + "We expected an argument specifier and instead found " + args[argindex]);
       } else {
-        System.out.println("An argument specifier without corresponding value was found at the end of the supplied " +
-            "command line arguments.");
+        System.out.println(
+          "An argument specifier without corresponding value was found at the end of the supplied "
+              + "command line arguments.");
       }
       System.exit(0);
     }
 
-    //overwrite file properties with properties from the command line
+    // overwrite file properties with properties from the command line
 
-    //Issue #5 - remove call to stringPropertyNames to make compilable under Java 1.5
+    // Issue #5 - remove call to stringPropertyNames to make compilable under Java 1.5
     for (Enumeration e = props.propertyNames(); e.hasMoreElements();) {
       String prop = (String) e.nextElement();
 

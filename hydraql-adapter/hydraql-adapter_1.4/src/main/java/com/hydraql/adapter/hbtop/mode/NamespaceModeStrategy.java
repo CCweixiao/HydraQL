@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hydraql.adapter.hbtop.mode;
 
 import java.util.ArrayList;
@@ -20,21 +38,18 @@ import org.apache.hadoop.hbase.classification.InterfaceAudience;
 
 public final class NamespaceModeStrategy implements ModeStrategy {
 
-  private final List<FieldInfo> fieldInfos = Arrays.asList(
-    new FieldInfo(Field.NAMESPACE, 0, true),
+  private final List<FieldInfo> fieldInfos = Arrays.asList(new FieldInfo(Field.NAMESPACE, 0, true),
     new FieldInfo(Field.REGION_COUNT, 7, true),
     new FieldInfo(Field.REQUEST_COUNT_PER_SECOND, 10, true),
     new FieldInfo(Field.READ_REQUEST_COUNT_PER_SECOND, 10, true),
     new FieldInfo(Field.WRITE_REQUEST_COUNT_PER_SECOND, 10, true),
     new FieldInfo(Field.STORE_FILE_SIZE, 13, true),
     new FieldInfo(Field.UNCOMPRESSED_STORE_FILE_SIZE, 15, false),
-    new FieldInfo(Field.NUM_STORE_FILES, 7, true),
-    new FieldInfo(Field.MEM_STORE_SIZE, 11, true)
-  );
+    new FieldInfo(Field.NUM_STORE_FILES, 7, true), new FieldInfo(Field.MEM_STORE_SIZE, 11, true));
 
   private final RegionModeStrategy regionModeStrategy = new RegionModeStrategy();
 
-  NamespaceModeStrategy(){
+  NamespaceModeStrategy() {
   }
 
   @Override
@@ -55,14 +70,13 @@ public final class NamespaceModeStrategy implements ModeStrategy {
       List<Record.Entry> entries = new ArrayList<>();
       for (FieldInfo fieldInfo : fieldInfos) {
         if (record.containsKey(fieldInfo.getField())) {
-          entries.add(Record.entry(fieldInfo.getField(),
-            record.get(fieldInfo.getField())));
+          entries.add(Record.entry(fieldInfo.getField(), record.get(fieldInfo.getField())));
         }
       }
 
       // Add REGION_COUNT field
-      records.add(Record.builder().putAll(Record.ofEntries(entries))
-        .put(Field.REGION_COUNT, 1).build());
+      records.add(
+        Record.builder().putAll(Record.ofEntries(entries)).put(Field.REGION_COUNT, 1).build());
     }
 
     // Aggregation by NAMESPACE field
@@ -80,9 +94,8 @@ public final class NamespaceModeStrategy implements ModeStrategy {
 
   @Override
   public DrillDownInfo drillDown(Record selectedRecord) {
-    List<RecordFilter> initialFilters =
-      Collections.singletonList(RecordFilter.newBuilder(Field.NAMESPACE)
-        .doubleEquals(selectedRecord.get(Field.NAMESPACE)));
+    List<RecordFilter> initialFilters = Collections.singletonList(
+      RecordFilter.newBuilder(Field.NAMESPACE).doubleEquals(selectedRecord.get(Field.NAMESPACE)));
     return new DrillDownInfo(Mode.TABLE, initialFilters);
   }
 }

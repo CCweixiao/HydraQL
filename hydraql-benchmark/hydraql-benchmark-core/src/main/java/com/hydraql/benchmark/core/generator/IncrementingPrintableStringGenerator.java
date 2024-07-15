@@ -1,19 +1,21 @@
 /**
- * Copyright (c) 2016-2017 YCSB contributors. All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.hydraql.benchmark.core.generator;
 
 import java.util.ArrayList;
@@ -23,14 +25,14 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * A generator that produces strings of {@link #length} using a set of code points
- * from {@link #characterSet}. Each time {@link #nextValue()} is executed, the string
- * is incremented by one character. Eventually the string may rollover to the beginning
- * and the user may choose to have the generator throw a NoSuchElementException at that 
- * point or continue incrementing. (By default the generator will continue incrementing).
+ * A generator that produces strings of {@link #length} using a set of code points from
+ * {@link #characterSet}. Each time {@link #nextValue()} is executed, the string is incremented by
+ * one character. Eventually the string may rollover to the beginning and the user may choose to
+ * have the generator throw a NoSuchElementException at that point or continue incrementing. (By
+ * default the generator will continue incrementing).
  * <p>
- * For example, if we set a length of 2 characters and the character set includes
- * [A, B] then the generator output will be:
+ * For example, if we set a length of 2 characters and the character set includes [A, B] then the
+ * generator output will be:
  * <ul>
  * <li>AA</li>
  * <li>AB</li>
@@ -39,8 +41,7 @@ import java.util.Set;
  * <li>AA <-- rolled over</li>
  * </ul>
  * <p>
- * This class includes some default character sets to choose from including ASCII
- * and plane 0 UTF. 
+ * This class includes some default character sets to choose from including ASCII and plane 0 UTF.
  */
 public class IncrementingPrintableStringGenerator extends Generator<String> {
 
@@ -48,8 +49,8 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   public static final int DEFAULTSTRINGLENGTH = 8;
 
   /**
-   * Set of all character types that include every symbol other than non-printable
-   * control characters.
+   * Set of all character types that include every symbol other than non-printable control
+   * characters.
    */
   public static final Set<Integer> CHAR_TYPES_ALL_BUT_CONTROL;
 
@@ -104,7 +105,7 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Set of character types including only  decimals, upper and lower case letters.
+   * Set of character types including only decimals, upper and lower case letters.
    */
   public static final Set<Integer> CHAR_TYPES_BASIC_ALPHANUMERICS;
 
@@ -116,9 +117,8 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Set of character types including only decimals, letter numbers, 
-   * other numbers, upper, lower, title case as well as letter modifiers 
-   * and other letters.
+   * Set of character types including only decimals, letter numbers, other numbers, upper, lower,
+   * title case as well as letter modifiers and other letters.
    */
   public static final Set<Integer> CHAR_TYPE_EXTENDED_ALPHANUMERICS;
 
@@ -143,8 +143,10 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   /** The length of the output string in characters. */
   private final int length;
 
-  /** The last value returned by the generator. Should be null if {@link #nextValue()}
-   * has not been called.*/
+  /**
+   * The last value returned by the generator. Should be null if {@link #nextValue()} has not been
+   * called.
+   */
   private String lastValue;
 
   /** Whether or not to throw an exception when the string rolls over. */
@@ -154,16 +156,16 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   private boolean hasRolledOver;
 
   /**
-   * Generates strings of 8 characters using only the upper and lower case alphabetical
-   * characters from the ASCII set. 
+   * Generates strings of 8 characters using only the upper and lower case alphabetical characters
+   * from the ASCII set.
    */
   public IncrementingPrintableStringGenerator() {
     this(DEFAULTSTRINGLENGTH, printableBasicAlphaASCIISet());
   }
 
   /**
-   * Generates strings of {@link #length} characters using only the upper and lower 
-   * case alphabetical characters from the ASCII set. 
+   * Generates strings of {@link #length} characters using only the upper and lower case
+   * alphabetical characters from the ASCII set.
    * @param length The length of string to return from the generator.
    * @throws IllegalArgumentException if the length is less than one.
    */
@@ -172,13 +174,12 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Generates strings of {@link #length} characters using the code points in
-   * {@link #characterSet}.
+   * Generates strings of {@link #length} characters using the code points in {@link #characterSet}.
    * @param length The length of string to return from the generator.
-   * @param characterSet A set of code points to choose from. Code points in the 
-   * set can be in any order, not necessarily lexical.
-   * @throws IllegalArgumentException if the length is less than one or the character
-   * set has fewer than one code points.
+   * @param characterSet A set of code points to choose from. Code points in the set can be in any
+   *          order, not necessarily lexical.
+   * @throws IllegalArgumentException if the length is less than one or the character set has fewer
+   *           than one code points.
    */
   public IncrementingPrintableStringGenerator(final int length, final int[] characterSet) {
     if (length < 1) {
@@ -236,8 +237,8 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Returns an array of printable code points with only the upper and lower
-   * case alphabetical characters from the basic ASCII set.
+   * Returns an array of printable code points with only the upper and lower case alphabetical
+   * characters from the basic ASCII set.
    * @return An array of code points
    */
   public static int[] printableBasicAlphaASCIISet() {
@@ -251,9 +252,8 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Returns an array of printable code points with the upper and lower case 
-   * alphabetical characters as well as the numeric values from the basic 
-   * ASCII set.
+   * Returns an array of printable code points with the upper and lower case alphabetical characters
+   * as well as the numeric values from the basic ASCII set.
    * @return An array of code points
    */
   public static int[] printableBasicAlphaNumericASCIISet() {
@@ -267,13 +267,12 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Returns an array of printable code points with the entire basic ASCII table,
-   * including spaces. Excludes new lines.
+   * Returns an array of printable code points with the entire basic ASCII table, including spaces.
+   * Excludes new lines.
    * @return An array of code points
    */
   public static int[] fullPrintableBasicASCIISet() {
-    final List<Integer> validCharacters =
-        generatePrintableCharacterSet(32, 127, null, false, null);
+    final List<Integer> validCharacters = generatePrintableCharacterSet(32, 127, null, false, null);
     final int[] characterSet = new int[validCharacters.size()];
     for (int i = 0; i < validCharacters.size(); i++) {
       characterSet[i] = validCharacters.get(i);
@@ -282,8 +281,8 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Returns an array of printable code points with the entire basic ASCII table,
-   * including spaces and new lines.
+   * Returns an array of printable code points with the entire basic ASCII table, including spaces
+   * and new lines.
    * @return An array of code points
    */
   public static int[] fullPrintableBasicASCIISetWithNewlines() {
@@ -298,8 +297,8 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Returns an array of printable code points the first plane of Unicode characters
-   * including only the alpha-numeric values.
+   * Returns an array of printable code points the first plane of Unicode characters including only
+   * the alpha-numeric values.
    * @return An array of code points
    */
   public static int[] printableAlphaNumericPlaneZeroSet() {
@@ -313,8 +312,8 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Returns an array of printable code points the first plane of Unicode characters
-   * including all printable characters.
+   * Returns an array of printable code points the first plane of Unicode characters including all
+   * printable characters.
    * @return An array of code points
    */
   public static int[] fullPrintablePlaneZeroSet() {
@@ -328,59 +327,48 @@ public class IncrementingPrintableStringGenerator extends Generator<String> {
   }
 
   /**
-   * Generates a list of code points based on a range and filters.
-   * These can be used for generating strings with various ASCII and/or
-   * Unicode printable character sets for use with DBs that may have 
-   * character limitations.
+   * Generates a list of code points based on a range and filters. These can be used for generating
+   * strings with various ASCII and/or Unicode printable character sets for use with DBs that may
+   * have character limitations.
    * <p>
-   * Note that control, surrogate, format, private use and unassigned 
-   * code points are skipped.
+   * Note that control, surrogate, format, private use and unassigned code points are skipped.
    * @param startCodePoint The starting code point, inclusive.
    * @param lastCodePoint The final code point, inclusive.
-   * @param characterTypesFilter An optional set of allowable character
-   * types. See {@link Character} for types.
-   * @param isFilterAllowableList Determines whether the {@code allowableTypes}
-   * set is inclusive or exclusive. When true, only those code points that
-   * appear in the list will be included in the resulting set. Otherwise
-   * matching code points are excluded.
-   * @param allowableTypes An optional list of code points for inclusion or
-   * exclusion.
-   * @return A list of code points matching the given range and filters. The
-   * list may be empty but is guaranteed not to be null.
+   * @param characterTypesFilter An optional set of allowable character types. See {@link Character}
+   *          for types.
+   * @param isFilterAllowableList Determines whether the {@code allowableTypes} set is inclusive or
+   *          exclusive. When true, only those code points that appear in the list will be included
+   *          in the resulting set. Otherwise matching code points are excluded.
+   * @param allowableTypes An optional list of code points for inclusion or exclusion.
+   * @return A list of code points matching the given range and filters. The list may be empty but
+   *         is guaranteed not to be null.
    */
-  public static List<Integer> generatePrintableCharacterSet(
-      final int startCodePoint,
-      final int lastCodePoint,
-      final Set<Integer> characterTypesFilter,
-      final boolean isFilterAllowableList,
-      final Set<Integer> allowableTypes) {
+  public static List<Integer> generatePrintableCharacterSet(final int startCodePoint,
+      final int lastCodePoint, final Set<Integer> characterTypesFilter,
+      final boolean isFilterAllowableList, final Set<Integer> allowableTypes) {
 
     // since we don't know the final size of the allowable character list we
     // start with a list then we'll flatten it to an array.
     final List<Integer> validCharacters = new ArrayList<Integer>(lastCodePoint);
 
     for (int codePoint = startCodePoint; codePoint <= lastCodePoint; ++codePoint) {
-      if (allowableTypes != null &&
-          !allowableTypes.contains(Character.getType(codePoint))) {
+      if (allowableTypes != null && !allowableTypes.contains(Character.getType(codePoint))) {
         continue;
       } else {
         // skip control points, formats, surrogates, etc
         final int type = Character.getType(codePoint);
-        if (type == Character.CONTROL ||
-            type == Character.SURROGATE ||
-            type == Character.FORMAT ||
-            type == Character.PRIVATE_USE ||
-            type == Character.UNASSIGNED) {
+        if (type == Character.CONTROL || type == Character.SURROGATE || type == Character.FORMAT
+            || type == Character.PRIVATE_USE || type == Character.UNASSIGNED) {
           continue;
         }
       }
 
       if (characterTypesFilter != null) {
-        // if the filter is enabled then we need to make sure the code point 
+        // if the filter is enabled then we need to make sure the code point
         // is in the allowable list if it's a whitelist or that the code point
         // is NOT in the list if it's a blacklist.
-        if ((isFilterAllowableList && !characterTypesFilter.contains(codePoint)) ||
-            (characterTypesFilter.contains(codePoint))) {
+        if ((isFilterAllowableList && !characterTypesFilter.contains(codePoint))
+            || (characterTypesFilter.contains(codePoint))) {
           continue;
         }
       }

@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core.measurements;
@@ -25,7 +26,6 @@ import java.util.Properties;
 
 /**
  * Take measurements and maintain a histogram of a given metric, such as READ LATENCY.
- *
  */
 public class OneMeasurementHistogram extends OneMeasurement {
   public static final String BUCKETS = "histogram.buckets";
@@ -53,15 +53,13 @@ public class OneMeasurementHistogram extends OneMeasurement {
   private long operations;
 
   /**
-   * The sum of each latency measurement over all operations.
-   * Calculated in ms.
+   * The sum of each latency measurement over all operations. Calculated in ms.
    */
   private long totallatency;
 
   /**
-   * The sum of each latency measurement squared over all operations. 
-   * Used to calculate variance of latency.
-   * Calculated in ms. 
+   * The sum of each latency measurement squared over all operations. Used to calculate variance of
+   * latency. Calculated in ms.
    */
   private double totalsquaredlatency;
 
@@ -69,8 +67,8 @@ public class OneMeasurementHistogram extends OneMeasurement {
    * Whether or not to emit the histogram buckets.
    */
   private final boolean verbose;
-  
-  //keep a windowed version of these stats for printing status
+
+  // keep a windowed version of these stats for printing status
   private long windowoperations;
   private long windowtotallatency;
 
@@ -92,11 +90,12 @@ public class OneMeasurementHistogram extends OneMeasurement {
     max = -1;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see com.hydraql.benchmark.core.OneMeasurement#measure(int)
    */
   public synchronized void measure(int latency) {
-    //latency reported in us and collected in bucket by ms.
+    // latency reported in us and collected in bucket by ms.
     if (latency / 1000 >= buckets) {
       histogramoverflow++;
     } else {
@@ -127,7 +126,7 @@ public class OneMeasurementHistogram extends OneMeasurement {
     exporter.write(getName(), "MinLatency(us)", min);
     exporter.write(getName(), "MaxLatency(us)", max);
 
-    long opcounter=0;
+    long opcounter = 0;
     boolean done95th = false;
     for (int i = 0; i < buckets; i++) {
       opcounter += histogram[i];
@@ -147,7 +146,7 @@ public class OneMeasurementHistogram extends OneMeasurement {
       for (int i = 0; i < buckets; i++) {
         exporter.write(getName(), Integer.toString(i), histogram[i]);
       }
-      
+
       exporter.write(getName(), ">" + buckets, histogramoverflow);
     }
   }

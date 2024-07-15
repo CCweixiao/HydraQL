@@ -68,6 +68,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <build.checkstyle.path>${maven.multiModuleProjectDirectory}/build/checkstyle</build.checkstyle.path>
+        <build.spotless.path>${maven.multiModuleProjectDirectory}/build/spotless</build.spotless.path>
         <build.findbugs.path>${basedir}/build/findbugs</build.findbugs.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot-2.version>2.1.7.RELEASE</spring-boot-2.version>
@@ -88,6 +89,7 @@
         <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
         <checkstyle.version>8.11</checkstyle.version>
+        <spotless.version>2.22.1</spotless.version>
         <spotbugs.version>3.1.11</spotbugs.version>
         <audience-annotations.version>0.5.0</audience-annotations.version>
         <jruby.verison>9.3.4.0</jruby.verison>
@@ -563,6 +565,26 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>${spotless.version}</version>
+                    <configuration>
+                        <java>
+                            <excludes>
+                                <exclude>src/main/java/com/hydraql/dsl/antlr/**/*.java</exclude>
+                            </excludes>
+                            <eclipse>
+                                <file>${build.spotless.path}/hydraql_eclipse_formatter.xml</file>
+                            </eclipse>
+                            <licenseHeader>
+                                <file>${build.spotless.path}/license-header</file>
+                            </licenseHeader>
+                        </java>
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>

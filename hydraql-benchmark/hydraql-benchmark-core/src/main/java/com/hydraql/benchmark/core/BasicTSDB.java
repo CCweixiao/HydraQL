@@ -1,19 +1,21 @@
 /**
- * Copyright (c) 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.hydraql.benchmark.core;
 
 import com.hydraql.benchmark.core.workloads.TimeSeriesWorkload;
@@ -26,8 +28,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Basic DB for printing out time series workloads and/or tracking the distribution
- * of keys and fields.
+ * Basic DB for printing out time series workloads and/or tracking the distribution of keys and
+ * fields.
  */
 public class BasicTSDB extends BasicDB {
 
@@ -35,17 +37,17 @@ public class BasicTSDB extends BasicDB {
   protected static Map<Long, Integer> timestamps;
   protected static Map<Integer, Integer> floats;
   protected static Map<Integer, Integer> integers;
-  
+
   private String timestampKey;
   private String valueKey;
   private String tagPairDelimiter;
   private String queryTimeSpanDelimiter;
   private long lastTimestamp;
-  
+
   @Override
   public void init() {
     super.init();
-    
+
     synchronized (MUTEX) {
       if (timestamps == null) {
         timestamps = new HashMap<Long, Integer>();
@@ -53,24 +55,22 @@ public class BasicTSDB extends BasicDB {
         integers = new HashMap<Integer, Integer>();
       }
     }
-    
-    timestampKey = getProperties().getProperty(
-        TimeSeriesWorkload.TIMESTAMP_KEY_PROPERTY, 
-        TimeSeriesWorkload.TIMESTAMP_KEY_PROPERTY_DEFAULT);
-    valueKey = getProperties().getProperty(
-        TimeSeriesWorkload.VALUE_KEY_PROPERTY, 
-        TimeSeriesWorkload.VALUE_KEY_PROPERTY_DEFAULT);
-    tagPairDelimiter = getProperties().getProperty(
-        TimeSeriesWorkload.PAIR_DELIMITER_PROPERTY, 
-        TimeSeriesWorkload.PAIR_DELIMITER_PROPERTY_DEFAULT);
-    queryTimeSpanDelimiter = getProperties().getProperty(
-        TimeSeriesWorkload.QUERY_TIMESPAN_DELIMITER_PROPERTY,
-        TimeSeriesWorkload.QUERY_TIMESPAN_DELIMITER_PROPERTY_DEFAULT);
+
+    timestampKey = getProperties().getProperty(TimeSeriesWorkload.TIMESTAMP_KEY_PROPERTY,
+      TimeSeriesWorkload.TIMESTAMP_KEY_PROPERTY_DEFAULT);
+    valueKey = getProperties().getProperty(TimeSeriesWorkload.VALUE_KEY_PROPERTY,
+      TimeSeriesWorkload.VALUE_KEY_PROPERTY_DEFAULT);
+    tagPairDelimiter = getProperties().getProperty(TimeSeriesWorkload.PAIR_DELIMITER_PROPERTY,
+      TimeSeriesWorkload.PAIR_DELIMITER_PROPERTY_DEFAULT);
+    queryTimeSpanDelimiter =
+        getProperties().getProperty(TimeSeriesWorkload.QUERY_TIMESPAN_DELIMITER_PROPERTY,
+          TimeSeriesWorkload.QUERY_TIMESPAN_DELIMITER_PROPERTY_DEFAULT);
   }
-  
-  public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
+
+  public Status read(String table, String key, Set<String> fields,
+      Map<String, ByteIterator> result) {
     delay();
-    
+
     if (verbose) {
       StringBuilder sb = getStringBuilder();
       sb.append("READ ").append(table).append(" ").append(key).append(" [ ");
@@ -99,7 +99,7 @@ public class BasicTSDB extends BasicDB {
             } else {
               lastTimestamp = Long.parseLong(parts[1]);
             }
-            synchronized(timestamps) {
+            synchronized (timestamps) {
               Integer ctr = timestamps.get(lastTimestamp);
               if (ctr == null) {
                 timestamps.put(lastTimestamp, 1);
@@ -116,13 +116,13 @@ public class BasicTSDB extends BasicDB {
     }
     return Status.OK;
   }
-  
+
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
     delay();
 
     boolean isFloat = false;
-    
+
     if (verbose) {
       StringBuilder sb = getStringBuilder();
       sb.append("UPDATE ").append(table).append(" ").append(key).append(" [ ");
@@ -131,12 +131,12 @@ public class BasicTSDB extends BasicDB {
         for (Entry<String, ByteIterator> entry : tree.entrySet()) {
           if (entry.getKey().equals(timestampKey)) {
             sb.append(entry.getKey()).append("=")
-              .append(Utils.bytesToLong(entry.getValue().toArray())).append(" ");
+                .append(Utils.bytesToLong(entry.getValue().toArray())).append(" ");
           } else if (entry.getKey().equals(valueKey)) {
             final NumericByteIterator it = (NumericByteIterator) entry.getValue();
             isFloat = it.isFloatingPoint();
-            sb.append(entry.getKey()).append("=")
-               .append(isFloat ? it.getDouble() : it.getLong()).append(" ");
+            sb.append(entry.getKey()).append("=").append(isFloat ? it.getDouble() : it.getLong())
+                .append(" ");
           } else {
             sb.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
           }
@@ -152,7 +152,7 @@ public class BasicTSDB extends BasicDB {
       }
       int hash = hash(table, key, values);
       incCounter(updates, hash);
-      synchronized(timestamps) {
+      synchronized (timestamps) {
         Integer ctr = timestamps.get(lastTimestamp);
         if (ctr == null) {
           timestamps.put(lastTimestamp, 1);
@@ -166,16 +166,16 @@ public class BasicTSDB extends BasicDB {
         incCounter(integers, hash);
       }
     }
-    
+
     return Status.OK;
   }
 
   @Override
   public Status insert(String table, String key, Map<String, ByteIterator> values) {
     delay();
-    
+
     boolean isFloat = false;
-    
+
     if (verbose) {
       StringBuilder sb = getStringBuilder();
       sb.append("INSERT ").append(table).append(" ").append(key).append(" [ ");
@@ -184,12 +184,12 @@ public class BasicTSDB extends BasicDB {
         for (Entry<String, ByteIterator> entry : tree.entrySet()) {
           if (entry.getKey().equals(timestampKey)) {
             sb.append(entry.getKey()).append("=")
-              .append(Utils.bytesToLong(entry.getValue().toArray())).append(" ");
+                .append(Utils.bytesToLong(entry.getValue().toArray())).append(" ");
           } else if (entry.getKey().equals(valueKey)) {
             final NumericByteIterator it = (NumericByteIterator) entry.getValue();
             isFloat = it.isFloatingPoint();
-            sb.append(entry.getKey()).append("=")
-              .append(isFloat ? it.getDouble() : it.getLong()).append(" ");
+            sb.append(entry.getKey()).append("=").append(isFloat ? it.getDouble() : it.getLong())
+                .append(" ");
           } else {
             sb.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
           }
@@ -205,7 +205,7 @@ public class BasicTSDB extends BasicDB {
       }
       int hash = hash(table, key, values);
       incCounter(inserts, hash);
-      synchronized(timestamps) {
+      synchronized (timestamps) {
         Integer ctr = timestamps.get(lastTimestamp);
         if (ctr == null) {
           timestamps.put(lastTimestamp, 1);
@@ -230,7 +230,7 @@ public class BasicTSDB extends BasicDB {
       System.out.println("[TIMESTAMPS], Unique, " + timestamps.size());
       System.out.println("[FLOATS], Unique series, " + floats.size());
       System.out.println("[INTEGERS], Unique series, " + integers.size());
-      
+
       long minTs = Long.MAX_VALUE;
       long maxTs = Long.MIN_VALUE;
       for (final long ts : timestamps.keySet()) {
@@ -245,7 +245,7 @@ public class BasicTSDB extends BasicDB {
       System.out.println("[TIMESTAMPS], Max, " + maxTs);
     }
   }
-  
+
   @Override
   protected int hash(final String table, final String key, final Map<String, ByteIterator> values) {
     final TreeMap<String, ByteIterator> sorted = new TreeMap<String, ByteIterator>();
@@ -264,10 +264,9 @@ public class BasicTSDB extends BasicDB {
     StringBuilder buf = new StringBuilder().append(table).append(key);
     for (final Entry<String, ByteIterator> entry : sorted.entrySet()) {
       entry.getValue().reset();
-      buf.append(entry.getKey())
-         .append(entry.getValue().toString());
+      buf.append(entry.getKey()).append(entry.getValue().toString());
     }
     return buf.toString().hashCode();
   }
-  
+
 }

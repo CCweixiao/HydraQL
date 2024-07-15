@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hydraql.thrift;
 
 import com.hydraql.common.callback.RowMapper;
@@ -15,211 +33,220 @@ import java.util.Map;
  */
 public class HBaseThriftTemplate implements IHBaseThriftOperations {
 
-    private final HBaseThriftPool pool;
+  private final HBaseThriftPool pool;
 
-    public HBaseThriftTemplate(String host, int port) {
-        HBaseThriftPoolConfig config = new HBaseThriftPoolConfig();
-        pool = new HBaseThriftPool(config, host, port);
-    }
+  public HBaseThriftTemplate(String host, int port) {
+    HBaseThriftPoolConfig config = new HBaseThriftPoolConfig();
+    pool = new HBaseThriftPool(config, host, port);
+  }
 
-    public HBaseThriftTemplate(String host, int port, int poolSize) {
-        HBaseThriftPoolConfig config = new HBaseThriftPoolConfig();
-        config.setMaxTotal(poolSize);
-        config.setMaxIdle(poolSize);
-        pool = new HBaseThriftPool(config, host, port);
-    }
+  public HBaseThriftTemplate(String host, int port, int poolSize) {
+    HBaseThriftPoolConfig config = new HBaseThriftPoolConfig();
+    config.setMaxTotal(poolSize);
+    config.setMaxIdle(poolSize);
+    pool = new HBaseThriftPool(config, host, port);
+  }
 
-    public HBaseThriftTemplate(String host, int port, HBaseThriftPoolConfig config){
-        pool = new HBaseThriftPool(config, host, port);
-    }
+  public HBaseThriftTemplate(String host, int port, HBaseThriftPoolConfig config) {
+    pool = new HBaseThriftPool(config, host, port);
+  }
 
-    /**
-     * Clear active connection objects actively in connection pool if you need.
-     */
-    public void clearThriftPool() {
-        pool.clearInternalPool();
-    }
+  /**
+   * Clear active connection objects actively in connection pool if you need.
+   */
+  public void clearThriftPool() {
+    pool.clearInternalPool();
+  }
 
-    @Override
-    public void save(String tableName, String rowKey, Map<String, Object> data) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.save(tableName, rowKey, data);
-        }
+  @Override
+  public void save(String tableName, String rowKey, Map<String, Object> data) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.save(tableName, rowKey, data);
     }
-    @Override
-    public void saveBatch(String tableName, Map<String, Map<String, Object>> data) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.saveBatch(tableName, data);
-        }
-    }
-    @Override
-    public <T> void save(T t) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.save(t);
-        }
-    }
+  }
 
-    @Override
-    public <T> void saveBatch(List<T> list) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.saveBatch(list);
-        }
+  @Override
+  public void saveBatch(String tableName, Map<String, Map<String, Object>> data) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.saveBatch(tableName, data);
     }
+  }
 
-    @Override
-    public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getRow(getRowParam, clazz);
-        }
+  @Override
+  public <T> void save(T t) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.save(t);
     }
+  }
 
-    @Override
-    public <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getRow(tableName, getRowParam, rowMapper);
-        }
+  @Override
+  public <T> void saveBatch(List<T> list) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.saveBatch(list);
     }
+  }
 
-    @Override
-    public HBaseRowData getRow(String tableName, GetRowParam getRowParam) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getRow(tableName, getRowParam);
-        }
+  @Override
+  public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getRow(getRowParam, clazz);
     }
+  }
 
-    @Override
-    public <T> List<T> getWithMultiVersions(GetRowParam getRowParam, Class<T> clazz) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getWithMultiVersions(getRowParam, clazz);
-        }
+  @Override
+  public <T> T getRow(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getRow(tableName, getRowParam, rowMapper);
     }
+  }
 
-    @Override
-    public <T> List<T> getWithMultiVersions(String tableName, GetRowParam getRowParam, RowMapper<T> rowMapper) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getWithMultiVersions(tableName, getRowParam, rowMapper);
-        }
+  @Override
+  public HBaseRowData getRow(String tableName, GetRowParam getRowParam) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getRow(tableName, getRowParam);
     }
+  }
 
-    @Override
-    public HBaseRowDataWithMultiVersions getWithMultiVersions(String tableName, GetRowParam getRowParam) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getWithMultiVersions(tableName, getRowParam);
-        }
+  @Override
+  public <T> List<T> getWithMultiVersions(GetRowParam getRowParam, Class<T> clazz) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getWithMultiVersions(getRowParam, clazz);
     }
+  }
 
-    @Override
-    public <T> List<T> getRows(GetRowsParam getRowsParam, Class<T> clazz) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getRows(getRowsParam, clazz);
-        }
+  @Override
+  public <T> List<T> getWithMultiVersions(String tableName, GetRowParam getRowParam,
+      RowMapper<T> rowMapper) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getWithMultiVersions(tableName, getRowParam, rowMapper);
     }
+  }
 
-    @Override
-    public <T> List<T> getRows(String tableName, GetRowsParam getRowsParams, RowMapper<T> rowMapper) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getRows(tableName, getRowsParams, rowMapper);
-        }
+  @Override
+  public HBaseRowDataWithMultiVersions getWithMultiVersions(String tableName,
+      GetRowParam getRowParam) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getWithMultiVersions(tableName, getRowParam);
     }
+  }
 
-    @Override
-    public List<HBaseRowData> getRows(String tableName, GetRowsParam getRowsParam) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.getRows(tableName, getRowsParam);
-        }
+  @Override
+  public <T> List<T> getRows(GetRowsParam getRowsParam, Class<T> clazz) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getRows(getRowsParam, clazz);
     }
+  }
 
+  @Override
+  public <T> List<T> getRows(String tableName, GetRowsParam getRowsParams, RowMapper<T> rowMapper) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getRows(tableName, getRowsParams, rowMapper);
+    }
+  }
 
-    @Override
-    public <T> List<T> scan(ScanParams scanQueryParams, Class<T> clazz) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.scan(scanQueryParams, clazz);
-        }
+  @Override
+  public List<HBaseRowData> getRows(String tableName, GetRowsParam getRowsParam) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.getRows(tableName, getRowsParam);
     }
+  }
 
-    @Override
-    public <T> List<T> scan(String tableName, ScanParams scanQueryParams, RowMapper<T> rowMapper) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.scan(tableName, scanQueryParams, rowMapper);
-        }
+  @Override
+  public <T> List<T> scan(ScanParams scanQueryParams, Class<T> clazz) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.scan(scanQueryParams, clazz);
     }
+  }
 
-    @Override
-    public List<HBaseRowData> scan(String tableName, ScanParams scanQueryParams) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            return hBaseThrift.scan(tableName, scanQueryParams);
-        }
+  @Override
+  public <T> List<T> scan(String tableName, ScanParams scanQueryParams, RowMapper<T> rowMapper) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.scan(tableName, scanQueryParams, rowMapper);
     }
+  }
 
-    @Override
-    public List<HBaseRowDataWithMultiVersions> scanWithMultiVersions(String tableName, ScanParams scanParams) {
-        return null;
+  @Override
+  public List<HBaseRowData> scan(String tableName, ScanParams scanQueryParams) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      return hBaseThrift.scan(tableName, scanQueryParams);
     }
+  }
 
-    @Override
-    public <T> void delete(T t) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.delete(t);
-        }
-    }
+  @Override
+  public List<HBaseRowDataWithMultiVersions> scanWithMultiVersions(String tableName,
+      ScanParams scanParams) {
+    return null;
+  }
 
-    @Override
-    public void delete(String tableName, String rowKey) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.delete(tableName, rowKey);
-        }
+  @Override
+  public <T> void delete(T t) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.delete(t);
     }
+  }
 
-    @Override
-    public void delete(String tableName, String rowKey, String familyName) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.delete(tableName, rowKey, familyName);
-        }
+  @Override
+  public void delete(String tableName, String rowKey) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.delete(tableName, rowKey);
     }
+  }
 
-    @Override
-    public void delete(String tableName, String rowKey, String familyName, List<String> qualifiers) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.delete(tableName, rowKey, familyName, qualifiers);
-        }
+  @Override
+  public void delete(String tableName, String rowKey, String familyName) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.delete(tableName, rowKey, familyName);
     }
+  }
 
-    @Override
-    public void delete(String tableName, String rowKey, String familyName, String... qualifiers) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.delete(tableName, rowKey, familyName, qualifiers);
-        }
+  @Override
+  public void delete(String tableName, String rowKey, String familyName, List<String> qualifiers) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.delete(tableName, rowKey, familyName, qualifiers);
     }
+  }
 
-    @Override
-    public <T> void deleteBatch(List<T> list) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.deleteBatch(list);
-        }
+  @Override
+  public void delete(String tableName, String rowKey, String familyName, String... qualifiers) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.delete(tableName, rowKey, familyName, qualifiers);
     }
+  }
 
-    @Override
-    public void deleteBatch(String tableName, List<String> rowKeys) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.deleteBatch(tableName, rowKeys);
-        }
+  @Override
+  public <T> void deleteBatch(List<T> list) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.deleteBatch(list);
     }
-    @Override
-    public void deleteBatch(String tableName, List<String> rowKeys, String familyName) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.deleteBatch(tableName, rowKeys, familyName);
-        }
+  }
+
+  @Override
+  public void deleteBatch(String tableName, List<String> rowKeys) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.deleteBatch(tableName, rowKeys);
     }
-    @Override
-    public void deleteBatch(String tableName, List<String> rowKeys, String familyName, List<String> qualifiers) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.deleteBatch(tableName, rowKeys, familyName, qualifiers);
-        }
+  }
+
+  @Override
+  public void deleteBatch(String tableName, List<String> rowKeys, String familyName) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.deleteBatch(tableName, rowKeys, familyName);
     }
-    @Override
-    public void deleteBatch(String tableName, List<String> rowKeys, String familyName, String... qualifiers) {
-        try (HBaseThrift hBaseThrift = pool.getResource()) {
-            hBaseThrift.deleteBatch(tableName, rowKeys, familyName, qualifiers);
-        }
+  }
+
+  @Override
+  public void deleteBatch(String tableName, List<String> rowKeys, String familyName,
+      List<String> qualifiers) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.deleteBatch(tableName, rowKeys, familyName, qualifiers);
     }
+  }
+
+  @Override
+  public void deleteBatch(String tableName, List<String> rowKeys, String familyName,
+      String... qualifiers) {
+    try (HBaseThrift hBaseThrift = pool.getResource()) {
+      hBaseThrift.deleteBatch(tableName, rowKeys, familyName, qualifiers);
+    }
+  }
 }

@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -27,7 +28,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A thread to periodically show the status of the experiment to reassure you that progress is being made.
+ * A thread to periodically show the status of the experiment to reassure you that progress is being
+ * made.
  */
 public class StatusThread extends Thread {
   // Counts down each of the clients completing
@@ -60,33 +62,30 @@ public class StatusThread extends Thread {
 
   /**
    * Creates a new StatusThread without JVM stat tracking.
-   *
-   * @param completeLatch         The latch that each client thread will {@link CountDownLatch#countDown()}
-   *                              as they complete.
-   * @param clients               The clients to collect metrics from.
-   * @param label                 The label for the status.
-   * @param standardstatus        If true the status is printed to stdout in addition to stderr.
+   * @param completeLatch The latch that each client thread will {@link CountDownLatch#countDown()}
+   *          as they complete.
+   * @param clients The clients to collect metrics from.
+   * @param label The label for the status.
+   * @param standardstatus If true the status is printed to stdout in addition to stderr.
    * @param statusIntervalSeconds The number of seconds between status updates.
    */
-  public StatusThread(CountDownLatch completeLatch, List<ClientThread> clients,
-                      String label, boolean standardstatus, int statusIntervalSeconds) {
+  public StatusThread(CountDownLatch completeLatch, List<ClientThread> clients, String label,
+      boolean standardstatus, int statusIntervalSeconds) {
     this(completeLatch, clients, label, standardstatus, statusIntervalSeconds, false);
   }
 
   /**
    * Creates a new StatusThread.
-   *
-   * @param completeLatch         The latch that each client thread will {@link CountDownLatch#countDown()}
-   *                              as they complete.
-   * @param clients               The clients to collect metrics from.
-   * @param label                 The label for the status.
-   * @param standardstatus        If true the status is printed to stdout in addition to stderr.
+   * @param completeLatch The latch that each client thread will {@link CountDownLatch#countDown()}
+   *          as they complete.
+   * @param clients The clients to collect metrics from.
+   * @param label The label for the status.
+   * @param standardstatus If true the status is printed to stdout in addition to stderr.
    * @param statusIntervalSeconds The number of seconds between status updates.
-   * @param trackJVMStats         Whether or not to track JVM stats.
+   * @param trackJVMStats Whether or not to track JVM stats.
    */
-  public StatusThread(CountDownLatch completeLatch, List<ClientThread> clients,
-                      String label, boolean standardstatus, int statusIntervalSeconds,
-                      boolean trackJVMStats) {
+  public StatusThread(CountDownLatch completeLatch, List<ClientThread> clients, String label,
+      boolean standardstatus, int statusIntervalSeconds, boolean trackJVMStats) {
     this.completeLatch = completeLatch;
     this.clients = clients;
     this.label = label;
@@ -122,8 +121,7 @@ public class StatusThread extends Thread {
 
       startIntervalMs = nowMs;
       deadline += sleeptimeNs;
-    }
-    while (!alldone);
+    } while (!alldone);
 
     if (trackJVMStats) {
       measureJVM();
@@ -134,15 +132,14 @@ public class StatusThread extends Thread {
 
   /**
    * Computes and prints the stats.
-   *
-   * @param startTimeMs     The start time of the test.
+   * @param startTimeMs The start time of the test.
    * @param startIntervalMs The start time of this interval.
-   * @param endIntervalMs   The end time (now) for the interval.
-   * @param lastTotalOps    The last total operations count.
+   * @param endIntervalMs The end time (now) for the interval.
+   * @param lastTotalOps The last total operations count.
    * @return The current operation count.
    */
   private long computeStats(final long startTimeMs, long startIntervalMs, long endIntervalMs,
-                            long lastTotalOps) {
+      long lastTotalOps) {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
     long totalops = 0;
@@ -154,18 +151,17 @@ public class StatusThread extends Thread {
       todoops += t.getOpsTodo();
     }
 
-
     long interval = endIntervalMs - startTimeMs;
     double throughput = 1000.0 * (((double) totalops) / (double) interval);
-    double curthroughput = 1000.0 * (((double) (totalops - lastTotalOps)) /
-        ((double) (endIntervalMs - startIntervalMs)));
+    double curthroughput = 1000.0
+        * (((double) (totalops - lastTotalOps)) / ((double) (endIntervalMs - startIntervalMs)));
     long estremaining = (long) Math.ceil(todoops / throughput);
-
 
     DecimalFormat d = new DecimalFormat("#.##");
     String labelString = this.label + format.format(new Date());
 
-    StringBuilder msg = new StringBuilder(labelString).append(" ").append(interval / 1000).append(" sec: ");
+    StringBuilder msg =
+        new StringBuilder(labelString).append(" ").append(interval / 1000).append(" sec: ");
     msg.append(totalops).append(" operations; ");
 
     if (totalops != 0) {
@@ -187,7 +183,6 @@ public class StatusThread extends Thread {
 
   /**
    * Waits for all of the client to finish or the deadline to expire.
-   *
    * @param deadline The current deadline.
    * @return True if all of the clients completed.
    */

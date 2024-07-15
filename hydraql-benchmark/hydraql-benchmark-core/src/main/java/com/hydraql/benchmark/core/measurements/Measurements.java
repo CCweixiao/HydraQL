@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core.measurements;
@@ -32,12 +33,7 @@ public class Measurements {
    * All supported measurement types are defined in this enum.
    */
   public enum MeasurementType {
-    HISTOGRAM,
-    HDRHISTOGRAM,
-    HDRHISTOGRAM_AND_HISTOGRAM,
-    HDRHISTOGRAM_AND_RAW,
-    TIMESERIES,
-    RAW
+    HISTOGRAM, HDRHISTOGRAM, HDRHISTOGRAM_AND_HISTOGRAM, HDRHISTOGRAM_AND_RAW, TIMESERIES, RAW
   }
 
   public static final String MEASUREMENT_TYPE_PROPERTY = "measurementtype";
@@ -81,66 +77,68 @@ public class Measurements {
 
     this.props = props;
 
-    String mTypeString = this.props.getProperty(MEASUREMENT_TYPE_PROPERTY, MEASUREMENT_TYPE_PROPERTY_DEFAULT);
+    String mTypeString =
+        this.props.getProperty(MEASUREMENT_TYPE_PROPERTY, MEASUREMENT_TYPE_PROPERTY_DEFAULT);
     switch (mTypeString) {
-    case "histogram":
-      measurementType = MeasurementType.HISTOGRAM;
-      break;
-    case "hdrhistogram":
-      measurementType = MeasurementType.HDRHISTOGRAM;
-      break;
-    case "hdrhistogram+histogram":
-      measurementType = MeasurementType.HDRHISTOGRAM_AND_HISTOGRAM;
-      break;
-    case "hdrhistogram+raw":
-      measurementType = MeasurementType.HDRHISTOGRAM_AND_RAW;
-      break;
-    case "timeseries":
-      measurementType = MeasurementType.TIMESERIES;
-      break;
-    case "raw":
-      measurementType = MeasurementType.RAW;
-      break;
-    default:
-      throw new IllegalArgumentException("unknown " + MEASUREMENT_TYPE_PROPERTY + "=" + mTypeString);
+      case "histogram":
+        measurementType = MeasurementType.HISTOGRAM;
+        break;
+      case "hdrhistogram":
+        measurementType = MeasurementType.HDRHISTOGRAM;
+        break;
+      case "hdrhistogram+histogram":
+        measurementType = MeasurementType.HDRHISTOGRAM_AND_HISTOGRAM;
+        break;
+      case "hdrhistogram+raw":
+        measurementType = MeasurementType.HDRHISTOGRAM_AND_RAW;
+        break;
+      case "timeseries":
+        measurementType = MeasurementType.TIMESERIES;
+        break;
+      case "raw":
+        measurementType = MeasurementType.RAW;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "unknown " + MEASUREMENT_TYPE_PROPERTY + "=" + mTypeString);
     }
 
-    String mIntervalString = this.props.getProperty(MEASUREMENT_INTERVAL, MEASUREMENT_INTERVAL_DEFAULT);
+    String mIntervalString =
+        this.props.getProperty(MEASUREMENT_INTERVAL, MEASUREMENT_INTERVAL_DEFAULT);
     switch (mIntervalString) {
-    case "op":
-      measurementInterval = 0;
-      break;
-    case "intended":
-      measurementInterval = 1;
-      break;
-    case "both":
-      measurementInterval = 2;
-      break;
-    default:
-      throw new IllegalArgumentException("unknown " + MEASUREMENT_INTERVAL + "=" + mIntervalString);
+      case "op":
+        measurementInterval = 0;
+        break;
+      case "intended":
+        measurementInterval = 1;
+        break;
+      case "both":
+        measurementInterval = 2;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "unknown " + MEASUREMENT_INTERVAL + "=" + mIntervalString);
     }
   }
 
   private OneMeasurement constructOneMeasurement(String name) {
     switch (measurementType) {
-    case HISTOGRAM:
-      return new OneMeasurementHistogram(name, props);
-    case HDRHISTOGRAM:
-      return new OneMeasurementHdrHistogram(name, props);
-    case HDRHISTOGRAM_AND_HISTOGRAM:
-      return new TwoInOneMeasurement(name,
-          new OneMeasurementHdrHistogram("Hdr" + name, props),
-          new OneMeasurementHistogram("Bucket" + name, props));
-    case HDRHISTOGRAM_AND_RAW:
-      return new TwoInOneMeasurement(name,
-          new OneMeasurementHdrHistogram("Hdr" + name, props),
-          new OneMeasurementRaw("Raw" + name, props));
-    case TIMESERIES:
-      return new OneMeasurementTimeSeries(name, props);
-    case RAW:
-      return new OneMeasurementRaw(name, props);
-    default:
-      throw new AssertionError("Impossible to be here. Dead code reached. Bugs?");
+      case HISTOGRAM:
+        return new OneMeasurementHistogram(name, props);
+      case HDRHISTOGRAM:
+        return new OneMeasurementHdrHistogram(name, props);
+      case HDRHISTOGRAM_AND_HISTOGRAM:
+        return new TwoInOneMeasurement(name, new OneMeasurementHdrHistogram("Hdr" + name, props),
+            new OneMeasurementHistogram("Bucket" + name, props));
+      case HDRHISTOGRAM_AND_RAW:
+        return new TwoInOneMeasurement(name, new OneMeasurementHdrHistogram("Hdr" + name, props),
+            new OneMeasurementRaw("Raw" + name, props));
+      case TIMESERIES:
+        return new OneMeasurementTimeSeries(name, props);
+      case RAW:
+        return new OneMeasurementRaw(name, props);
+      default:
+        throw new AssertionError("Impossible to be here. Dead code reached. Bugs?");
     }
   }
 
@@ -156,11 +154,12 @@ public class Measurements {
     }
   }
 
-  private final ThreadLocal<StartTimeHolder> tlIntendedStartTime = new ThreadLocal<StartTimeHolder>() {
-    protected StartTimeHolder initialValue() {
-      return new StartTimeHolder();
-    }
-  };
+  private final ThreadLocal<StartTimeHolder> tlIntendedStartTime =
+      new ThreadLocal<StartTimeHolder>() {
+        protected StartTimeHolder initialValue() {
+          return new StartTimeHolder();
+        }
+      };
 
   public void setIntendedStartTimeNs(long time) {
     if (measurementInterval == 0) {
@@ -177,8 +176,8 @@ public class Measurements {
   }
 
   /**
-   * Report a single value of a single metric. E.g. for read latency, operation="READ" and latency is the measured
-   * value.
+   * Report a single value of a single metric. E.g. for read latency, operation="READ" and latency
+   * is the measured value.
    */
   public void measure(String operation, int latency) {
     if (measurementInterval == 1) {
@@ -189,15 +188,16 @@ public class Measurements {
       m.measure(latency);
     } catch (ArrayIndexOutOfBoundsException e) {
       // This seems like a terribly hacky way to cover up for a bug in the measurement code
-      System.out.println("ERROR: java.lang.ArrayIndexOutOfBoundsException - ignoring and continuing");
+      System.out
+          .println("ERROR: java.lang.ArrayIndexOutOfBoundsException - ignoring and continuing");
       e.printStackTrace();
       e.printStackTrace(System.out);
     }
   }
 
   /**
-   * Report a single value of a single metric. E.g. for read latency, operation="READ" and latency is the measured
-   * value.
+   * Report a single value of a single metric. E.g. for read latency, operation="READ" and latency
+   * is the measured value.
    */
   public void measureIntended(String operation, int latency) {
     if (measurementInterval == 0) {
@@ -208,7 +208,8 @@ public class Measurements {
       m.measure(latency);
     } catch (ArrayIndexOutOfBoundsException e) {
       // This seems like a terribly hacky way to cover up for a bug in the measurement code
-      System.out.println("ERROR: java.lang.ArrayIndexOutOfBoundsException - ignoring and continuing");
+      System.out
+          .println("ERROR: java.lang.ArrayIndexOutOfBoundsException - ignoring and continuing");
       e.printStackTrace();
       e.printStackTrace(System.out);
     }
@@ -243,15 +244,13 @@ public class Measurements {
    * Report a return code for a single DB operation.
    */
   public void reportStatus(final String operation, final Status status) {
-    OneMeasurement m = measurementInterval == 1 ?
-        getOpIntendedMeasurement(operation) :
-        getOpMeasurement(operation);
+    OneMeasurement m = measurementInterval == 1 ? getOpIntendedMeasurement(operation)
+        : getOpMeasurement(operation);
     m.reportStatus(status);
   }
 
   /**
    * Export the current measurements to a suitable format.
-   *
    * @param exporter Exporter representing the type of format to write to.
    * @throws IOException Thrown if the export failed.
    */

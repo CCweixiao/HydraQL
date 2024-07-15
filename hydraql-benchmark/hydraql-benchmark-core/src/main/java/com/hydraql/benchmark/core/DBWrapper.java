@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010 Yahoo! Inc., 2016-2017 YCSB contributors. All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -30,8 +31,8 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * Wrapper around a "real" DB that measures latencies and counts return codes.
- * Also reports latency separately between OK and failed operations.
+ * Wrapper around a "real" DB that measures latencies and counts return codes. Also reports latency
+ * separately between OK and failed operations.
  */
 public class DBWrapper extends DB {
   private final DB db;
@@ -83,34 +84,35 @@ public class DBWrapper extends DB {
   }
 
   /**
-   * Initialize any state for this DB.
-   * Called once per DB instance; there is one DB instance per client thread.
+   * Initialize any state for this DB. Called once per DB instance; there is one DB instance per
+   * client thread.
    */
   public void init() throws DBException {
     try (final TraceScope span = tracer.newScope(scopeStringInit)) {
       db.init();
 
-      this.reportLatencyForEachError = Boolean.parseBoolean(getProperties().
-          getProperty(REPORT_LATENCY_FOR_EACH_ERROR_PROPERTY,
-              REPORT_LATENCY_FOR_EACH_ERROR_PROPERTY_DEFAULT));
+      this.reportLatencyForEachError =
+          Boolean.parseBoolean(getProperties().getProperty(REPORT_LATENCY_FOR_EACH_ERROR_PROPERTY,
+            REPORT_LATENCY_FOR_EACH_ERROR_PROPERTY_DEFAULT));
 
       if (!reportLatencyForEachError) {
-        String latencyTrackedErrorsProperty = getProperties().getProperty(LATENCY_TRACKED_ERRORS_PROPERTY, null);
+        String latencyTrackedErrorsProperty =
+            getProperties().getProperty(LATENCY_TRACKED_ERRORS_PROPERTY, null);
         if (latencyTrackedErrorsProperty != null) {
-          this.latencyTrackedErrors = new HashSet<String>(Arrays.asList(
-              latencyTrackedErrorsProperty.split(",")));
+          this.latencyTrackedErrors =
+              new HashSet<String>(Arrays.asList(latencyTrackedErrorsProperty.split(",")));
         }
       }
 
-      System.err.println("DBWrapper: report latency for each error is " +
-          this.reportLatencyForEachError + " and specific error codes to track" +
-          " for latency are: " + this.latencyTrackedErrors.toString());
+      System.err.println("DBWrapper: report latency for each error is "
+          + this.reportLatencyForEachError + " and specific error codes to track"
+          + " for latency are: " + this.latencyTrackedErrors.toString());
     }
   }
 
   /**
-   * Cleanup any state for this DB.
-   * Called once per DB instance; there is one DB instance per client thread.
+   * Cleanup any state for this DB. Called once per DB instance; there is one DB instance per client
+   * thread.
    */
   public void cleanup() throws DBException {
     try (final TraceScope span = tracer.newScope(scopeStringCleanup)) {
@@ -123,9 +125,8 @@ public class DBWrapper extends DB {
   }
 
   /**
-   * Read a record from the database. Each field/value pair from the result
-   * will be stored in a HashMap.
-   *
+   * Read a record from the database. Each field/value pair from the result will be stored in a
+   * HashMap.
    * @param table The name of the table
    * @param key The record key of the record to read.
    * @param fields The list of fields to read, or null for all of them
@@ -133,7 +134,7 @@ public class DBWrapper extends DB {
    * @return The result of the operation.
    */
   public Status read(String table, String key, Set<String> fields,
-                     Map<String, ByteIterator> result) {
+      Map<String, ByteIterator> result) {
     try (final TraceScope span = tracer.newScope(scopeStringRead)) {
       long ist = measurements.getIntendedtartTimeNs();
       long st = System.nanoTime();
@@ -146,18 +147,18 @@ public class DBWrapper extends DB {
   }
 
   /**
-   * Perform a range scan for a set of records in the database.
-   * Each field/value pair from the result will be stored in a HashMap.
-   *
+   * Perform a range scan for a set of records in the database. Each field/value pair from the
+   * result will be stored in a HashMap.
    * @param table The name of the table
    * @param startkey The record key of the first record to read.
    * @param recordcount The number of records to read
    * @param fields The list of fields to read, or null for all of them
-   * @param result A Vector of HashMaps, where each HashMap is a set field/value pairs for one record
+   * @param result A Vector of HashMaps, where each HashMap is a set field/value pairs for one
+   *          record
    * @return The result of the operation.
    */
-  public Status scan(String table, String startkey, int recordcount,
-                     Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
+  public Status scan(String table, String startkey, int recordcount, Set<String> fields,
+      Vector<HashMap<String, ByteIterator>> result) {
     try (final TraceScope span = tracer.newScope(scopeStringScan)) {
       long ist = measurements.getIntendedtartTimeNs();
       long st = System.nanoTime();
@@ -169,34 +170,31 @@ public class DBWrapper extends DB {
     }
   }
 
-  private void measure(String op, Status result, long intendedStartTimeNanos,
-                       long startTimeNanos, long endTimeNanos) {
+  private void measure(String op, Status result, long intendedStartTimeNanos, long startTimeNanos,
+      long endTimeNanos) {
     String measurementName = op;
     if (result == null || !result.isOk()) {
-      if (this.reportLatencyForEachError ||
-          this.latencyTrackedErrors.contains(result.getName())) {
+      if (this.reportLatencyForEachError || this.latencyTrackedErrors.contains(result.getName())) {
         measurementName = op + "-" + result.getName();
       } else {
         measurementName = op + "-FAILED";
       }
     }
-    measurements.measure(measurementName,
-        (int) ((endTimeNanos - startTimeNanos) / 1000));
+    measurements.measure(measurementName, (int) ((endTimeNanos - startTimeNanos) / 1000));
     measurements.measureIntended(measurementName,
-        (int) ((endTimeNanos - intendedStartTimeNanos) / 1000));
+      (int) ((endTimeNanos - intendedStartTimeNanos) / 1000));
   }
 
   /**
-   * Update a record in the database. Any field/value pairs in the specified values HashMap will be written into the
-   * record with the specified record key, overwriting any existing values with the same field name.
-   *
+   * Update a record in the database. Any field/value pairs in the specified values HashMap will be
+   * written into the record with the specified record key, overwriting any existing values with the
+   * same field name.
    * @param table The name of the table
    * @param key The record key of the record to write.
    * @param values A HashMap of field/value pairs to update in the record
    * @return The result of the operation.
    */
-  public Status update(String table, String key,
-                       Map<String, ByteIterator> values) {
+  public Status update(String table, String key, Map<String, ByteIterator> values) {
     try (final TraceScope span = tracer.newScope(scopeStringUpdate)) {
       long ist = measurements.getIntendedtartTimeNs();
       long st = System.nanoTime();
@@ -209,17 +207,14 @@ public class DBWrapper extends DB {
   }
 
   /**
-   * Insert a record in the database. Any field/value pairs in the specified
-   * values HashMap will be written into the record with the specified
-   * record key.
-   *
+   * Insert a record in the database. Any field/value pairs in the specified values HashMap will be
+   * written into the record with the specified record key.
    * @param table The name of the table
    * @param key The record key of the record to insert.
    * @param values A HashMap of field/value pairs to insert in the record
    * @return The result of the operation.
    */
-  public Status insert(String table, String key,
-                       Map<String, ByteIterator> values) {
+  public Status insert(String table, String key, Map<String, ByteIterator> values) {
     try (final TraceScope span = tracer.newScope(scopeStringInsert)) {
       long ist = measurements.getIntendedtartTimeNs();
       long st = System.nanoTime();
@@ -233,7 +228,6 @@ public class DBWrapper extends DB {
 
   /**
    * Delete a record from the database.
-   *
    * @param table The name of the table
    * @param key The record key of the record to delete.
    * @return The result of the operation.

@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -33,11 +34,12 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * A simple command line client to a database, using the appropriate com.hydraql.benchmark.core.DB implementation.
+ * A simple command line client to a database, using the appropriate com.hydraql.benchmark.core.DB
+ * implementation.
  */
 public final class CommandLine {
   private CommandLine() {
-    //not used
+    // not used
   }
 
   public static final String DEFAULT_DB = "com.hydraql.benchmark.core.BasicDB";
@@ -48,9 +50,10 @@ public final class CommandLine {
     System.out.println("Options:");
     System.out.println("  -P filename: Specify a property file");
     System.out.println("  -p name=value: Specify a property value");
-    System.out.println("  -db classname: Use a specified DB class (can also set the \"db\" property)");
-    System.out.println("  -table tablename: Use the table name instead of the default \"" +
-        CoreWorkload.TABLENAME_PROPERTY_DEFAULT + "\"");
+    System.out
+        .println("  -db classname: Use a specified DB class (can also set the \"db\" property)");
+    System.out.println("  -table tablename: Use the table name instead of the default \""
+        + CoreWorkload.TABLENAME_PROPERTY_DEFAULT + "\"");
     System.out.println();
   }
 
@@ -84,9 +87,10 @@ public final class CommandLine {
     System.out.println("Type \"help\" for command line help");
     System.out.println("Start with \"-help\" for usage info");
 
-    String table = props.getProperty(CoreWorkload.TABLENAME_PROPERTY, CoreWorkload.TABLENAME_PROPERTY_DEFAULT);
+    String table =
+        props.getProperty(CoreWorkload.TABLENAME_PROPERTY, CoreWorkload.TABLENAME_PROPERTY_DEFAULT);
 
-    //create a DB
+    // create a DB
     String dbname = props.getProperty(Client.DB_PROPERTY, DEFAULT_DB);
 
     ClassLoader classLoader = CommandLine.class.getClassLoader();
@@ -111,11 +115,11 @@ public final class CommandLine {
 
     System.out.println("Connected.");
 
-    //main loop
+    // main loop
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     for (;;) {
-      //get user input
+      // get user input
       System.out.print("> ");
 
       String input = null;
@@ -143,7 +147,7 @@ public final class CommandLine {
       String[] tokens = input.split(" ");
 
       long st = System.currentTimeMillis();
-      //handle commands
+      // handle commands
       if (tokens[0].compareTo("table") == 0) {
         handleTable(tokens, table);
       } else if (tokens[0].compareTo("read") == 0) {
@@ -167,10 +171,8 @@ public final class CommandLine {
   private static void parseArguments(String[] args, Properties props, Properties fileprops) {
     int argindex = 0;
     while ((argindex < args.length) && (args[argindex].startsWith("-"))) {
-      if ((args[argindex].compareTo("-help") == 0) ||
-          (args[argindex].compareTo("--help") == 0) ||
-          (args[argindex].compareTo("-?") == 0) ||
-          (args[argindex].compareTo("--?") == 0)) {
+      if ((args[argindex].compareTo("-help") == 0) || (args[argindex].compareTo("--help") == 0)
+          || (args[argindex].compareTo("-?") == 0) || (args[argindex].compareTo("--?") == 0)) {
         usageMessage();
         System.exit(0);
       }
@@ -351,6 +353,5 @@ public final class CommandLine {
       System.out.println("Error: syntax is \"table tablename\"");
     }
   }
-
 
 }

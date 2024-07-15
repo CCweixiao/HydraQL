@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hydraql.thrift;
 
 import org.junit.Before;
@@ -9,100 +27,67 @@ import java.util.Map;
  * @author leojie 2020/12/30 10:17 下午
  */
 public class HBaseThriftServiceAllScanApiTest {
-    private HBaseThriftTemplate hBaseThriftService;
-    private static final String tableName = "LEO_USER";
+  private HBaseThriftTemplate hBaseThriftService;
+  private static final String tableName = "LEO_USER";
 
-    @Before
-    public void init() {
-        hBaseThriftService = HBaseThriftTemplateFactory.getInstance();
-        Map<String, Map<String, Object>> data = new HashMap<>(100);
-        for (int i = 0; i < 100; i++) {
-            String row = (i + 1) + "000" + (i + 2);
-            Map<String, Object> tmp = new HashMap<>();
-            tmp.put("f:name", "leo" + i);
-            tmp.put("f:address", "上海" + i);
-            tmp.put("g:name", "yyf" + i);
-            tmp.put("g:address", "北京" + i);
-            data.put(row, tmp);
-        }
-        hBaseThriftService.saveBatch(tableName, data);
-        System.out.println("数据初始化成功");
+  @Before
+  public void init() {
+    hBaseThriftService = HBaseThriftTemplateFactory.getInstance();
+    Map<String, Map<String, Object>> data = new HashMap<>(100);
+    for (int i = 0; i < 100; i++) {
+      String row = (i + 1) + "000" + (i + 2);
+      Map<String, Object> tmp = new HashMap<>();
+      tmp.put("f:name", "leo" + i);
+      tmp.put("f:address", "上海" + i);
+      tmp.put("g:name", "yyf" + i);
+      tmp.put("g:address", "北京" + i);
+      data.put(row, tmp);
     }
-    /*
-        @Test
-        public void testFindAllRowToMapList() {
-            System.out.println(hBaseThriftService.findAllRowToMapList(tableName, 93));
-        }
-
-        @Test
-        public void testFindAllRowWithFamilyToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithFamilyToMapList(tableName, "g", 1));
-            System.out.println(hBaseThriftService.findAllRowWithFamilyToMapList(tableName, "f", 1));
-        }
-
-        @Test
-        public void testFindAllRowWithFamilyAndQualifiersToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithFamilyAndQualifiersToMapList(tableName, "f",
-                    Collections.singletonList("name"), 3));
-        }
-
-        @Test
-        public void testFindAllRowWithStartRowToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithStartRowToMapList(tableName, "1100012", 3));
-        }
-
-        @Test
-        public void testFindAllRowWithStartRowAndFamilyToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithStartRowAndFamilyToMapList(tableName, "1100012", "f", 3));
-        }
-
-        @Test
-        public void testFindAllRowWithStartRowAndFamilyAndQualifiersToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithStartRowAndFamilyAndQualifiersToMapList(tableName,
-                    "1100012", "g", Collections.singletonList("name"), 3));
-        }
-
-        @Test
-        public void testFindAllRowWithStartAndStopRowToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithStartAndStopRowToMapList(tableName, "1100012", "1300015", 3));
-        }
-
-        @Test
-        public void testFindAllRowWithStartAndStopRowAndFamilyToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithStartAndStopRowAndFamilyToMapList(tableName, "1100012", "1300015", "g", 3));
-        }
-
-        @Test
-        public void testFindAllRowWithStartAndStopRowAndFamilyAndQualifiersToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithStartAndStopRowAndFamilyAndQualifiersToMapList(tableName,
-                    "1100012", "1300015", "f", Collections.singletonList("name"), 3));
-        }
-
-        @Test
-        public void testFindAllRowWithPrefixToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithPrefixToMapList(tableName, "11", 10));
-        }
-
-        @Test
-        public void testFindAllRowWithPrefixAndFamilyToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithPrefixAndFamilyToMapList(tableName,
-                    "11", "f", 10));
-        }
-
-        @Test
-        public void testFindAllRowWithPrefixAndFamilyAndQualifiersToMapList() {
-            System.out.println(hBaseThriftService.findAllRowWithPrefixAndFamilyAndQualifiersToMapList(tableName,
-                    "12", "g", Collections.singletonList("name"), 10));
-        }
-
-        @Test
-        public void testScan(){
-            final List<Map<String, Map<String, String>>> mapList = hBaseThriftService.scan(tableName, "", "", "", "g"
-                    , Collections.singletonList("name"), "", null, 10, 10, true, 10);
-            System.out.println(mapList);
-            final List<Map<String, Map<String, String>>> mapList2 = hBaseThriftService.scan(tableName, "", "", "", "g"
-                    , Collections.singletonList("name"), "", null, 10, 10, false, 10);
-            System.out.println(mapList2);
-        }*/
+    hBaseThriftService.saveBatch(tableName, data);
+    System.out.println("数据初始化成功");
+  }
+  /*
+   * @Test public void testFindAllRowToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowToMapList(tableName, 93)); }
+   * @Test public void testFindAllRowWithFamilyToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithFamilyToMapList(tableName, "g", 1));
+   * System.out.println(hBaseThriftService.findAllRowWithFamilyToMapList(tableName, "f", 1)); }
+   * @Test public void testFindAllRowWithFamilyAndQualifiersToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithFamilyAndQualifiersToMapList(tableName,
+   * "f", Collections.singletonList("name"), 3)); }
+   * @Test public void testFindAllRowWithStartRowToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithStartRowToMapList(tableName, "1100012",
+   * 3)); }
+   * @Test public void testFindAllRowWithStartRowAndFamilyToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithStartRowAndFamilyToMapList(tableName,
+   * "1100012", "f", 3)); }
+   * @Test public void testFindAllRowWithStartRowAndFamilyAndQualifiersToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithStartRowAndFamilyAndQualifiersToMapList(
+   * tableName, "1100012", "g", Collections.singletonList("name"), 3)); }
+   * @Test public void testFindAllRowWithStartAndStopRowToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithStartAndStopRowToMapList(tableName,
+   * "1100012", "1300015", 3)); }
+   * @Test public void testFindAllRowWithStartAndStopRowAndFamilyToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithStartAndStopRowAndFamilyToMapList(
+   * tableName, "1100012", "1300015", "g", 3)); }
+   * @Test public void testFindAllRowWithStartAndStopRowAndFamilyAndQualifiersToMapList() {
+   * System.out.println(hBaseThriftService.
+   * findAllRowWithStartAndStopRowAndFamilyAndQualifiersToMapList(tableName, "1100012", "1300015",
+   * "f", Collections.singletonList("name"), 3)); }
+   * @Test public void testFindAllRowWithPrefixToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithPrefixToMapList(tableName, "11", 10)); }
+   * @Test public void testFindAllRowWithPrefixAndFamilyToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithPrefixAndFamilyToMapList(tableName, "11",
+   * "f", 10)); }
+   * @Test public void testFindAllRowWithPrefixAndFamilyAndQualifiersToMapList() {
+   * System.out.println(hBaseThriftService.findAllRowWithPrefixAndFamilyAndQualifiersToMapList(
+   * tableName, "12", "g", Collections.singletonList("name"), 10)); }
+   * @Test public void testScan(){ final List<Map<String, Map<String, String>>> mapList =
+   * hBaseThriftService.scan(tableName, "", "", "", "g" , Collections.singletonList("name"), "",
+   * null, 10, 10, true, 10); System.out.println(mapList); final List<Map<String, Map<String,
+   * String>>> mapList2 = hBaseThriftService.scan(tableName, "", "", "", "g" ,
+   * Collections.singletonList("name"), "", null, 10, 10, false, 10); System.out.println(mapList2);
+   * }
+   */
 
 }

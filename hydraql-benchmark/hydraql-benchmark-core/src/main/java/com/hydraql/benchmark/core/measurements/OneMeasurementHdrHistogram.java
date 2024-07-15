@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core.measurements;
@@ -34,7 +35,6 @@ import java.util.Properties;
 
 /**
  * Take measurements and maintain a HdrHistogram of a given metric, such as READ LATENCY.
- *
  */
 public class OneMeasurementHdrHistogram extends OneMeasurement {
 
@@ -54,7 +54,7 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
    * The default value for the hdrhistogram.percentiles property.
    */
   public static final String PERCENTILES_PROPERTY_DEFAULT = "95,99";
-  
+
   /**
    * The name of the property for determining if we should print out the buckets.
    */
@@ -64,12 +64,13 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
    * Whether or not to emit the histogram buckets.
    */
   private final boolean verbose;
-  
+
   private final List<Double> percentiles;
 
   public OneMeasurementHdrHistogram(String name, Properties props) {
     super(name);
-    percentiles = getPercentileValues(props.getProperty(PERCENTILES_PROPERTY, PERCENTILES_PROPERTY_DEFAULT));
+    percentiles =
+        getPercentileValues(props.getProperty(PERCENTILES_PROPERTY, PERCENTILES_PROPERTY_DEFAULT));
     verbose = Boolean.valueOf(props.getProperty(VERBOSE_PROPERTY, String.valueOf(false)));
     boolean shouldLog = Boolean.parseBoolean(props.getProperty("hdrhistogram.fileoutput", "false"));
     if (!shouldLog) {
@@ -77,7 +78,8 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
       histogramLogWriter = null;
     } else {
       try {
-        final String hdrOutputFilename = props.getProperty("hdrhistogram.output.path", "") + name + ".hdr";
+        final String hdrOutputFilename =
+            props.getProperty("hdrhistogram.output.path", "") + name + ".hdr";
         log = new PrintStream(new FileOutputStream(hdrOutputFilename), false);
       } catch (FileNotFoundException e) {
         throw new RuntimeException("Failed to open hdr histogram output file", e);
@@ -94,8 +96,8 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
   }
 
   /**
-   * It appears latency is reported in micros.
-   * Using {@link Recorder} to support concurrent updates to histogram.
+   * It appears latency is reported in micros. Using {@link Recorder} to support concurrent updates
+   * to histogram.
    */
   public void measure(int latencyInMicros) {
     histogram.recordValue(latencyInMicros);
@@ -120,7 +122,7 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
 
     for (Double percentile : percentiles) {
       exporter.write(getName(), ordinal(percentile) + "PercentileLatency(us)",
-          totalHistogram.getValueAtPercentile(percentile));
+        totalHistogram.getValueAtPercentile(percentile));
     }
 
     exportStatusCounts(exporter);
@@ -129,22 +131,20 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
     if (verbose) {
       for (HistogramIterationValue v : totalHistogram.recordedValues()) {
         int value;
-        if (v.getValueIteratedTo() > (long)Integer.MAX_VALUE) {
+        if (v.getValueIteratedTo() > (long) Integer.MAX_VALUE) {
           value = Integer.MAX_VALUE;
         } else {
-          value = (int)v.getValueIteratedTo();
+          value = (int) v.getValueIteratedTo();
         }
-  
-        exporter.write(getName(), Integer.toString(value), (double)v.getCountAtValueIteratedTo());
+
+        exporter.write(getName(), Integer.toString(value), (double) v.getCountAtValueIteratedTo());
       }
     }
   }
 
   /**
-   * This is called periodically from the StatusThread. There's a single
-   * StatusThread per Client process. We optionally serialize the interval to
-   * log on this opportunity.
-   *
+   * This is called periodically from the StatusThread. There's a single StatusThread per Client
+   * process. We optionally serialize the interval to log on this opportunity.
    * @see com.hydraql.benchmark.core.measurements.OneMeasurement#getSummary()
    */
   @Override
@@ -158,8 +158,9 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
     DecimalFormat d = new DecimalFormat("#.##");
     return "[" + getName() + ": Count=" + intervalHistogram.getTotalCount() + ", Max="
         + intervalHistogram.getMaxValue() + ", Min=" + intervalHistogram.getMinValue() + ", Avg="
-        + d.format(intervalHistogram.getMean()) + ", 90=" + d.format(intervalHistogram.getValueAtPercentile(90))
-        + ", 99=" + d.format(intervalHistogram.getValueAtPercentile(99)) + ", 99.9="
+        + d.format(intervalHistogram.getMean()) + ", 90="
+        + d.format(intervalHistogram.getValueAtPercentile(90)) + ", 99="
+        + d.format(intervalHistogram.getValueAtPercentile(99)) + ", 99.9="
         + d.format(intervalHistogram.getValueAtPercentile(99.9)) + ", 99.99="
         + d.format(intervalHistogram.getValueAtPercentile(99.99)) + "]";
   }
@@ -177,7 +178,6 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
 
   /**
    * Helper method to parse the given percentile value string.
-   *
    * @param percentileString - comma delimited string of Integer values
    * @return An Integer List of percentile values
    */
@@ -191,8 +191,9 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
     } catch (Exception e) {
       // If the given hdrhistogram.percentiles value is unreadable for whatever reason,
       // then calculate and return the default set.
-      System.err.println("[WARN] Couldn't read " + PERCENTILES_PROPERTY + " value: '" + percentileString +
-          "', the default of '" + PERCENTILES_PROPERTY_DEFAULT + "' will be used.");
+      System.err
+          .println("[WARN] Couldn't read " + PERCENTILES_PROPERTY + " value: '" + percentileString
+              + "', the default of '" + PERCENTILES_PROPERTY_DEFAULT + "' will be used.");
       e.printStackTrace();
       return getPercentileValues(PERCENTILES_PROPERTY_DEFAULT);
     }
@@ -206,16 +207,16 @@ public class OneMeasurementHdrHistogram extends OneMeasurement {
    * @return ordinal string
    */
   private String ordinal(Double i) {
-    String[] suffixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
+    String[] suffixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
     Integer j = i.intValue();
     if (i % 1 == 0) {
       switch (j % 100) {
-      case 11:
-      case 12:
-      case 13:
-        return j + "th";
-      default:
-        return j + suffixes[j % 10];
+        case 11:
+        case 12:
+        case 13:
+          return j + "th";
+        default:
+          return j + suffixes[j % 10];
       }
     } else {
       return i.toString();

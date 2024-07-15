@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -40,7 +41,7 @@ public class GoodBadUglyDB extends DB {
   private long[] delays;
 
   public GoodBadUglyDB() {
-    delays = new long[]{200, 1000, 10000, 50000, 200000};
+    delays = new long[] { 200, 1000, 10000, 50000, 200000 };
   }
 
   private void delay() {
@@ -77,51 +78,54 @@ public class GoodBadUglyDB extends DB {
   }
 
   /**
-   * Initialize any state for this DB. Called once per DB instance; there is one DB instance per client thread.
+   * Initialize any state for this DB. Called once per DB instance; there is one DB instance per
+   * client thread.
    */
   public void init() {
     int i = 0;
-    for (String delay : getProperties().getProperty(SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT).split(",")) {
+    for (String delay : getProperties().getProperty(SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT)
+        .split(",")) {
       delays[i++] = Long.parseLong(delay);
     }
   }
 
   /**
-   * Read a record from the database. Each field/value pair from the result will be stored in a HashMap.
-   *
+   * Read a record from the database. Each field/value pair from the result will be stored in a
+   * HashMap.
    * @param table The name of the table
    * @param key The record key of the record to read.
    * @param fields The list of fields to read, or null for all of them
    * @param result A HashMap of field/value pairs for the result
    * @return Zero on success, a non-zero error code on error
    */
-  public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
+  public Status read(String table, String key, Set<String> fields,
+      Map<String, ByteIterator> result) {
     delay();
     return Status.OK;
   }
 
   /**
-   * Perform a range scan for a set of records in the database. Each field/value pair from the result will be stored
-   * in a HashMap.
-   *
+   * Perform a range scan for a set of records in the database. Each field/value pair from the
+   * result will be stored in a HashMap.
    * @param table The name of the table
    * @param startkey The record key of the first record to read.
    * @param recordcount The number of records to read
    * @param fields The list of fields to read, or null for all of them
-   * @param result A Vector of HashMaps, where each HashMap is a set field/value pairs for one record
+   * @param result A Vector of HashMaps, where each HashMap is a set field/value pairs for one
+   *          record
    * @return Zero on success, a non-zero error code on error
    */
   public Status scan(String table, String startkey, int recordcount, Set<String> fields,
-                     Vector<HashMap<String, ByteIterator>> result) {
+      Vector<HashMap<String, ByteIterator>> result) {
     delay();
 
     return Status.OK;
   }
 
   /**
-   * Update a record in the database. Any field/value pairs in the specified values HashMap will be written into the
-   * record with the specified record key, overwriting any existing values with the same field name.
-   *
+   * Update a record in the database. Any field/value pairs in the specified values HashMap will be
+   * written into the record with the specified record key, overwriting any existing values with the
+   * same field name.
    * @param table The name of the table
    * @param key The record key of the record to write.
    * @param values A HashMap of field/value pairs to update in the record
@@ -134,9 +138,8 @@ public class GoodBadUglyDB extends DB {
   }
 
   /**
-   * Insert a record in the database. Any field/value pairs in the specified values HashMap will be written into the
-   * record with the specified record key.
-   *
+   * Insert a record in the database. Any field/value pairs in the specified values HashMap will be
+   * written into the record with the specified record key.
    * @param table The name of the table
    * @param key The record key of the record to insert.
    * @param values A HashMap of field/value pairs to insert in the record
@@ -149,7 +152,6 @@ public class GoodBadUglyDB extends DB {
 
   /**
    * Delete a record from the database.
-   *
    * @param table The name of the table
    * @param key The record key of the record to delete.
    * @return Zero on success, a non-zero error code on error

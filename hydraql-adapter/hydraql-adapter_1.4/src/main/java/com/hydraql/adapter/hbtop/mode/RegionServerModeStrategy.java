@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hydraql.adapter.hbtop.mode;
 
 import java.util.ArrayList;
@@ -24,23 +42,19 @@ import org.apache.hadoop.hbase.classification.InterfaceAudience;
 public final class RegionServerModeStrategy implements ModeStrategy {
 
   private final List<FieldInfo> fieldInfos = Arrays.asList(
-    new FieldInfo(Field.REGION_SERVER, 0, true),
-    new FieldInfo(Field.LONG_REGION_SERVER, 0, false),
+    new FieldInfo(Field.REGION_SERVER, 0, true), new FieldInfo(Field.LONG_REGION_SERVER, 0, false),
     new FieldInfo(Field.REGION_COUNT, 7, true),
     new FieldInfo(Field.REQUEST_COUNT_PER_SECOND, 10, true),
     new FieldInfo(Field.READ_REQUEST_COUNT_PER_SECOND, 10, true),
     new FieldInfo(Field.WRITE_REQUEST_COUNT_PER_SECOND, 10, true),
     new FieldInfo(Field.STORE_FILE_SIZE, 13, true),
     new FieldInfo(Field.UNCOMPRESSED_STORE_FILE_SIZE, 15, false),
-    new FieldInfo(Field.NUM_STORE_FILES, 7, true),
-    new FieldInfo(Field.MEM_STORE_SIZE, 11, true),
-    new FieldInfo(Field.USED_HEAP_SIZE, 11, true),
-    new FieldInfo(Field.MAX_HEAP_SIZE, 11, true)
-  );
+    new FieldInfo(Field.NUM_STORE_FILES, 7, true), new FieldInfo(Field.MEM_STORE_SIZE, 11, true),
+    new FieldInfo(Field.USED_HEAP_SIZE, 11, true), new FieldInfo(Field.MAX_HEAP_SIZE, 11, true));
 
   private final RegionModeStrategy regionModeStrategy = new RegionModeStrategy();
 
-  RegionServerModeStrategy(){
+  RegionServerModeStrategy() {
   }
 
   @Override
@@ -61,14 +75,13 @@ public final class RegionServerModeStrategy implements ModeStrategy {
       List<Record.Entry> entries = new ArrayList<>();
       for (FieldInfo fieldInfo : fieldInfos) {
         if (record.containsKey(fieldInfo.getField())) {
-          entries.add(Record.entry(fieldInfo.getField(),
-            record.get(fieldInfo.getField())));
+          entries.add(Record.entry(fieldInfo.getField(), record.get(fieldInfo.getField())));
         }
       }
 
       // Add REGION_COUNT field
-      records.add(Record.builder().putAll(Record.ofEntries(entries))
-        .put(Field.REGION_COUNT, 1).build());
+      records.add(
+        Record.builder().putAll(Record.ofEntries(entries)).put(Field.REGION_COUNT, 1).build());
     }
 
     // Aggregation by NAMESPACE field
@@ -90,8 +103,8 @@ public final class RegionServerModeStrategy implements ModeStrategy {
       }
       ServerLoad sl = clusterStatus.getLoad(sn);
       Record newRecord = Record.builder().putAll(record)
-        .put(Field.USED_HEAP_SIZE, new Size(sl.getUsedHeapMB(), Size.Unit.MEGABYTE))
-        .put(Field.MAX_HEAP_SIZE, new Size(sl.getMaxHeapMB(), Size.Unit.MEGABYTE)).build();
+          .put(Field.USED_HEAP_SIZE, new Size(sl.getUsedHeapMB(), Size.Unit.MEGABYTE))
+          .put(Field.MAX_HEAP_SIZE, new Size(sl.getMaxHeapMB(), Size.Unit.MEGABYTE)).build();
       retMap.put(sn.getServerName(), newRecord);
     }
     return new ArrayList<>(retMap.values());
@@ -100,8 +113,7 @@ public final class RegionServerModeStrategy implements ModeStrategy {
   @Override
   public DrillDownInfo drillDown(Record selectedRecord) {
     List<RecordFilter> initialFilters = Collections.singletonList(RecordFilter
-      .newBuilder(Field.REGION_SERVER)
-      .doubleEquals(selectedRecord.get(Field.REGION_SERVER)));
+        .newBuilder(Field.REGION_SERVER).doubleEquals(selectedRecord.get(Field.REGION_SERVER)));
     return new DrillDownInfo(Mode.REGION, initialFilters);
   }
 }

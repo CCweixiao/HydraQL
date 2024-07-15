@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -28,8 +29,7 @@ public class StringByteIterator extends ByteIterator {
   private int off;
 
   /**
-   * Put all of the entries of one map into the other, converting
-   * String values into ByteIterators.
+   * Put all of the entries of one map into the other, converting String values into ByteIterators.
    */
   public static void putAllAsByteIterators(Map<String, ByteIterator> out, Map<String, String> in) {
     for (Map.Entry<String, String> entry : in.entrySet()) {
@@ -38,8 +38,7 @@ public class StringByteIterator extends ByteIterator {
   }
 
   /**
-   * Put all of the entries of one map into the other, converting
-   * ByteIterator values into Strings.
+   * Put all of the entries of one map into the other, converting ByteIterator values into Strings.
    */
   public static void putAllAsStrings(Map<String, String> out, Map<String, ByteIterator> in) {
     for (Map.Entry<String, ByteIterator> entry : in.entrySet()) {
@@ -48,12 +47,10 @@ public class StringByteIterator extends ByteIterator {
   }
 
   /**
-   * Create a copy of a map, converting the values from Strings to
-   * StringByteIterators.
+   * Create a copy of a map, converting the values from Strings to StringByteIterators.
    */
   public static Map<String, ByteIterator> getByteIteratorMap(Map<String, String> m) {
-    HashMap<String, ByteIterator> ret =
-        new HashMap<String, ByteIterator>();
+    HashMap<String, ByteIterator> ret = new HashMap<String, ByteIterator>();
 
     for (Map.Entry<String, String> entry : m.entrySet()) {
       ret.put(entry.getKey(), new StringByteIterator(entry.getValue()));
@@ -62,8 +59,7 @@ public class StringByteIterator extends ByteIterator {
   }
 
   /**
-   * Create a copy of a map, converting the values from
-   * StringByteIterators to Strings.
+   * Create a copy of a map, converting the values from StringByteIterators to Strings.
    */
   public static Map<String, String> getStringMap(Map<String, ByteIterator> m) {
     HashMap<String, String> ret = new HashMap<String, String>();
@@ -112,12 +108,10 @@ public class StringByteIterator extends ByteIterator {
   }
 
   /**
-   * Specialization of general purpose toString() to avoid unnecessary
-   * copies.
+   * Specialization of general purpose toString() to avoid unnecessary copies.
    * <p>
-   * Creating a new StringByteIterator, then calling toString()
-   * yields the original String object, and does not perform any copies
-   * or String conversion operations.
+   * Creating a new StringByteIterator, then calling toString() yields the original String object,
+   * and does not perform any copies or String conversion operations.
    * </p>
    */
   @Override

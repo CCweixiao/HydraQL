@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2010-2016 Yahoo! Inc., 2017 YCSB contributors All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core;
@@ -86,7 +87,8 @@ public class Status {
   }
 
   /**
-   * Is {@code this} a passing state for the operation: {@link Status#OK} or {@link Status#BATCHED_OK}.
+   * Is {@code this} a passing state for the operation: {@link Status#OK} or
+   * {@link Status#BATCHED_OK}.
    * @return true if the operation is successful, false otherwise
    */
   public boolean isOk() {
@@ -95,16 +97,16 @@ public class Status {
 
   public static final Status OK = new Status("OK", "The operation completed successfully.");
   public static final Status ERROR = new Status("ERROR", "The operation failed.");
-  public static final Status NOT_FOUND = new Status("NOT_FOUND", "The requested record was not found.");
-  public static final Status NOT_IMPLEMENTED = new Status("NOT_IMPLEMENTED", "The operation is not " +
-      "implemented for the current binding.");
-  public static final Status UNEXPECTED_STATE = new Status("UNEXPECTED_STATE", "The operation reported" +
-      " success, but the result was not as expected.");
+  public static final Status NOT_FOUND =
+      new Status("NOT_FOUND", "The requested record was not found.");
+  public static final Status NOT_IMPLEMENTED = new Status("NOT_IMPLEMENTED",
+      "The operation is not " + "implemented for the current binding.");
+  public static final Status UNEXPECTED_STATE = new Status("UNEXPECTED_STATE",
+      "The operation reported" + " success, but the result was not as expected.");
   public static final Status BAD_REQUEST = new Status("BAD_REQUEST", "The request was not valid.");
   public static final Status FORBIDDEN = new Status("FORBIDDEN", "The operation is forbidden.");
-  public static final Status SERVICE_UNAVAILABLE = new Status("SERVICE_UNAVAILABLE", "Dependant " +
-      "service for the current binding is not available.");
-  public static final Status BATCHED_OK = new Status("BATCHED_OK", "The operation has been batched by " +
-      "the binding to be executed later.");
+  public static final Status SERVICE_UNAVAILABLE = new Status("SERVICE_UNAVAILABLE",
+      "Dependant " + "service for the current binding is not available.");
+  public static final Status BATCHED_OK = new Status("BATCHED_OK",
+      "The operation has been batched by " + "the binding to be executed later.");
 }
-

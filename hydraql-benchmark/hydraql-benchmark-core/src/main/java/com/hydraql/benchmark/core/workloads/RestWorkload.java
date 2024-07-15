@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2016-2017 YCSB contributors. All rights reserved.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.hydraql.benchmark.core.workloads;
@@ -30,19 +31,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 /**
- * Typical RESTFul services benchmarking scenario. Represents a set of client
- * calling REST operations like HTTP DELETE, GET, POST, PUT on a web service.
- * This scenario is completely different from CoreWorkload which is mainly
- * designed for databases benchmarking. However due to some reusable
- * functionality this class extends {@link CoreWorkload} and overrides necessary
+ * Typical RESTFul services benchmarking scenario. Represents a set of client calling REST
+ * operations like HTTP DELETE, GET, POST, PUT on a web service. This scenario is completely
+ * different from CoreWorkload which is mainly designed for databases benchmarking. However due to
+ * some reusable functionality this class extends {@link CoreWorkload} and overrides necessary
  * methods like init, doTransaction etc.
  */
 public class RestWorkload extends CoreWorkload {
 
   /**
-   * The name of the property for the proportion of transactions that are
-   * delete.
+   * The name of the property for the proportion of transactions that are delete.
    */
   public static final String DELETE_PROPORTION_PROPERTY = "deleteproportion";
 
@@ -59,13 +59,13 @@ public class RestWorkload extends CoreWorkload {
   /**
    * The default file name that holds the field length size for insert operations.
    */
-  public static final String FIELD_LENGTH_DISTRIBUTION_FILE_PROPERTY_DEFAULT = "fieldLengthDistFile.txt";
+  public static final String FIELD_LENGTH_DISTRIBUTION_FILE_PROPERTY_DEFAULT =
+      "fieldLengthDistFile.txt";
 
   /**
-   * In web services even though the CRUD operations follow the same request
-   * distribution, they have different traces and distribution parameter
-   * values. Hence configuring the parameters of these operations separately
-   * makes the benchmark more flexible and capable of generating better
+   * In web services even though the CRUD operations follow the same request distribution, they have
+   * different traces and distribution parameter values. Hence configuring the parameters of these
+   * operations separately makes the benchmark more flexible and capable of generating better
    * realistic workloads.
    */
   // Read related properties.
@@ -113,34 +113,40 @@ public class RestWorkload extends CoreWorkload {
   @Override
   public void init(Properties p) throws WorkloadException {
 
-    readRecordCount = Integer.parseInt(p.getProperty(READ_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
+    readRecordCount = Integer
+        .parseInt(p.getProperty(READ_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
     insertRecordCount = Integer
-      .parseInt(p.getProperty(INSERT_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
+        .parseInt(p.getProperty(INSERT_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
     deleteRecordCount = Integer
-      .parseInt(p.getProperty(DELETE_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
+        .parseInt(p.getProperty(DELETE_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
     updateRecordCount = Integer
-      .parseInt(p.getProperty(UPDATE_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
+        .parseInt(p.getProperty(UPDATE_RECORD_COUNT_PROPERTY, String.valueOf(Integer.MAX_VALUE)));
 
     readUrlMap = getTrace(p.getProperty(READ_TRACE_FILE, READ_TRACE_FILE_DEFAULT), readRecordCount);
-    insertUrlMap = getTrace(p.getProperty(INSERT_TRACE_FILE, INSERT_TRACE_FILE_DEFAULT), insertRecordCount);
-    deleteUrlMap = getTrace(p.getProperty(DELETE_TRACE_FILE, DELETE_TRACE_FILE_DEFAULT), deleteRecordCount);
-    updateUrlMap = getTrace(p.getProperty(UPDATE_TRACE_FILE, UPDATE_TRACE_FILE_DEFAULT), updateRecordCount);
+    insertUrlMap =
+        getTrace(p.getProperty(INSERT_TRACE_FILE, INSERT_TRACE_FILE_DEFAULT), insertRecordCount);
+    deleteUrlMap =
+        getTrace(p.getProperty(DELETE_TRACE_FILE, DELETE_TRACE_FILE_DEFAULT), deleteRecordCount);
+    updateUrlMap =
+        getTrace(p.getProperty(UPDATE_TRACE_FILE, UPDATE_TRACE_FILE_DEFAULT), updateRecordCount);
 
     operationchooser = createOperationGenerator(p);
 
     // Common distribution for all operations.
-    String requestDistrib = p.getProperty(REQUEST_DISTRIBUTION_PROPERTY, REQUEST_DISTRIBUTION_PROPERTY_DEFAULT);
+    String requestDistrib =
+        p.getProperty(REQUEST_DISTRIBUTION_PROPERTY, REQUEST_DISTRIBUTION_PROPERTY_DEFAULT);
 
-    double readZipfconstant = Double.parseDouble(p.getProperty(READ_ZIPFIAN_CONSTANT, READ_ZIPFIAN_CONSTANT_DEAFULT));
+    double readZipfconstant =
+        Double.parseDouble(p.getProperty(READ_ZIPFIAN_CONSTANT, READ_ZIPFIAN_CONSTANT_DEAFULT));
     readKeyChooser = getKeyChooser(requestDistrib, readUrlMap.size(), readZipfconstant, p);
-    double updateZipfconstant = Double
-        .parseDouble(p.getProperty(UPDATE_ZIPFIAN_CONSTANT, UPDATE_ZIPFIAN_CONSTANT_DEAFULT));
+    double updateZipfconstant =
+        Double.parseDouble(p.getProperty(UPDATE_ZIPFIAN_CONSTANT, UPDATE_ZIPFIAN_CONSTANT_DEAFULT));
     updateKeyChooser = getKeyChooser(requestDistrib, updateUrlMap.size(), updateZipfconstant, p);
-    double insertZipfconstant = Double
-        .parseDouble(p.getProperty(INSERT_ZIPFIAN_CONSTANT, INSERT_ZIPFIAN_CONSTANT_DEAFULT));
+    double insertZipfconstant =
+        Double.parseDouble(p.getProperty(INSERT_ZIPFIAN_CONSTANT, INSERT_ZIPFIAN_CONSTANT_DEAFULT));
     insertKeyChooser = getKeyChooser(requestDistrib, insertUrlMap.size(), insertZipfconstant, p);
-    double deleteZipfconstant = Double
-        .parseDouble(p.getProperty(DELETE_ZIPFIAN_CONSTANT, DELETE_ZIPFIAN_CONSTANT_DEAFULT));
+    double deleteZipfconstant =
+        Double.parseDouble(p.getProperty(DELETE_ZIPFIAN_CONSTANT, DELETE_ZIPFIAN_CONSTANT_DEAFULT));
     deleteKeyChooser = getKeyChooser(requestDistrib, deleteUrlMap.size(), deleteZipfconstant, p);
 
     fieldlengthgenerator = getFieldLengthGenerator(p);
@@ -158,47 +164,54 @@ public class RestWorkload extends CoreWorkload {
     return operationChooser;
   }
 
-  private static NumberGenerator getKeyChooser(String requestDistrib, int recordCount, double zipfContant,
-                                               Properties p) throws WorkloadException {
+  private static NumberGenerator getKeyChooser(String requestDistrib, int recordCount,
+      double zipfContant, Properties p) throws WorkloadException {
     NumberGenerator keychooser;
 
     switch (requestDistrib) {
-    case "exponential":
-      double percentile = Double.parseDouble(p.getProperty(ExponentialGenerator.EXPONENTIAL_PERCENTILE_PROPERTY,
-          ExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT));
-      double frac = Double.parseDouble(p.getProperty(ExponentialGenerator.EXPONENTIAL_FRAC_PROPERTY,
-          ExponentialGenerator.EXPONENTIAL_FRAC_DEFAULT));
-      keychooser = new ExponentialGenerator(percentile, recordCount * frac);
-      break;
-    case "uniform":
-      keychooser = new UniformLongGenerator(0, recordCount - 1);
-      break;
-    case "zipfian":
-      keychooser = new ZipfianGenerator(recordCount, zipfContant);
-      break;
-    case "latest":
-      throw new WorkloadException("Latest request distribution is not supported for RestWorkload.");
-    case "hotspot":
-      double hotsetfraction = Double.parseDouble(p.getProperty(HOTSPOT_DATA_FRACTION, HOTSPOT_DATA_FRACTION_DEFAULT));
-      double hotopnfraction = Double.parseDouble(p.getProperty(HOTSPOT_OPN_FRACTION, HOTSPOT_OPN_FRACTION_DEFAULT));
-      keychooser = new HotspotIntegerGenerator(0, recordCount - 1, hotsetfraction, hotopnfraction);
-      break;
-    default:
-      throw new WorkloadException("Unknown request distribution \"" + requestDistrib + "\"");
+      case "exponential":
+        double percentile =
+            Double.parseDouble(p.getProperty(ExponentialGenerator.EXPONENTIAL_PERCENTILE_PROPERTY,
+              ExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT));
+        double frac =
+            Double.parseDouble(p.getProperty(ExponentialGenerator.EXPONENTIAL_FRAC_PROPERTY,
+              ExponentialGenerator.EXPONENTIAL_FRAC_DEFAULT));
+        keychooser = new ExponentialGenerator(percentile, recordCount * frac);
+        break;
+      case "uniform":
+        keychooser = new UniformLongGenerator(0, recordCount - 1);
+        break;
+      case "zipfian":
+        keychooser = new ZipfianGenerator(recordCount, zipfContant);
+        break;
+      case "latest":
+        throw new WorkloadException(
+            "Latest request distribution is not supported for RestWorkload.");
+      case "hotspot":
+        double hotsetfraction =
+            Double.parseDouble(p.getProperty(HOTSPOT_DATA_FRACTION, HOTSPOT_DATA_FRACTION_DEFAULT));
+        double hotopnfraction =
+            Double.parseDouble(p.getProperty(HOTSPOT_OPN_FRACTION, HOTSPOT_OPN_FRACTION_DEFAULT));
+        keychooser =
+            new HotspotIntegerGenerator(0, recordCount - 1, hotsetfraction, hotopnfraction);
+        break;
+      default:
+        throw new WorkloadException("Unknown request distribution \"" + requestDistrib + "\"");
     }
     return keychooser;
   }
 
   protected static NumberGenerator getFieldLengthGenerator(Properties p) throws WorkloadException {
-    // Re-using CoreWorkload method. 
+    // Re-using CoreWorkload method.
     NumberGenerator fieldLengthGenerator = CoreWorkload.getFieldLengthGenerator(p);
     String fieldlengthdistribution = p.getProperty(FIELD_LENGTH_DISTRIBUTION_PROPERTY,
-        FIELD_LENGTH_DISTRIBUTION_PROPERTY_DEFAULT);
+      FIELD_LENGTH_DISTRIBUTION_PROPERTY_DEFAULT);
     // Needs special handling for Zipfian distribution for variable Zipf Constant.
     if (fieldlengthdistribution.compareTo("zipfian") == 0) {
-      int fieldlength = Integer.parseInt(p.getProperty(FIELD_LENGTH_PROPERTY, FIELD_LENGTH_PROPERTY_DEFAULT));
-      double insertsizezipfconstant = Double
-          .parseDouble(p.getProperty(INSERT_SIZE_ZIPFIAN_CONSTANT, INSERT_SIZE_ZIPFIAN_CONSTANT_DEAFULT));
+      int fieldlength =
+          Integer.parseInt(p.getProperty(FIELD_LENGTH_PROPERTY, FIELD_LENGTH_PROPERTY_DEFAULT));
+      double insertsizezipfconstant = Double.parseDouble(
+        p.getProperty(INSERT_SIZE_ZIPFIAN_CONSTANT, INSERT_SIZE_ZIPFIAN_CONSTANT_DEAFULT));
       fieldLengthGenerator = new ZipfianGenerator(1, fieldlength, insertsizezipfconstant);
     }
     return fieldLengthGenerator;
@@ -208,7 +221,7 @@ public class RestWorkload extends CoreWorkload {
    * Reads the trace file and returns a URL map.
    */
   private static Map<Integer, String> getTrace(String filePath, int recordCount)
-    throws WorkloadException {
+      throws WorkloadException {
     Map<Integer, String> urlMap = new HashMap<Integer, String>();
     int count = 0;
     String line;
@@ -224,8 +237,8 @@ public class RestWorkload extends CoreWorkload {
       bufferReader.close();
     } catch (IOException e) {
       throw new WorkloadException(
-        "Error while reading the trace. Please make sure the trace file path is correct. "
-          + e.getLocalizedMessage());
+          "Error while reading the trace. Please make sure the trace file path is correct. "
+              + e.getLocalizedMessage());
     }
     return urlMap;
   }
@@ -246,17 +259,17 @@ public class RestWorkload extends CoreWorkload {
     }
 
     switch (operation) {
-    case "UPDATE":
-      doTransactionUpdate(db);
-      break;
-    case "INSERT":
-      doTransactionInsert(db);
-      break;
-    case "DELETE":
-      doTransactionDelete(db);
-      break;
-    default:
-      doTransactionRead(db);
+      case "UPDATE":
+        doTransactionUpdate(db);
+        break;
+      case "INSERT":
+        doTransactionInsert(db);
+        break;
+      case "DELETE":
+        doTransactionDelete(db);
+        break;
+      default:
+        doTransactionRead(db);
     }
     return true;
   }

@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hydraql.adapter.hbtop;
 
 import java.util.Arrays;
@@ -15,11 +33,7 @@ import org.apache.hadoop.hbase.classification.InterfaceAudience;
 public final class RecordFilter {
 
   private enum Operator {
-    EQUAL("="),
-    DOUBLE_EQUALS("=="),
-    GREATER(">"),
-    GREATER_OR_EQUAL(">="),
-    LESS("<"),
+    EQUAL("="), DOUBLE_EQUALS("=="), GREATER(">"), GREATER_OR_EQUAL(">="), LESS("<"),
     LESS_OR_EQUAL("<=");
 
     private final String operator;
@@ -51,7 +65,7 @@ public final class RecordFilter {
 
     StringBuilder fieldString = new StringBuilder();
     while (filterString.length() > index && filterString.charAt(index) != '<'
-            && filterString.charAt(index) != '>' && filterString.charAt(index) != '=') {
+        && filterString.charAt(index) != '>' && filterString.charAt(index) != '=') {
       fieldString.append(filterString.charAt(index++));
     }
 
@@ -65,8 +79,8 @@ public final class RecordFilter {
     }
 
     StringBuilder operatorString = new StringBuilder();
-    while (filterString.length() > index && (filterString.charAt(index) == '<' ||
-            filterString.charAt(index) == '>' || filterString.charAt(index) == '=')) {
+    while (filterString.length() > index && (filterString.charAt(index) == '<'
+        || filterString.charAt(index) == '>' || filterString.charAt(index) == '=')) {
       operatorString.append(filterString.charAt(index++));
     }
 
@@ -121,7 +135,7 @@ public final class RecordFilter {
   private final FieldValue value;
 
   private RecordFilter(boolean ignoreCase, boolean not, Field field, Operator operator,
-                       FieldValue value) {
+      FieldValue value) {
     this.ignoreCase = ignoreCase;
     this.not = not;
     this.field = Objects.requireNonNull(field);
@@ -145,8 +159,7 @@ public final class RecordFilter {
       return not != ret;
     }
 
-    int compare = ignoreCase ?
-            fieldValue.compareToIgnoreCase(value) : fieldValue.compareTo(value);
+    int compare = ignoreCase ? fieldValue.compareToIgnoreCase(value) : fieldValue.compareTo(value);
 
     boolean ret;
     switch (operator) {
@@ -191,7 +204,7 @@ public final class RecordFilter {
     }
     RecordFilter filter = (RecordFilter) o;
     return ignoreCase == filter.ignoreCase && not == filter.not && field == filter.field
-            && operator == filter.operator && value.equals(filter.value);
+        && operator == filter.operator && value.equals(filter.value);
   }
 
   @Override
