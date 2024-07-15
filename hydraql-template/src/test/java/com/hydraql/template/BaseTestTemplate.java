@@ -42,7 +42,7 @@ public class BaseTestTemplate {
 
     protected void createTestTable() {
         ColumnFamilyDesc cf = ColumnFamilyDesc.newBuilder("info")
-                .maxVersions(5)
+                .setMaxVersions(5)
                 .build();
         ColumnFamilyDesc cf2 = ColumnFamilyDesc.newBuilder("detail")
                 .build();

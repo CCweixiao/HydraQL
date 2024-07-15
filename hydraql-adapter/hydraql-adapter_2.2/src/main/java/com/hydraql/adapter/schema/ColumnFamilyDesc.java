@@ -32,8 +32,8 @@ public class ColumnFamilyDesc extends BaseColumnFamilyDesc implements Comparable
 
         @Override
         public boolean ignoreValue(String key) {
-            boolean unsupported = super.ignoreValue(key);
-            if (unsupported) {
+            boolean ignore = super.ignoreValue(key);
+            if (ignore) {
                 return true;
             }
             return IGNORE_VALUE_KEYS.contains(key);

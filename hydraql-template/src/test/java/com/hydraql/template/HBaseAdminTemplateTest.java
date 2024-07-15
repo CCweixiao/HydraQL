@@ -5,6 +5,7 @@ import com.hydraql.adapter.schema.HTableDesc;
 import com.hydraql.common.util.SplitGoEnum;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,6 +51,33 @@ public class HBaseAdminTemplateTest {
     }
 
     @Test
+    public void testHTableDesc() {
+        HTableDesc tableDesc = HTableDesc.newBuilder("leo_test")
+                .setMaxFileSize(10 * 1024 * 1024L)
+                .setMemStoreFlushSize(256 * 1024 * 1024L)
+                .setReadOnly(false)
+                .setRegionSplitPolicyClassName("org.apache.hadoop.hbase.regionserver.ConstantSizeRegionSplitPolicy")
+                .addFamilyDesc(ColumnFamilyDesc.newBuilder("cf")
+                        .setMaxVersions(2)
+                        .setCompressionType("snappy")
+                        .setTimeToLive(3600)
+                        .setBlockSize(64 * 1024)
+                        .setConfiguration("hbase.hstore.compaction.min", "3")
+                        .setConfiguration("hbase.hstore.compaction.max", "5")
+                        .setConfiguration("hbase.hstore.compaction.max.size", "1073741824")
+                        .setConfiguration("hbase.hstore.blockingStoreFiles", "120")
+                        .setValue("CUSTOM_KEY", "custom_value")
+                        .build())
+                .setValue("CUSTOM_KEY", "custom_value")
+                .build();
+        TableDescriptor tableDescriptor = tableDesc.convertTo();
+        String customKey = tableDescriptor.getValue("CUSTOM_KEY");
+        String stringCustomizedValues = tableDescriptor.toStringCustomizedValues();
+        String humanReadableTTL = tableDesc.getColumnFamilyDescList().get(0).getHumanReadableTTL();
+        System.out.println(humanReadableTTL);
+    }
+
+    @Test
     public void testCreateTable() {
         if (adminTemplate.tableExists("leo_test")) {
             adminTemplate.disableTable("leo_test", false);
@@ -57,28 +85,28 @@ public class HBaseAdminTemplateTest {
         }
 
         HTableDesc tableDesc = HTableDesc.newBuilder("leo_test")
-                .maxFileSize(10 * 1024 * 1024L)
-                .memStoreFlushSize(256 * 1024 * 1024L)
-                .readOnly(false)
-                .regionSplitPolicyClassName("org.apache.hadoop.hbase.regionserver.ConstantSizeRegionSplitPolicy")
+                .setMaxFileSize(10 * 1024 * 1024L)
+                .setMemStoreFlushSize(256 * 1024 * 1024L)
+                .setReadOnly(false)
+                .setRegionSplitPolicyClassName("org.apache.hadoop.hbase.regionserver.ConstantSizeRegionSplitPolicy")
                 .addFamilyDesc(ColumnFamilyDesc.newBuilder("cf")
-                        .maxVersions(2)
-                        .compressionType("snappy")
-                        .timeToLive(3600)
-                        .blockSize(64 * 1024)
+                        .setMaxVersions(2)
+                        .setCompressionType("snappy")
+                        .setTimeToLive(3600)
+                        .setBlockSize(64 * 1024)
                         .setConfiguration("hbase.hstore.compaction.min", "3")
                         .setConfiguration("hbase.hstore.compaction.max", "5")
                         .setConfiguration("hbase.hstore.compaction.max.size", "1073741824")
                         .setConfiguration("hbase.hstore.blockingStoreFiles", "120")
                         .build())
                 .addFamilyDesc(ColumnFamilyDesc.newBuilder("cf2")
-                        .maxVersions(1)
-                        .compressionType("snappy")
-                        .timeToLive(36000)
-                        .blockSize(128 * 1024)
-                        .blockCacheEnabled(false)
-                        .cacheDataOnWrite(false)
-                        .cacheIndexesOnWrite(true)
+                        .setMaxVersions(1)
+                        .setCompressionType("snappy")
+                        .setTimeToLive(36000)
+                        .setBlockSize(128 * 1024)
+                        .setBlockCacheEnabled(false)
+                        .setCacheDataOnWrite(false)
+                        .setCacheIndexesOnWrite(true)
                         .build())
                 .build();
         boolean res = adminTemplate.createTable(tableDesc, SplitGoEnum.HEX_STRING_SPLIT, 10, false);

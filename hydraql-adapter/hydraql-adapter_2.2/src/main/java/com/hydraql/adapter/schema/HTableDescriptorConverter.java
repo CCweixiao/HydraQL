@@ -82,14 +82,14 @@ public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTa
                 Arrays.stream(td.getColumnFamilies()).map(cd -> ColumnFamilyDesc.createDefault(cd.getNameAsString())
                         .convertFrom(cd)).collect(Collectors.toList());
         BaseHTableDesc.Builder<HTableDesc> builder = HTableDesc.newBuilder(td.getTableName().getNameAsString());
-        builder.maxFileSize(td.getMaxFileSize())
-                .memStoreFlushSize(td.getMemStoreFlushSize())
-                .readOnly(td.isReadOnly())
-                .regionSplitPolicyClassName(td.getRegionSplitPolicyClassName())
-                .flushPolicyClassName(td.getFlushPolicyClassName())
-                .compactionEnabled(td.isCompactionEnabled())
-                .mergeEnabled(td.isMergeEnabled())
-                .splitEnabled(td.isSplitEnabled());
+        builder.setMaxFileSize(td.getMaxFileSize())
+                .setMemStoreFlushSize(td.getMemStoreFlushSize())
+                .setReadOnly(td.isReadOnly())
+                .setRegionSplitPolicyClassName(td.getRegionSplitPolicyClassName())
+                .setFlushPolicyClassName(td.getFlushPolicyClassName())
+                .setCompactionEnabled(td.isCompactionEnabled())
+                .setMergeEnabled(td.isMergeEnabled())
+                .setSplitEnabled(td.isSplitEnabled());
 
         for (ColumnFamilyDesc columnFamilyDesc : columnFamilyDescList) {
             builder.addFamilyDesc(columnFamilyDesc);

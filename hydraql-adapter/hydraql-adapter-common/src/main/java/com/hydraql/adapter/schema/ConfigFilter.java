@@ -10,22 +10,28 @@ import java.util.Set;
  */
 public interface ConfigFilter {
     default boolean intercept(String key, Object value) {
-        return intercept(key, value, true);
+        return intercept(key, value, true, false);
     }
 
-    default boolean intercept(String key, Object value, boolean checkValue) {
-        if (this.ignoreConfig(key)) {
+    default boolean intercept(String key, Object value, boolean checkConfig) {
+        return intercept(key, value, false, checkConfig);
+    }
+
+    default boolean intercept(String key, Object value, boolean checkValue, boolean checkConfig) {
+        if (StringUtils.isBlank(key) || value == null) {
             return true;
+        }
+
+        if (checkConfig) {
+            if (this.ignoreConfig(key)) {
+                return true;
+            }
         }
 
         if (checkValue) {
             if (this.ignoreValue(key)) {
                 return true;
             }
-        }
-
-        if (StringUtils.isBlank(key) || value == null) {
-            return true;
         }
 
         if (value instanceof String && StringUtils.isBlank((String) value)) {
@@ -71,11 +77,7 @@ public interface ConfigFilter {
      * @return true or false
      */
     default boolean ignoreValue(String key) {
-        if (this.defaultValues() == null || this.defaultValues().isEmpty()) {
-            return false;
-        }
-        Set<String> defaultValKeySet = this.defaultValues().keySet();
-        return !defaultValKeySet.contains(key);
+        return false;
     }
 
     Map<String, String> defaultValues();

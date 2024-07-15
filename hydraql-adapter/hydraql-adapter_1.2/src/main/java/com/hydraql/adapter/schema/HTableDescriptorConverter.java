@@ -90,14 +90,14 @@ public class HTableDescriptorConverter extends BaseHTableDescriptorConverter<HTa
     @Override
     protected HTableDesc doBackward(HTableDescriptor td) {
         BaseHTableDesc.Builder<HTableDesc> builder = HTableDesc.newBuilder(td.getTableName().getNameAsString());
-        builder.maxFileSize(td.getMaxFileSize())
-                .memStoreFlushSize(td.getMemStoreFlushSize())
-                .readOnly(td.isReadOnly())
-                .durability(td.getDurability().name())
-                .compactionEnabled(td.isCompactionEnabled())
-                .normalizationEnabled(td.isNormalizationEnabled())
-                .regionSplitPolicyClassName(td.getRegionSplitPolicyClassName())
-                .flushPolicyClassName(td.getFlushPolicyClassName());
+        builder.setMaxFileSize(td.getMaxFileSize())
+                .setMemStoreFlushSize(td.getMemStoreFlushSize())
+                .setReadOnly(td.isReadOnly())
+                .setDurability(td.getDurability().name())
+                .setCompactionEnabled(td.isCompactionEnabled())
+                .setNormalizationEnabled(td.isNormalizationEnabled())
+                .setRegionSplitPolicyClassName(td.getRegionSplitPolicyClassName())
+                .setFlushPolicyClassName(td.getFlushPolicyClassName());
 
         for (HColumnDescriptor cf : td.getColumnFamilies()) {
             ColumnFamilyDesc cfd = ColumnFamilyDesc.createDefault(cf.getNameAsString()).convertFrom(cf);

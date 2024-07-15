@@ -43,8 +43,8 @@ public class HBaseAdminTemplateTest extends AbstractHBaseTemplateTest {
         ColumnFamilyDesc f1 = ColumnFamilyDesc.newBuilder("f1")
                 .build();
         ColumnFamilyDesc f2 = ColumnFamilyDesc.newBuilder("f2")
-                .timeToLive(3600)
-                .maxVersions(3)
+                .setTimeToLive(3600)
+                .setMaxVersions(3)
                 .build();
         HTableDesc tableDesc = HTableDesc.newBuilder("leo_test_22222")
                 .addFamilyDesc(f1)

@@ -70,6 +70,10 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
             builder.setKeepDeletedCells(keepDeletedCells);
         }
 
+        if (cfd.getNewVersionBehavior() != null) {
+            builder.setNewVersionBehavior(cfd.getNewVersionBehavior());
+        }
+
         DataBlockEncoding dataBlockEncoding = DataBlockEncodingConverter.apply(cfd.getDataBlockEncoding());
         if (dataBlockEncoding != DataBlockEncoding.NONE) {
             builder.setDataBlockEncoding(dataBlockEncoding);
@@ -144,30 +148,31 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
     protected ColumnFamilyDesc doBackward(ColumnFamilyDescriptor cd) {
         final BaseColumnFamilyDesc.Builder<ColumnFamilyDesc> builder =
                 ColumnFamilyDesc.newBuilder(cd.getNameAsString())
-                        .replicationScope(cd.getScope())
-                        .maxVersions(cd.getMaxVersions())
-                        .minVersions(cd.getMinVersions())
-                        .compressionType(cd.getCompressionType().name())
-                        .bloomFilterType(cd.getBloomFilterType().name())
-                        .timeToLive(cd.getTimeToLive())
-                        .blockSize(cd.getBlocksize())
-                        .blockCacheEnabled(cd.isBlockCacheEnabled())
-                        .inMemory(cd.isInMemory())
-                        .keepDeletedCells(cd.getKeepDeletedCells().name())
-                        .dataBlockEncoding(cd.getDataBlockEncoding().name())
-                        .cacheDataOnWrite(cd.isCacheDataOnWrite())
-                        .cacheIndexesOnWrite(cd.isCacheIndexesOnWrite())
-                        .cacheBloomsOnWrite(cd.isCacheBloomsOnWrite())
-                        .evictBlocksOnClose(cd.isEvictBlocksOnClose())
-                        .prefetchBlocksOnOpen(cd.isPrefetchBlocksOnOpen())
-                        .mobEnabled(cd.isMobEnabled())
-                        .mobThreshold(cd.getMobThreshold());
+                        .setReplicationScope(cd.getScope())
+                        .setMaxVersions(cd.getMaxVersions())
+                        .setMinVersions(cd.getMinVersions())
+                        .setCompressionType(cd.getCompressionType().name())
+                        .setBloomFilterType(cd.getBloomFilterType().name())
+                        .setTimeToLive(cd.getTimeToLive())
+                        .setBlockSize(cd.getBlocksize())
+                        .setBlockCacheEnabled(cd.isBlockCacheEnabled())
+                        .setInMemory(cd.isInMemory())
+                        .setKeepDeletedCells(cd.getKeepDeletedCells().name())
+                        .setNewVersionBehavior(cd.isNewVersionBehavior())
+                        .setDataBlockEncoding(cd.getDataBlockEncoding().name())
+                        .setCacheDataOnWrite(cd.isCacheDataOnWrite())
+                        .setCacheIndexesOnWrite(cd.isCacheIndexesOnWrite())
+                        .setCacheBloomsOnWrite(cd.isCacheBloomsOnWrite())
+                        .setEvictBlocksOnClose(cd.isEvictBlocksOnClose())
+                        .setPrefetchBlocksOnOpen(cd.isPrefetchBlocksOnOpen())
+                        .setMobEnabled(cd.isMobEnabled())
+                        .setMobThreshold(cd.getMobThreshold());
 
         Map<String, String> configuration = cd.getConfiguration();
         if (!configuration.isEmpty()) {
             String storagePolicy = configuration.get(BLOCK_STORAGE_POLICY_KEY);
             if (StringUtils.isNotBlank(storagePolicy)) {
-                builder.storagePolicy(storagePolicy);
+                builder.setStoragePolicy(storagePolicy);
             } else {
                 configuration.forEach(builder::setConfiguration);
             }
@@ -179,7 +184,7 @@ public class ColumnFamilyDescriptorConverter extends BaseColumnFamilyDescriptorC
                 String keyStr = Bytes.toString(keyBytes.get());
                 String valueStr = Bytes.toString(values.get(keyBytes).get());
                 if (STORAGE_POLICY.equals(keyStr) && StringUtils.isNotBlank(valueStr)) {
-                    builder.storagePolicy(valueStr);
+                    builder.setStoragePolicy(valueStr);
                     continue;
                 }
                 builder.setValue(keyStr, valueStr);

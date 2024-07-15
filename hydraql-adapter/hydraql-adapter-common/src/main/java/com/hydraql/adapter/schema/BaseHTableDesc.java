@@ -160,7 +160,7 @@ public abstract class BaseHTableDesc {
             return DEFAULT_VALUES;
         }
 
-        public Builder<HTD> maxFileSize(Long maxFileSize) {
+        public Builder<HTD> setMaxFileSize(Long maxFileSize) {
             if (intercept(MAX_FILESIZE, maxFileSize)) {
                 return this;
             }
@@ -172,7 +172,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> readOnly(Boolean readOnly) {
+        public Builder<HTD> setReadOnly(Boolean readOnly) {
             if (intercept(READONLY, readOnly)) {
                 return this;
             }
@@ -181,7 +181,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> memStoreFlushSize(Long memStoreFlushSize) {
+        public Builder<HTD> setMemStoreFlushSize(Long memStoreFlushSize) {
             if (intercept(MEMSTORE_FLUSHSIZE, memStoreFlushSize)) {
                 return this;
             }
@@ -193,7 +193,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> compactionEnabled(Boolean compactionEnabled) {
+        public Builder<HTD> setCompactionEnabled(Boolean compactionEnabled) {
             if (intercept(COMPACTION_ENABLED, compactionEnabled)) {
                 return this;
             }
@@ -202,7 +202,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> normalizationEnabled(Boolean normalizationEnabled) {
+        public Builder<HTD> setNormalizationEnabled(Boolean normalizationEnabled) {
             if (intercept(NORMALIZATION_ENABLED, normalizationEnabled)) {
                 return this;
             }
@@ -211,7 +211,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> mergeEnabled(Boolean mergeEnabled) {
+        public Builder<HTD> setMergeEnabled(Boolean mergeEnabled) {
             if (intercept(MERGE_ENABLED, mergeEnabled)) {
                 return this;
             }
@@ -220,7 +220,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> splitEnabled(Boolean splitEnabled) {
+        public Builder<HTD> setSplitEnabled(Boolean splitEnabled) {
             if (intercept(SPLIT_ENABLED, splitEnabled)) {
                 return this;
             }
@@ -229,7 +229,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> durability(String durability) {
+        public Builder<HTD> setDurability(String durability) {
             if (intercept(DURABILITY, durability)) {
                 return this;
             }
@@ -238,7 +238,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> priority(Integer priority) {
+        public Builder<HTD> setPriority(Integer priority) {
             if (intercept(PRIORITY, priority)) {
                 return this;
             }
@@ -247,7 +247,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> regionSplitPolicyClassName(String regionSplitPolicyClassName) {
+        public Builder<HTD> setRegionSplitPolicyClassName(String regionSplitPolicyClassName) {
             if (intercept(SPLIT_POLICY, regionSplitPolicyClassName)) {
                 return this;
             }
@@ -256,7 +256,7 @@ public abstract class BaseHTableDesc {
             return this;
         }
 
-        public Builder<HTD> flushPolicyClassName(String flushPolicyClassName) {
+        public Builder<HTD> setFlushPolicyClassName(String flushPolicyClassName) {
             if (intercept(FLUSH_POLICY, flushPolicyClassName)) {
                 return this;
             }
@@ -293,17 +293,17 @@ public abstract class BaseHTableDesc {
         }
 
         public Builder<HTD> copyFrom(HTD htd) {
-            maxFileSize(htd.getMaxFileSize())
-                    .memStoreFlushSize(htd.getMemStoreFlushSize())
-                    .readOnly(htd.getReadOnly())
-                    .durability(htd.getDurability())
-                    .priority(htd.getPriority())
-                    .compactionEnabled(htd.getCompactionEnabled())
-                    .normalizationEnabled(htd.getNormalizationEnabled())
-                    .mergeEnabled(htd.getMergeEnabled())
-                    .splitEnabled(htd.getSplitEnabled())
-                    .regionSplitPolicyClassName(htd.getRegionSplitPolicyClassName())
-                    .flushPolicyClassName(htd.getFlushPolicyClassName());
+            setMaxFileSize(htd.getMaxFileSize())
+                    .setMemStoreFlushSize(htd.getMemStoreFlushSize())
+                    .setReadOnly(htd.getReadOnly())
+                    .setDurability(htd.getDurability())
+                    .setPriority(htd.getPriority())
+                    .setCompactionEnabled(htd.getCompactionEnabled())
+                    .setNormalizationEnabled(htd.getNormalizationEnabled())
+                    .setMergeEnabled(htd.getMergeEnabled())
+                    .setSplitEnabled(htd.getSplitEnabled())
+                    .setRegionSplitPolicyClassName(htd.getRegionSplitPolicyClassName())
+                    .setFlushPolicyClassName(htd.getFlushPolicyClassName());
             if (!htd.getColumnFamilyDescList().isEmpty()) {
                 htd.getColumnFamilyDescList().forEach(this::addFamilyDesc);
             }

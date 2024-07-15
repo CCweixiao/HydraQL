@@ -1,6 +1,5 @@
 package com.hydraql.adapter.schema;
 
-import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.KeepDeletedCells;
@@ -74,8 +73,8 @@ public abstract class BaseColumnFamilyDesc {
      * blocks. We always cache INDEX and BLOOM blocks; caching these blocks cannot
      * be disabled.
      */
-    public static final String BLOCKCACHE = "BLOCKCACHE";
-    public static final boolean DEFAULT_BLOCKCACHE = true;
+    public static final String BLOCK_CACHE = "BLOCKCACHE";
+    public static final boolean DEFAULT_BLOCK_CACHE = true;
 
     public static final String CACHE_DATA_ON_WRITE = "CACHE_DATA_ON_WRITE";
     public static final boolean DEFAULT_CACHE_DATA_ON_WRITE = false;
@@ -108,7 +107,7 @@ public abstract class BaseColumnFamilyDesc {
     public final static Map<String, String> DEFAULT_VALUES = new HashMap<>();
 
     static {
-        DEFAULT_VALUES.put(BLOCKCACHE, String.valueOf(DEFAULT_BLOCKCACHE));
+        DEFAULT_VALUES.put(BLOCK_CACHE, String.valueOf(DEFAULT_BLOCK_CACHE));
         DEFAULT_VALUES.put(COMPRESSION, DEFAULT_COMPRESSION.name());
         DEFAULT_VALUES.put(MAX_VERSIONS, String.valueOf(DEFAULT_MAX_VERSIONS));
         DEFAULT_VALUES.put(MIN_VERSIONS, String.valueOf(DEFAULT_MIN_VERSIONS));
@@ -142,6 +141,7 @@ public abstract class BaseColumnFamilyDesc {
     private final Boolean blockCacheEnabled;
     private final Boolean inMemory;
     private final String keepDeletedCells;
+    private final Boolean newVersionBehavior;
     private final String dataBlockEncoding;
     private final Boolean cacheDataOnWrite;
     private final Boolean cacheDataInL1;
@@ -167,6 +167,7 @@ public abstract class BaseColumnFamilyDesc {
         this.blockCacheEnabled = builder.blockCacheEnabled;
         this.inMemory = builder.inMemory;
         this.keepDeletedCells = builder.keepDeletedCells;
+        this.newVersionBehavior = builder.newVersionBehavior;
         this.dataBlockEncoding = builder.dataBlockEncoding;
         this.cacheDataOnWrite = builder.cacheDataOnWrite;
         this.cacheDataInL1 = builder.cacheDataInL1;
@@ -193,6 +194,7 @@ public abstract class BaseColumnFamilyDesc {
         private Boolean blockCacheEnabled;
         private Boolean inMemory;
         private String keepDeletedCells;
+        private Boolean newVersionBehavior;
         private String dataBlockEncoding;
         private Boolean cacheDataOnWrite;
         private Boolean cacheDataInL1;
@@ -219,7 +221,7 @@ public abstract class BaseColumnFamilyDesc {
             return DEFAULT_VALUES;
         }
 
-        public Builder<CF> replicationScope(Integer replicationScope) {
+        public Builder<CF> setReplicationScope(Integer replicationScope) {
             if (intercept(REPLICATION_SCOPE, replicationScope)) {
                 return this;
             }
@@ -233,7 +235,7 @@ public abstract class BaseColumnFamilyDesc {
         }
 
 
-        public Builder<CF> maxVersions(Integer maxVersions) {
+        public Builder<CF> setMaxVersions(Integer maxVersions) {
             if (intercept(MAX_VERSIONS, maxVersions)) {
                 return this;
             }
@@ -245,7 +247,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> minVersions(Integer minVersions) {
+        public Builder<CF> setMinVersions(Integer minVersions) {
             if (intercept(MIN_VERSIONS, minVersions)) {
                 return this;
             }
@@ -257,7 +259,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> compressionType(String compressionType) {
+        public Builder<CF> setCompressionType(String compressionType) {
             if (intercept(COMPRESSION, compressionType)) {
                 return this;
             }
@@ -267,7 +269,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> storagePolicy(String storagePolicy) {
+        public Builder<CF> setStoragePolicy(String storagePolicy) {
             if (intercept(STORAGE_POLICY, storagePolicy)) {
                 return this;
             }
@@ -276,7 +278,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> bloomFilterType(String bloomFilterType) {
+        public Builder<CF> setBloomFilterType(String bloomFilterType) {
             if (intercept(BLOOMFILTER, bloomFilterType)) {
                 return this;
             }
@@ -286,7 +288,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> timeToLive(Integer timeToLive) {
+        public Builder<CF> setTimeToLive(Integer timeToLive) {
             if (intercept(TTL, timeToLive)) {
                 return this;
             }
@@ -298,7 +300,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> blockSize(Integer blockSize) {
+        public Builder<CF> setBlockSize(Integer blockSize) {
             if (intercept(BLOCKSIZE, blockSize)) {
                 return this;
             }
@@ -310,16 +312,16 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> blockCacheEnabled(Boolean blockCacheEnabled) {
+        public Builder<CF> setBlockCacheEnabled(Boolean blockCacheEnabled) {
             if (intercept(BLOCKSIZE, blockCacheEnabled)) {
                 return this;
             }
             this.blockCacheEnabled = blockCacheEnabled;
-            this.setValue(BLOCKCACHE, String.valueOf(blockCacheEnabled));
+            this.setValue(BLOCK_CACHE, String.valueOf(blockCacheEnabled));
             return this;
         }
 
-        public Builder<CF> inMemory(Boolean inMemory) {
+        public Builder<CF> setInMemory(Boolean inMemory) {
             if (intercept(IN_MEMORY, inMemory)) {
                 return this;
             }
@@ -328,7 +330,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> keepDeletedCells(String keepDeletedCells) {
+        public Builder<CF> setKeepDeletedCells(String keepDeletedCells) {
             if (intercept(KEEP_DELETED_CELLS, keepDeletedCells)) {
                 return this;
             }
@@ -338,7 +340,16 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> dataBlockEncoding(String dataBlockEncoding) {
+        public Builder<CF> setNewVersionBehavior(Boolean newVersionBehavior) {
+            if (intercept(NEW_VERSION_BEHAVIOR, newVersionBehavior)) {
+                return this;
+            }
+            this.newVersionBehavior = newVersionBehavior;
+            this.setValue(NEW_VERSION_BEHAVIOR, String.valueOf(newVersionBehavior));
+            return this;
+        }
+
+        public Builder<CF> setDataBlockEncoding(String dataBlockEncoding) {
             if (intercept(DATA_BLOCK_ENCODING, dataBlockEncoding)) {
                 return this;
             }
@@ -348,7 +359,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> cacheDataOnWrite(Boolean cacheDataOnWrite) {
+        public Builder<CF> setCacheDataOnWrite(Boolean cacheDataOnWrite) {
             if (intercept(CACHE_DATA_ON_WRITE, cacheDataOnWrite)) {
                 return this;
             }
@@ -357,7 +368,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> cacheDataInL1(Boolean cacheDataInL1) {
+        public Builder<CF> setCacheDataInL1(Boolean cacheDataInL1) {
             if (intercept(CACHE_DATA_IN_L1, cacheDataInL1)) {
                 return this;
             }
@@ -366,7 +377,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> cacheIndexesOnWrite(Boolean cacheIndexesOnWrite) {
+        public Builder<CF> setCacheIndexesOnWrite(Boolean cacheIndexesOnWrite) {
             if (intercept(CACHE_INDEX_ON_WRITE, cacheIndexesOnWrite)) {
                 return this;
             }
@@ -375,7 +386,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> cacheBloomsOnWrite(Boolean cacheBloomsOnWrite) {
+        public Builder<CF> setCacheBloomsOnWrite(Boolean cacheBloomsOnWrite) {
             if (intercept(CACHE_BLOOMS_ON_WRITE, cacheBloomsOnWrite)) {
                 return this;
             }
@@ -384,7 +395,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> evictBlocksOnClose(Boolean evictBlocksOnClose) {
+        public Builder<CF> setEvictBlocksOnClose(Boolean evictBlocksOnClose) {
             if (intercept(EVICT_BLOCKS_ON_CLOSE, evictBlocksOnClose)) {
                 return this;
             }
@@ -393,7 +404,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> prefetchBlocksOnOpen(Boolean prefetchBlocksOnOpen) {
+        public Builder<CF> setPrefetchBlocksOnOpen(Boolean prefetchBlocksOnOpen) {
             if (intercept(PREFETCH_BLOCKS_ON_OPEN, prefetchBlocksOnOpen)) {
                 return this;
             }
@@ -402,7 +413,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> mobEnabled(Boolean mobEnabled) {
+        public Builder<CF> setMobEnabled(Boolean mobEnabled) {
             if (intercept(IS_MOB, mobEnabled)) {
                 return this;
             }
@@ -411,7 +422,7 @@ public abstract class BaseColumnFamilyDesc {
             return this;
         }
 
-        public Builder<CF> mobThreshold(Long mobThreshold) {
+        public Builder<CF> setMobThreshold(Long mobThreshold) {
             if (intercept(MOB_THRESHOLD, mobThreshold)) {
                 return this;
             }
@@ -424,7 +435,7 @@ public abstract class BaseColumnFamilyDesc {
         }
 
         public Builder<CF> setConfiguration(String key, String value) {
-            if (intercept(key, value, false)) {
+            if (intercept(key, value, true)) {
                 return this;
             }
             this.configuration.put(key, value);
@@ -440,23 +451,24 @@ public abstract class BaseColumnFamilyDesc {
         }
 
         public Builder<CF> copyFrom(CF cf) {
-            this.replicationScope(cf.getReplicationScope())
-                    .maxVersions(cf.getMaxVersions())
-                    .minVersions(cf.getMinVersions())
-                    .compressionType(cf.getCompressionType())
-                    .bloomFilterType(cf.getBloomFilterType())
-                    .timeToLive(cf.getTimeToLive())
-                    .blockSize(cf.getBlockSize())
-                    .blockCacheEnabled(cf.getBlockCacheEnabled())
-                    .inMemory(cf.getInMemory())
-                    .keepDeletedCells(cf.getKeepDeletedCells())
-                    .dataBlockEncoding(cf.getDataBlockEncoding())
-                    .cacheDataOnWrite(cf.getCacheDataOnWrite())
-                    .cacheDataInL1(cf.getCacheDataInL1())
-                    .cacheIndexesOnWrite(cf.getCacheIndexesOnWrite())
-                    .cacheBloomsOnWrite(cf.getCacheDataOnWrite())
-                    .evictBlocksOnClose(cf.getEvictBlocksOnClose())
-                    .prefetchBlocksOnOpen(cf.getPrefetchBlocksOnOpen());
+            this.setReplicationScope(cf.getReplicationScope())
+                    .setMaxVersions(cf.getMaxVersions())
+                    .setMinVersions(cf.getMinVersions())
+                    .setCompressionType(cf.getCompressionType())
+                    .setBloomFilterType(cf.getBloomFilterType())
+                    .setTimeToLive(cf.getTimeToLive())
+                    .setBlockSize(cf.getBlockSize())
+                    .setBlockCacheEnabled(cf.getBlockCacheEnabled())
+                    .setInMemory(cf.getInMemory())
+                    .setKeepDeletedCells(cf.getKeepDeletedCells())
+                    .setNewVersionBehavior(cf.getNewVersionBehavior())
+                    .setDataBlockEncoding(cf.getDataBlockEncoding())
+                    .setCacheDataOnWrite(cf.getCacheDataOnWrite())
+                    .setCacheDataInL1(cf.getCacheDataInL1())
+                    .setCacheIndexesOnWrite(cf.getCacheIndexesOnWrite())
+                    .setCacheBloomsOnWrite(cf.getCacheDataOnWrite())
+                    .setEvictBlocksOnClose(cf.getEvictBlocksOnClose())
+                    .setPrefetchBlocksOnOpen(cf.getPrefetchBlocksOnOpen());
 
             if (!cf.getConfiguration().isEmpty()) {
                 cf.getConfiguration().forEach(this::setConfiguration);
@@ -504,6 +516,64 @@ public abstract class BaseColumnFamilyDesc {
         return timeToLive;
     }
 
+    public String getHumanReadableTTL() {
+        Integer interval = this.getTimeToLive();
+        if (interval == null) {
+            interval = Integer.MAX_VALUE;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int days, hours, minutes, seconds;
+
+        // edge cases first
+        if (interval == Integer.MAX_VALUE) {
+            sb.append("FOREVER");
+            return sb.toString();
+        }
+        if (interval < HConstants.MINUTE_IN_SECONDS) {
+            sb.append(interval);
+            sb.append(" SECOND").append(interval == 1 ? "" : "S");
+            return sb.toString();
+        }
+
+        days = interval / HConstants.DAY_IN_SECONDS;
+        hours = (interval - HConstants.DAY_IN_SECONDS * days) / HConstants.HOUR_IN_SECONDS;
+        minutes = (interval - HConstants.DAY_IN_SECONDS * days
+                - HConstants.HOUR_IN_SECONDS * hours) / HConstants.MINUTE_IN_SECONDS;
+        seconds = interval - HConstants.DAY_IN_SECONDS * days
+                - HConstants.HOUR_IN_SECONDS * hours - HConstants.MINUTE_IN_SECONDS * minutes;
+
+        sb.append(interval);
+        sb.append(" SECONDS (");
+
+        if (days > 0) {
+            sb.append(days);
+            sb.append(" DAY").append(days == 1 ? "" : "S");
+        }
+
+        if (hours > 0) {
+            sb.append(days > 0 ? " " : "");
+            sb.append(hours);
+            sb.append(" HOUR").append(hours == 1 ? "" : "S");
+        }
+
+        if (minutes > 0) {
+            sb.append(days + hours > 0 ? " " : "");
+            sb.append(minutes);
+            sb.append(" MINUTE").append(minutes == 1 ? "" : "S");
+        }
+
+        if (seconds > 0) {
+            sb.append(days + hours + minutes > 0 ? " " : "");
+            sb.append(seconds);
+            sb.append(" SECOND").append(minutes == 1 ? "" : "S");
+        }
+
+        sb.append(")");
+
+        return sb.toString();
+    }
+
     public Integer getBlockSize() {
         return blockSize;
     }
@@ -518,6 +588,10 @@ public abstract class BaseColumnFamilyDesc {
 
     public String getKeepDeletedCells() {
         return keepDeletedCells;
+    }
+
+    public Boolean getNewVersionBehavior() {
+        return newVersionBehavior;
     }
 
     public String getDataBlockEncoding() {
@@ -562,50 +636,6 @@ public abstract class BaseColumnFamilyDesc {
 
     public Long getMobThreshold() {
         return mobThreshold;
-    }
-
-    public String humanReadableTTL(long interval) {
-        StringBuilder sb = new StringBuilder();
-        if (interval == HBaseConstants.DEFAULT_TTL) {
-            sb.append("FOREVER");
-            return sb.toString();
-        } else if (interval < 60L) {
-            sb.append(interval);
-            sb.append(" 秒");
-            return sb.toString();
-        } else {
-            int days = (int) (interval / 86400L);
-            int hours = (int) (interval - (86400L * days)) / 3600;
-            int minutes = (int) (interval - (86400L * days) - (long) (3600 * hours)) / 60;
-            int seconds = (int) (interval - (86400L * days) - (long) (3600 * hours) - (long) (60 * minutes));
-            sb.append(interval);
-            sb.append(" 秒 (");
-            if (days > 0) {
-                sb.append(days);
-                sb.append(" 天");
-            }
-
-            if (hours > 0) {
-                sb.append(days > 0 ? " " : "");
-                sb.append(hours);
-                sb.append(" 小时");
-            }
-
-            if (minutes > 0) {
-                sb.append(days + hours > 0 ? " " : "");
-                sb.append(minutes);
-                sb.append(" 分钟");
-            }
-
-            if (seconds > 0) {
-                sb.append(days + hours + minutes > 0 ? " " : "");
-                sb.append(seconds);
-                sb.append(" 秒");
-            }
-
-            sb.append(")");
-            return sb.toString();
-        }
     }
 
     @Override
