@@ -158,7 +158,7 @@ public class HBaseTableAdapter extends AbstractHBaseTableAdapter {
     }
 
     if (scanParams.isReversed()) {
-      scan.setReversed(scan.isReversed());
+      scan.setReversed(scanParams.isReversed());
     }
 
     if (scanParams.getCaching() > 0) {
