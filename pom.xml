@@ -21,10 +21,10 @@
     </description>
 
     <licenses>
-        <!-- 开源协议 -->
         <license>
-            <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
 
@@ -60,6 +60,7 @@
         <module>hydraql-thrift</module>
         <module>spring-boot-starter-hydraql</module>
         <module>hydraql-benchmark</module>
+        <module>hydraql-reflectasm</module>
     </modules>
 
     <properties>
@@ -84,6 +85,7 @@
         <antlr4.version>4.13.1</antlr4.version>
         <fastjson2.version>2.0.19</fastjson2.version>
         <reflectasm.version>1.11.9</reflectasm.version>
+        <asm.version>5.1</asm.version>
         <hutool.version>5.7.2</hutool.version>
         <findbugs.maven.version>3.0.5</findbugs.maven.version>
         <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
@@ -179,6 +181,12 @@
             <dependency>
                 <groupId>com.hydraql</groupId>
                 <artifactId>hydraql-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.hydraql</groupId>
+                <artifactId>hydraql-reflectasm</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -224,10 +224,6 @@
                             </filters>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.esotericsoftware</pattern>
-                                    <shadedPattern>${shading.prefix}.com.esotericsoftware</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>com.google</pattern>
                                     <shadedPattern>${shading.prefix}.com.google</shadedPattern>
                                 </relocation>
