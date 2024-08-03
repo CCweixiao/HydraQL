@@ -3,5 +3,5 @@ package com.hydraql.reflectasm;
 /**
  * @author leojie@apache.org 2024/7/23 21:58
  */
-public abstract class PublicConstructorAccess extends ConstructorAccess {
+public abstract class PublicConstructorAccess<T> extends ConstructorAccess<T> {
 }
