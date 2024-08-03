@@ -34,27 +34,20 @@ public class ConstructorAccessTest extends TestCase {
     }
 
     public void testHasArgumentConstructor() {
-        try {
-            ConstructorAccess.get(HasArgumentConstructor.class);
-            fail();
-        } catch (RuntimeException re) {
-            System.out.println("Expected exception happened: " + re);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            fail();
-        }
+        HasArgumentConstructor someObject = new HasArgumentConstructor("bla");
+        ConstructorAccess<HasArgumentConstructor> access = ConstructorAccess.get(HasArgumentConstructor.class);
+        assertEquals(someObject, access.classAccessor.newInstance(0,"bla"));
+        assertEquals(someObject, access.classAccessor.newInstance(0,"bla"));
+        assertEquals(someObject, access.classAccessor.newInstance(0,"bla"));
+        assertEquals(someObject, access.classAccessor.newInstance(0,"bla"));
     }
 
     public void testHasPrivateConstructor() {
-        try {
-            ConstructorAccess.get(HasPrivateConstructor.class);
-            fail();
-        } catch (RuntimeException re) {
-            System.out.println("Expected exception happened: " + re);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            fail();
-        }
+        ConstructorAccess<HasPrivateConstructor> access = ConstructorAccess.get(HasPrivateConstructor.class);
+        HasPrivateConstructor someObject = new HasPrivateConstructor();
+        assertEquals(someObject, access.newInstance());
+        assertEquals(someObject, access.newInstance());
+        assertEquals(someObject, access.newInstance());
     }
 
     public void testHasProtectedConstructor() {

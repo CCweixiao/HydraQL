@@ -36,7 +36,7 @@ public class TestReflectModel {
         UserData user = UserData.class.getDeclaredConstructor().newInstance();
         HBaseTableSchema hBaseTableMeta = ReflectFactory.getInstance().register(UserData.class);
         List<HBaseField> fieldStructs = hBaseTableMeta.getFieldStructList();
-        HBaseField hBaseField = fieldStructs.get(2);
+        HBaseField hBaseField = fieldStructs.get(3);
         hBaseTableMeta.getMethodAccess().invoke(user, hBaseField.getSetterMethodIndex(), false);
         System.out.println(user);
     }

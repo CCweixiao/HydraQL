@@ -7,7 +7,7 @@ public class ConstructorAccessBenchmark extends Benchmark {
 		int count = 1000000;
 		Object[] dontCompileMeAway = new Object[count];
 
-		Class type = SomeClass.class;
+		Class<SomeClass> type = SomeClass.class;
 		ConstructorAccess<SomeClass> access = ConstructorAccess.get(type);
 
 		for (int i = 0; i < 100; i++)

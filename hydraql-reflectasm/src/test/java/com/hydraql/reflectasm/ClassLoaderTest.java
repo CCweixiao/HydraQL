@@ -42,8 +42,8 @@ public class ClassLoaderTest extends TestCase {
 		assertEquals("second", testObject2.toString());
 		assertEquals("second", access2.get(testObject2, "name"));
 
-		assertEquals(access1.getClass().toString(), access2.getClass().toString()); // Same class names
-        assertNotEquals(access1.getClass(), access2.getClass()); // But different classes
+		assertEquals(access1.classAccessor.getClass().toString(), access2.classAccessor.getClass().toString()); // Same class names
+        assertNotEquals(access1.classAccessor.getClass(), access2.classAccessor.getClass()); // But different classes
 		assertEquals(initialCount + 2, AccessClassLoader.activeAccessClassLoaders());
 
 		testClassLoader1 = null;
@@ -96,8 +96,8 @@ public class ClassLoaderTest extends TestCase {
 		assertEquals("second", testObject2.toString());
 		assertEquals("second", access2.get(testObject2, "name"));
 
-		assertEquals(access1.getClass().toString(), access2.getClass().toString()); // Same class names
-        assertNotEquals(access1.getClass(), access2.getClass()); // But different classes
+		assertEquals(access1.classAccessor.getClass().toString(), access2.classAccessor.getClass().toString()); // Same class names
+        assertNotEquals(access1.classAccessor.getClass(), access2.classAccessor.getClass()); // But different classes
 
 		assertEquals(initialCount + 2, AccessClassLoader.activeAccessClassLoaders());
 
@@ -121,9 +121,8 @@ public class ClassLoaderTest extends TestCase {
 		protected synchronized Class<?> loadClass (String name, boolean resolve) throws ClassNotFoundException {
 			Class<?> c = findLoadedClass(name);
 			if (c != null) return c;
-			if (name.startsWith("java.")) return super.loadClass(name, resolve);
-			if (!name.equals("com.hydraql.reflectasm.ClassLoaderTest$Test"))
-				throw new ClassNotFoundException("Class not found on purpose: " + name);
+			if (!name.startsWith("com.hydraql.reflectasm.ClassLoaderTest"))
+				return super.loadClass(name, resolve);
 			ByteArrayOutputStream output = new ByteArrayOutputStream(32 * 1024);
 			InputStream input = ClassLoaderTest.class.getResourceAsStream("/" + name.replace('.', '/') + ".class");
 			if (input == null) return null;

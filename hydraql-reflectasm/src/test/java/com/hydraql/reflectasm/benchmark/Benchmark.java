@@ -1,14 +1,14 @@
 package com.hydraql.reflectasm.benchmark;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 public class Benchmark {
 	public boolean warmup = true;
-	public HashMap<String, Long> testTimes = new HashMap();
+	public HashMap<String, Long> testTimes = new HashMap<>();
 	private long s;
 
 	public void start () {
@@ -25,14 +25,9 @@ public class Benchmark {
 	}
 
 	public void chart (String title) {
-		Comparator<Entry> comparator = new Comparator<Entry>() {
-			public int compare (Entry o1, Entry o2) {
-				// return ((String)o1.getKey()).compareTo((String)o2.getKey());
-				return (int)((Long)o1.getValue() - (Long)o2.getValue());
-			}
-		};
-		ArrayList<Entry> list = new ArrayList(testTimes.entrySet());
-		Collections.sort(list, comparator);
+		Comparator<Entry<String, Long> > comparator = (o1, o2) -> (int)(o1.getValue() - o2.getValue());
+		List<Entry<String, Long>> list = new ArrayList<>(testTimes.entrySet());
+		list.sort(comparator);
 
 		StringBuilder names = new StringBuilder(512);
 		StringBuilder times = new StringBuilder(512);

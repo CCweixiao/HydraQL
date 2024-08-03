@@ -3,7 +3,6 @@ package com.hydraql.reflectasm.benchmark;
 import com.hydraql.reflectasm.FieldAccess;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 
 public class FieldAccessBenchmark extends Benchmark {
 	public FieldAccessBenchmark () throws Exception {

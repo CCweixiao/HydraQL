@@ -1,10 +1,9 @@
 package com.hydraql.reflectasm;
 
+import junit.framework.TestCase;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import static junit.framework.Assert.assertEquals;
-
-import junit.framework.TestCase;
 
 public class MethodAccessTest extends TestCase {
 	public void testInvoke () {
@@ -13,20 +12,20 @@ public class MethodAccessTest extends TestCase {
 		Object value;
 
 		value = access.invoke(someObject, "getName");
-		assertEquals(null, value);
+        assertNull(value);
 		value = access.invoke(someObject, "setName", "sweet");
-		assertEquals(null, value);
+        assertNull(value);
 		value = access.invoke(someObject, "getName");
 		assertEquals("sweet", value);
 		value = access.invoke(someObject, "setName", (Object)null);
-		assertEquals(null, value);
+        assertNull(value);
 		value = access.invoke(someObject, "getName");
-		assertEquals(null, value);
+        assertNull(value);
 
 		value = access.invoke(someObject, "getIntValue");
 		assertEquals(0, value);
 		value = access.invoke(someObject, "setIntValue", 1234);
-		assertEquals(null, value);
+        assertNull(value);
 		value = access.invoke(someObject, "getIntValue");
 		assertEquals(1234, value);
 

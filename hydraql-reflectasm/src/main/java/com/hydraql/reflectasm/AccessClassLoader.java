@@ -131,7 +131,7 @@ class AccessClassLoader extends ClassLoader {
                     accessClassLoaders.remove(parent); // the value has been GC-reclaimed, but still not the key (defensive sanity)
             }
             AccessClassLoader accessClassLoader = new AccessClassLoader(parent);
-            accessClassLoaders.put(parent, new WeakReference<AccessClassLoader>(accessClassLoader));
+            accessClassLoaders.put(parent, new WeakReference<>(accessClassLoader));
             return accessClassLoader;
         }
     }

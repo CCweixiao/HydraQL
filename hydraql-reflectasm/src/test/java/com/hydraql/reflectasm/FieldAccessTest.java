@@ -2,8 +2,6 @@ package com.hydraql.reflectasm;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Field;
-
 public class FieldAccessTest extends TestCase {
 	public void testNameSetAndGet () {
 		FieldAccess access = FieldAccess.get(SomeClass.class);
@@ -41,9 +39,8 @@ public class FieldAccessTest extends TestCase {
 		access.setBoolean(test, access.getIndex("booleanField"), true);
         assertTrue(access.getBoolean(test, access.getIndex("booleanField")));
 
-		Field[] fields = access.getFields();
-		int indexTest3 = access.getIndex("test3");
-		int test3 = access.getInt(test, indexTest3);
+
+		int test3 = access.getInt(test, access.getIndex("test3"));
 		assertEquals(0, test3);
 		access.setInt(test, access.getIndex("test3"), 12);
 		int test31 = access.getInt(test, access.getIndex("test3"));
