@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -59,7 +59,7 @@ import static com.hydraql.benchmark.core.workloads.CoreWorkload.TABLENAME_PROPER
 public class HydraQLTemplateClient extends com.hydraql.benchmark.core.DB {
   private static final AtomicInteger THREAD_COUNT = new AtomicInteger(0);
 
-  private Configuration config = HBaseConfiguration.create();
+  private final Configuration config = HBaseConfiguration.create();
 
   private boolean debug = false;
 
