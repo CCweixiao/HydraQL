@@ -18,10 +18,9 @@
 
 package com.hydraql.adapter.schema;
 
-import org.apache.commons.lang.StringUtils;
+import com.hydraql.common.util.StringUtil;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author leojie@apache.org 2024/7/12 22:38
@@ -36,7 +35,7 @@ public interface ConfigFilter {
   }
 
   default boolean intercept(String key, Object value, boolean checkValue, boolean checkConfig) {
-    if (StringUtils.isBlank(key) || value == null) {
+    if (StringUtil.isBlank(key) || value == null) {
       return true;
     }
 
@@ -52,7 +51,7 @@ public interface ConfigFilter {
       }
     }
 
-    if (value instanceof String && StringUtils.isBlank((String) value)) {
+    if (value instanceof String && StringUtil.isBlank((String) value)) {
       return true;
     }
 

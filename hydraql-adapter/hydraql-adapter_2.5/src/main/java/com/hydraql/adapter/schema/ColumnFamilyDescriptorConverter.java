@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.schema;
 
-import org.apache.commons.lang.StringUtils;
+import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.KeepDeletedCells;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
@@ -131,7 +131,7 @@ public class ColumnFamilyDescriptorConverter
 
     String storagePolicy = cfd.getStoragePolicy();
     boolean storagePolicyHasSet = false;
-    if (StringUtils.isNotBlank(storagePolicy)) {
+    if (StringUtil.isNotBlank(storagePolicy)) {
       builder.setStoragePolicy(storagePolicy);
       storagePolicyHasSet = true;
     }
@@ -141,7 +141,7 @@ public class ColumnFamilyDescriptorConverter
       for (String key : configuration.keySet()) {
         if (BLOCK_STORAGE_POLICY_KEY.equals(key)) {
           String storagePolicyConfig = configuration.get(key);
-          if (StringUtils.isBlank(storagePolicyConfig)) {
+          if (StringUtil.isBlank(storagePolicyConfig)) {
             continue;
           }
           if (!storagePolicyHasSet) {
@@ -186,7 +186,7 @@ public class ColumnFamilyDescriptorConverter
     Map<String, String> configuration = cd.getConfiguration();
     if (!configuration.isEmpty()) {
       String storagePolicy = configuration.get(BLOCK_STORAGE_POLICY_KEY);
-      if (StringUtils.isNotBlank(storagePolicy)) {
+      if (StringUtil.isNotBlank(storagePolicy)) {
         builder.setStoragePolicy(storagePolicy);
       } else {
         configuration.forEach(builder::setConfiguration);
@@ -198,7 +198,7 @@ public class ColumnFamilyDescriptorConverter
       for (Bytes keyBytes : values.keySet()) {
         String keyStr = Bytes.toString(keyBytes.get());
         String valueStr = Bytes.toString(values.get(keyBytes).get());
-        if (STORAGE_POLICY.equals(keyStr) && StringUtils.isNotBlank(valueStr)) {
+        if (STORAGE_POLICY.equals(keyStr) && StringUtil.isNotBlank(valueStr)) {
           builder.setStoragePolicy(valueStr);
           continue;
         }

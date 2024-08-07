@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * @author leojie@apache.org 2024/7/22 22:23
  */
-@HBaseTable(tableName = "leojie_test", defaultFamily = "cf")
+@HBaseTable(tableName = "user_info", defaultFamily = "cf")
 public class UserData {
   @HBaseRowKey
   private String userId;
@@ -36,7 +36,10 @@ public class UserData {
   private String username;
 
   @HBaseColumn
-  private boolean student;
+  private int age;
+
+  @HBaseColumn
+  private boolean isStudent;
 
   @HBaseColumn
   private Double cost;
@@ -60,12 +63,20 @@ public class UserData {
     this.username = username;
   }
 
-  public boolean getStudent() {
-    return student;
+  public int getAge() {
+    return age;
+  }
+
+  public void setAge(int age) {
+    this.age = age;
+  }
+
+  public boolean isStudent() {
+    return isStudent;
   }
 
   public void setStudent(boolean student) {
-    this.student = student;
+    isStudent = student;
   }
 
   public Double getCost() {
