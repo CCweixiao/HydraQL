@@ -6,7 +6,7 @@
 
     <groupId>com.hydraql</groupId>
     <artifactId>hydraql</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
 
     <name>hydraql</name>
@@ -416,7 +416,7 @@
         </profile>
 
         <profile>
-            <id>deploy</id>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
@@ -457,6 +457,16 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.5.3</version>
+                        <configuration>
+                            <tagNameFormat>v@{project.version}</tagNameFormat>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <arguments>-Dmaven.test.skip</arguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
