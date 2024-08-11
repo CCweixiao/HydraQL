@@ -27,9 +27,9 @@ import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.common.schema.HBaseField;
-import com.hydraql.common.schema.HBaseTableSchema;
-import com.hydraql.common.schema.ReflectFactory;
+import com.hydraql.common.meta.HBaseField;
+import com.hydraql.common.meta.HBaseTableSchema;
+import com.hydraql.common.meta.HBaseMetaContainer;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.thrift.generated.*;
@@ -96,18 +96,17 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
     if (t == null) {
       return new ArrayList<>(0);
     }
-    List<HBaseField> fieldStructList = tableMeta.getFieldStructList();
-    if (fieldStructList == null || fieldStructList.isEmpty()) {
+    List<HBaseField> fields = tableMeta.getFields();
+    if (fields == null || fields.isEmpty()) {
       return new ArrayList<>(0);
     }
-    List<Mutation> mutations = new ArrayList<>(fieldStructList.size());
-    fieldStructList.forEach(fieldStruct -> {
-      if (!fieldStruct.isRowKey()) {
-        Object fieldValue =
-            tableMeta.getMethodAccess().invoke(t, fieldStruct.getGetterMethodIndex());
+    List<Mutation> mutations = new ArrayList<>(fields.size());
+    fields.forEach(field -> {
+      if (!field.isRowKey()) {
+        ByteBuffer fieldValue = field.getByteBufferValue(t);
         mutations.add(
-          new Mutation(false, ColumnType.toByteBufferFromStr(fieldStruct.getFamilyAndQualifier()),
-              ColumnType.toByteBuffer(fieldValue), true));
+          new Mutation(false, ColumnType.toByteBufferFromStr(field.getFamilyAndQualifier()),
+                  fieldValue, true));
       }
     });
     return mutations;
@@ -136,7 +135,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
       throw new NullPointerException("The data model class object to be saved cannot be null.");
     }
     Class<?> clazz = t.getClass();
-    HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(clazz);
+    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
     Object rowKeyVal = createRowKeyVal(tableMeta, t);
     List<Mutation> mutations = createMutationList(t, tableMeta);
     this.save(tableMeta.getTableName(), rowKeyVal, mutations);
@@ -220,20 +219,18 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
     if (tmpDataMap.isEmpty()) {
       return t;
     }
-    HBaseTableSchema hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
-    List<HBaseField> fieldColStructMap = hBaseTableMeta.getFieldStructList();
+    HBaseTableSchema hBaseTableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    List<HBaseField> fields = hBaseTableMeta.getFields();
 
-    fieldColStructMap.forEach(fieldStruct -> {
-      if (fieldStruct.isRowKey()) {
-        Object rowVal = ColumnType.toObject(fieldStruct.getType(), result.getRow());
-        hBaseTableMeta.getMethodAccess().invoke(t, fieldStruct.getSetterMethodIndex(), rowVal);
+    fields.forEach(field -> {
+      if (field.isRowKey()) {
+        Object rowVal = ColumnType.toObject(field.getType(), result.getRow());
+        field.setValue(t, rowVal);
       } else {
-        TCell tCell = tmpDataMap.get(fieldStruct.getFamilyAndQualifier());
+        TCell tCell = tmpDataMap.get(field.getFamilyAndQualifier());
         if (tCell != null) {
-          byte[] value = tCell.getValue();
-          Object fieldValue = ColumnType.toObject(fieldStruct.getType(), tCell.getValue());
-          hBaseTableMeta.getMethodAccess().invoke(t, fieldStruct.getSetterMethodIndex(),
-            fieldValue);
+          Object fieldValue = ColumnType.toObject(field.getType(), tCell.getValue());
+          field.setValue(t, fieldValue);
         }
       }
     });
@@ -338,13 +335,11 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
   }
 
   private <T> Object createRowKeyVal(HBaseTableSchema tableMeta, T t) {
-    List<HBaseField> fieldStructList = tableMeta.getFieldStructList();
-    HBaseField rowFieldStruct = fieldStructList.get(0);
-    Assert.checkArgument(rowFieldStruct.isRowKey(),
+    List<HBaseField> fields = tableMeta.getFields();
+    HBaseField rowField = fields.get(0);
+    Assert.checkArgument(rowField.isRowKey(),
       "The first field is not row key, please check hbase table mata data.");
-    Object rowKeyVal = tableMeta.getMethodAccess().invoke(t, rowFieldStruct.getGetterMethodIndex());
-    Assert.checkArgument(rowKeyVal != null, "The value of row key must not be null.");
-    return rowKeyVal;
+    return rowField.getValue(t);
   }
 
   private List<ByteBuffer> createFamilyQualifiesBuffer(String familyName, List<String> qualifiers) {

@@ -19,6 +19,7 @@
 package com.hydraql.common.type;
 
 import com.alibaba.fastjson2.JSON;
+import com.hydraql.common.lang.Preconditions;
 import com.hydraql.common.type.handler.*;
 import com.hydraql.common.type.handler.ext.HexBytes;
 import com.hydraql.common.type.handler.ext.HexBytesHandler;
@@ -117,18 +118,16 @@ public enum ColumnType {
     return typeHandler;
   }
 
-  public static TypeHandler<?> findTypeHandler(Class<?> typeClass) {
-    if (typeClass == null) {
-      return null;
-    }
-    if (typeClass.isEnum()) {
+  public static TypeHandler<?> findTypeHandler(Class<?> clazz) {
+    Preconditions.checkState(clazz != null, "Class type is null");
+    if (clazz.isEnum()) {
       return EnumType.getTypeHandler();
     }
     for (ColumnType columnType : ColumnType.values()) {
-      if (columnType.getTypeClass() == typeClass) {
+      if (columnType.getTypeClass() == clazz) {
         return columnType.getTypeHandler();
       }
-      if (columnType.getOrTypeClass() == typeClass) {
+      if (columnType.getOrTypeClass() == clazz) {
         return columnType.getTypeHandler();
       }
     }

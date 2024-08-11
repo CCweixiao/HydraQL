@@ -30,9 +30,9 @@ import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.BaseGetRowParam;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
-import com.hydraql.common.schema.HBaseField;
-import com.hydraql.common.schema.HBaseTableSchema;
-import com.hydraql.common.schema.ReflectFactory;
+import com.hydraql.common.meta.HBaseField;
+import com.hydraql.common.meta.HBaseTableSchema;
+import com.hydraql.common.meta.HBaseMetaContainer;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -84,18 +84,14 @@ public interface GetService {
   default <T> T mapperRowToT(Result result, Class<T> clazz) throws Exception {
     // TODO 这里的反射调用构造函数是否可以再优化
     T t = clazz.getDeclaredConstructor().newInstance();
-    HBaseTableSchema hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
-    List<HBaseField> fieldStructs = hBaseTableMeta.getFieldStructList();
-    fieldStructs.forEach(fieldStruct -> {
-      if (fieldStruct.isRowKey()) {
-        Object rowKey =
-            fieldStruct.getTypeHandler().toObject(fieldStruct.getType(), result.getRow());
-        hBaseTableMeta.getMethodAccess().invoke(t, fieldStruct.getSetterMethodIndex(), rowKey);
+    HBaseTableSchema hBaseTableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    List<HBaseField> fields = hBaseTableMeta.getFields();
+    fields.forEach(field -> {
+      if (field.isRowKey()) {
+        field.setByteValue(t, result.getRow());
       } else {
-        byte[] valBytes = result.getValue(Bytes.toBytes(fieldStruct.getFamily()),
-          Bytes.toBytes(fieldStruct.getQualifier()));
-        Object value = fieldStruct.getTypeHandler().toObject(fieldStruct.getType(), valBytes);
-        hBaseTableMeta.getMethodAccess().invoke(t, fieldStruct.getSetterMethodIndex(), value);
+        byte[] valBytes = result.getValue(field.getFamilyBytes(), field.getQualifierBytes());
+        field.setByteValue(t, valBytes);
       }
     });
     return t;
@@ -109,41 +105,36 @@ public interface GetService {
     if (versions == Integer.MAX_VALUE) {
       throw new IllegalArgumentException("You must specify an exact number of versions.");
     }
-    HBaseTableSchema hBaseTableMeta = ReflectFactory.getInstance().register(clazz);
-    List<HBaseField> fieldStructs = hBaseTableMeta.getFieldStructList();
+    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    List<HBaseField> fields = tableMeta.getFields();
     HBaseField rowKeyField = null;
-    Object rowKey = null;
-    for (HBaseField field : fieldStructs) {
+    for (HBaseField field : fields) {
       if (field.isRowKey()) {
         rowKeyField = field;
-        rowKey = field.getTypeHandler().toObject(field.getType(), result.getRow());
-        ;
       }
     }
     if (rowKeyField == null) {
-      throw new IllegalArgumentException("There is no rowKey in model class.");
+      throw new IllegalStateException("There is no rowKey in model class.");
     }
     List<T> rowDataList = new ArrayList<>(versions);
     for (int i = 0; i < versions; i++) {
+      //todo 优化构造器获取
       T t = clazz.getDeclaredConstructor().newInstance();
-      hBaseTableMeta.getMethodAccess().invoke(t, rowKeyField.getSetterMethodIndex(), rowKey);
+      rowKeyField.setByteValue(t, result.getRow());
       rowDataList.add(t);
     }
 
-    for (HBaseField field : fieldStructs) {
+    for (HBaseField field : fields) {
       if (field.isRowKey()) {
         continue;
       }
-      List<Cell> cells = result.getColumnCells(Bytes.toBytes(field.getFamily()),
-        Bytes.toBytes(field.getQualifier()));
+      List<Cell> cells = result.getColumnCells(field.getFamilyBytes(), field.getQualifierBytes());
       if (cells.isEmpty()) {
         continue;
       }
       for (int i = 0; i < cells.size(); i++) {
-        byte[] valBytes = CellUtil.cloneValue(cells.get(i));
-        Object value = field.getTypeHandler().toObject(field.getType(), valBytes);
-        hBaseTableMeta.getMethodAccess().invoke(rowDataList.get(i), field.getSetterMethodIndex(),
-          value);
+        byte[] value = CellUtil.cloneValue(cells.get(i));
+        field.setByteValue(rowDataList.get(i), value);
         if (i >= (versions - 1)) {
           break;
         }

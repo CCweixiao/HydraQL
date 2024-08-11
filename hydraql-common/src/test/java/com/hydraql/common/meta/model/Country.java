@@ -16,28 +16,20 @@
  * limitations under the License.
  */
 
-package com.hydraql.common.schema.model;
+package com.hydraql.common.meta.model;
 
 /**
- * @author leojie 2022/11/20 11:23
+ * @author leojie 2022/11/20 11:24
  */
-public class CityModel extends Country {
-  private int id;
-  private String name;
+public class Country extends Asia {
+  private String countryName;
 
-  public int getId() {
-    return id;
+  public String getCountryName() {
+    return countryName;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public void setCountryName(String countryName) {
+    this.countryName = countryName;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 }

@@ -18,8 +18,6 @@
 
 package com.hydraql.common.util;
 
-import com.hydraql.common.exception.HBaseSdkCryptoException;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -33,7 +31,7 @@ public class DigestUtil {
     try {
       md5 = MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
-      throw new HBaseSdkCryptoException(e);
+      throw new RuntimeException("Error computing MD5 hash", e);
     }
     char[] charArray = inStr.toCharArray();
     byte[] byteArray = new byte[charArray.length];

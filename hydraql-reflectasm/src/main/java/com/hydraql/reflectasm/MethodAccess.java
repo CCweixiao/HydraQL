@@ -18,6 +18,8 @@
 
 package com.hydraql.reflectasm;
 
+import java.lang.reflect.Method;
+
 /**
  * @author leojie@apache.org 2024/7/23 21:57
  */
@@ -56,10 +58,23 @@ public class MethodAccess {
   }
 
   /**
+   * Return the index of method with specified method obj;
+   * @param method method
+   * @return index of method
+   */
+  public int getIndex(Method method) {
+    return classAccess.indexOfMethod(method);
+  }
+
+  /**
    * Returns the index of the first method with the specified name and param types.
    */
   public int getIndex(String methodName, Class<?>... paramTypes) {
     return classAccess.indexOfMethod(methodName, paramTypes);
+  }
+
+  public Method getMethod(int methodIndex) {
+    return classAccess.getMethod(methodIndex);
   }
 
   /**

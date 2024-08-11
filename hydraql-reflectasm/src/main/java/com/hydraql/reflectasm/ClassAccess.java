@@ -738,9 +738,16 @@ public class ClassAccess {
   }
 
   public int indexOfMethod(Method method) {
-    final Integer integer = info.methods.get(method);
-    if (null != integer) return integer;
+    final Integer index = info.methods.get(method);
+    if (null != index) return index;
     throw new IllegalArgumentException("Unable to find method: " + method);
+  }
+
+  public Method getMethod(int index) {
+      for (Map.Entry<Method, Integer> entry : info.methods.entrySet()) {
+          if (entry.getValue() == index) return entry.getKey();
+      }
+      throw new IllegalArgumentException("Unable to find method: " + index);
   }
 
   /**

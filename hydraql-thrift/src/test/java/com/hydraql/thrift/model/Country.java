@@ -18,7 +18,7 @@
 
 package com.hydraql.thrift.model;
 
-import com.hydraql.common.annotation.HBaseColumn;
+import com.hydraql.common.meta.annotations.HBaseColumn;
 
 public class Country {
   @HBaseColumn(family = "info", qualifier = "countryName")

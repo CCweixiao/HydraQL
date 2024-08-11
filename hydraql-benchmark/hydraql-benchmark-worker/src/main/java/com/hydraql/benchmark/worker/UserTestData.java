@@ -18,9 +18,9 @@
 
 package com.hydraql.benchmark.worker;
 
-import com.hydraql.common.annotation.HBaseColumn;
-import com.hydraql.common.annotation.HBaseRowKey;
-import com.hydraql.common.annotation.HBaseTable;
+import com.hydraql.common.meta.annotations.HBaseColumn;
+import com.hydraql.common.meta.annotations.HBaseRowKey;
+import com.hydraql.common.meta.annotations.HBaseTable;
 
 /**
  * @author leojie@apache.org 2024/4/11 11:17

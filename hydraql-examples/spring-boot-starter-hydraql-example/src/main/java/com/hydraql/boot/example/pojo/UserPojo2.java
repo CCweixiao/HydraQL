@@ -18,8 +18,8 @@
 
 package com.hydraql.boot.example.pojo;
 
-import com.hydraql.common.annotation.HBaseRowKey;
-import com.hydraql.common.annotation.HBaseTable;
+import com.hydraql.common.meta.annotations.HBaseRowKey;
+import com.hydraql.common.meta.annotations.HBaseTable;
 
 /**
  * <p>

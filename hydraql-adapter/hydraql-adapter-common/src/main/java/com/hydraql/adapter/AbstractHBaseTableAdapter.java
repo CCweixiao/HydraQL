@@ -27,8 +27,8 @@ import com.hydraql.adapter.service.ScanService;
 import com.hydraql.adapter.service.UpsertService;
 import com.hydraql.common.HTableService;
 import com.hydraql.common.callback.RowMapper;
-import com.hydraql.common.schema.HBaseTableSchema;
-import com.hydraql.common.schema.ReflectFactory;
+import com.hydraql.common.meta.HBaseTableSchema;
+import com.hydraql.common.meta.HBaseMetaContainer;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
@@ -80,7 +80,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
   @Override
   public <T> void save(T t) {
     final Class<?> clazz = t.getClass();
-    HBaseTableSchema tableSchema = ReflectFactory.getInstance().register(clazz);
+    HBaseTableSchema tableSchema = HBaseMetaContainer.getInstance().stuff(clazz);
     this.execSinglePut(tableSchema.getTableName(), new Put(buildPut(t)));
   }
 
@@ -124,7 +124,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
       return;
     }
     final Class<?> clazz = list.get(0).getClass();
-    HBaseTableSchema tableSchema = ReflectFactory.getInstance().register(clazz);
+    HBaseTableSchema tableSchema = HBaseMetaContainer.getInstance().stuff(clazz);
     List<Mutation> putList = new ArrayList<>(list.size());
     for (T t : list) {
       putList.add(new Put(buildPut(t)));
@@ -153,7 +153,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
   @Override
   public <T> T get(Get get, Class<T> clazz) {
-    String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
+    String tableName = HBaseMetaContainer.getInstance().stuff(clazz).getTableName();
     return this.executeQuery(tableName, table -> {
       Result result = checkGetAndReturnResult(get, table);
       if (result == null) {
@@ -199,7 +199,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
   @Override
   public <T> List<T> getWithMultiVersions(Get get, int versions, Class<T> clazz) {
-    String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
+    String tableName = HBaseMetaContainer.getInstance().stuff(clazz).getTableName();
     return this.executeQuery(tableName, table -> {
       Result result = checkGetAndReturnResult(get, table);
       if (result == null) {
@@ -257,7 +257,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
   @Override
   public <T> List<T> getRows(GetRowsParam getRowsParam, Class<T> clazz) {
-    String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
+    String tableName = HBaseMetaContainer.getInstance().stuff(clazz).getTableName();
     List<Get> gets = this.buildGets(getRowsParam);
     return this.gets(tableName, gets, clazz);
   }
@@ -326,7 +326,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
 
   @Override
   public <T> List<T> scan(Scan scan, Class<T> clazz) {
-    String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
+    String tableName = HBaseMetaContainer.getInstance().stuff(clazz).getTableName();
     return this.executeQuery(tableName, table -> {
       try (ResultScanner scanner = table.getScanner(scan)) {
         List<T> rs = new ArrayList<>();
@@ -409,7 +409,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
       return;
     }
     final Class<?> clazz = t.getClass();
-    HBaseTableSchema tableSchema = ReflectFactory.getInstance().register(clazz);
+    HBaseTableSchema tableSchema = HBaseMetaContainer.getInstance().stuff(clazz);
     this.execSingleDelete(tableSchema.getTableName(), new Delete(buildDelete(t)));
   }
 
@@ -478,7 +478,7 @@ abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements 
       return;
     }
     final Class<?> clazz0 = list.get(0).getClass();
-    HBaseTableSchema tableSchema = ReflectFactory.getInstance().register(clazz0);
+    HBaseTableSchema tableSchema = HBaseMetaContainer.getInstance().stuff(clazz0);
     List<Mutation> deleteList = new ArrayList<>(list.size());
     for (T t : list) {
       deleteList.add(new Delete(buildDelete(t)));

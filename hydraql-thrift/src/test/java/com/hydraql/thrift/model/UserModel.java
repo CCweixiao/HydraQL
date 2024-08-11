@@ -18,9 +18,9 @@
 
 package com.hydraql.thrift.model;
 
-import com.hydraql.common.annotation.HBaseColumn;
-import com.hydraql.common.annotation.HBaseRowKey;
-import com.hydraql.common.annotation.HBaseTable;
+import com.hydraql.common.meta.annotations.HBaseColumn;
+import com.hydraql.common.meta.annotations.HBaseRowKey;
+import com.hydraql.common.meta.annotations.HBaseTable;
 
 /**
  * @author leojie 2022/12/10 17:44

@@ -6,7 +6,7 @@
 
     <groupId>com.hydraql</groupId>
     <artifactId>hydraql</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
 
     <name>hydraql</name>
@@ -80,7 +80,6 @@
         <hbase2.6.version>2.6.0</hbase2.6.version>
         <hbase.thrift.1.4.version>1.4.3</hbase.thrift.1.4.version>
         <commons.pool2.version>2.6.2</commons.pool2.version>
-        <guava.version>30.0-jre</guava.version>
         <junit.version>4.13.2</junit.version>
         <antlr4.version>4.13.1</antlr4.version>
         <fastjson2.version>2.0.19</fastjson2.version>
@@ -457,16 +456,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
-                        <configuration>
-                            <tagNameFormat>v@{project.version}</tagNameFormat>
-                            <autoVersionSubmodules>true</autoVersionSubmodules>
-                            <arguments>-Dmaven.test.skip</arguments>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

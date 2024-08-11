@@ -19,6 +19,7 @@
 package com.hydraql.common.constants;
 
 import com.hydraql.common.exception.HBaseOperationsException;
+import com.hydraql.common.lang.Preconditions;
 import com.hydraql.common.util.StringUtil;
 
 /**
@@ -98,6 +99,19 @@ public class HBaseConstants {
       return column;
     }
     return family.concat(FAMILY_QUALIFIER_SEPARATOR).concat(column);
+  }
+
+  public static String formatFamilyAndQualifier(String family, String qualifier) {
+    Preconditions.checkArgument(StringUtil.isNotBlank(family), "The family name is not empty.");
+    Preconditions.checkArgument(StringUtil.isNotBlank(qualifier), "The qualifier is not empty.");
+    return String.format("%s%s%s", family, FAMILY_QUALIFIER_SEPARATOR, qualifier);
+  }
+
+  public static String formatTableName(String namespace, String tableName) {
+    if (StringUtil.isBlank(namespace)) {
+      return tableName;
+    }
+    return String.format("%s%s%s", namespace, TABLE_NAME_SPLIT_CHAR, tableName);
   }
 
   private HBaseConstants() {

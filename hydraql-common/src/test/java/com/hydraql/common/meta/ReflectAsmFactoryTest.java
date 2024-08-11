@@ -16,20 +16,28 @@
  * limitations under the License.
  */
 
-package com.hydraql.common.schema.model;
+package com.hydraql.common.meta;
+
+import com.hydraql.reflectasm.FieldAccess;
+import com.hydraql.reflectasm.MethodAccess;
+import com.hydraql.common.meta.model.CityModel;
+import org.junit.Test;
+
+import java.lang.reflect.Field;
 
 /**
- * @author leojie 2022/11/20 11:24
+ * @author leojie 2022/11/20 11:23
  */
-public class Country extends Asia {
-  private String countryName;
-
-  public String getCountryName() {
-    return countryName;
+public class ReflectAsmFactoryTest {
+  @Test
+  public void testGetMethods() {
+    String[] methodNames = MethodAccess.get(CityModel.class).getMethodNames();
+    System.out.println(methodNames);
   }
 
-  public void setCountryName(String countryName) {
-    this.countryName = countryName;
+  @Test
+  public void testGetFields() {
+    Field[] fieldNames = FieldAccess.get(CityModel.class).getFields();
+    System.out.println(fieldNames);
   }
-
 }

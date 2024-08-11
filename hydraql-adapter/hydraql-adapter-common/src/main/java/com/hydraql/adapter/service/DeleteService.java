@@ -20,12 +20,11 @@ package com.hydraql.adapter.service;
 
 import com.hydraql.common.exception.HBaseMetaDataException;
 import com.hydraql.common.exception.HBaseOperationsException;
-import com.hydraql.common.lang.Assert;
-import com.hydraql.common.schema.HBaseField;
-import com.hydraql.common.schema.HBaseTableSchema;
-import com.hydraql.common.schema.ReflectFactory;
-import com.hydraql.common.util.StringUtil;
+import com.hydraql.common.meta.HBaseField;
+import com.hydraql.common.meta.HBaseMetaContainer;
+import com.hydraql.common.meta.HBaseTableSchema;
 import com.hydraql.common.query.FamilyQualifierUtil;
+import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -55,15 +54,13 @@ public interface DeleteService {
 
   default <T> Delete buildDelete(T t) throws HBaseMetaDataException {
     Class<?> clazz = t.getClass();
-    HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(clazz);
-    List<HBaseField> fieldStructList = tableMeta.getFieldStructList();
-    HBaseField rowFieldStruct = fieldStructList.get(0);
-    if (!rowFieldStruct.isRowKey()) {
+    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    List<HBaseField> fields = tableMeta.getFields();
+    HBaseField field = fields.get(0);
+    if (!field.isRowKey()) {
       throw new HBaseMetaDataException(
           "The first field is not row key, please check hbase table mata data.");
     }
-    Object value = tableMeta.getMethodAccess().invoke(t, rowFieldStruct.getGetterMethodIndex());
-    Assert.checkArgument(value != null, "The value of row key must not be null.");
-    return new Delete(rowFieldStruct.getTypeHandler().toBytes(rowFieldStruct.getType(), value));
+    return new Delete(field.getByteValue(t));
   }
 }

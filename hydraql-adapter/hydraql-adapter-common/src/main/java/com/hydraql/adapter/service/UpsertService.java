@@ -20,10 +20,9 @@ package com.hydraql.adapter.service;
 
 import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseMetaDataException;
-import com.hydraql.common.lang.Assert;
-import com.hydraql.common.schema.HBaseField;
-import com.hydraql.common.schema.HBaseTableSchema;
-import com.hydraql.common.schema.ReflectFactory;
+import com.hydraql.common.meta.HBaseField;
+import com.hydraql.common.meta.HBaseMetaContainer;
+import com.hydraql.common.meta.HBaseTableSchema;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.type.TypeHandler;
 import com.hydraql.common.util.StringUtil;
@@ -55,24 +54,20 @@ public interface UpsertService {
 
   default <T> Put buildPut(T t) throws HBaseMetaDataException {
     Class<?> clazz = t.getClass();
-    HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(clazz);
-    List<HBaseField> fieldStructList = tableMeta.getFieldStructList();
-    HBaseField rowFieldStruct = fieldStructList.get(0);
-    if (!rowFieldStruct.isRowKey()) {
+    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    List<HBaseField> fields = tableMeta.getFields();
+    HBaseField rowKeyField = fields.get(0);
+    if (!rowKeyField.isRowKey()) {
       throw new HBaseMetaDataException(
           "The first field is not row key, please check hbase table mata data.");
     }
-    Object value = tableMeta.getMethodAccess().invoke(t, rowFieldStruct.getGetterMethodIndex());
-    Assert.checkArgument(value != null, "The value of row key must not be null.");
-    Put put = new Put(rowFieldStruct.getTypeHandler().toBytes(rowFieldStruct.getType(), value));
+    byte[] value = rowKeyField.getByteValue(t);
+    Put put = new Put(value);
 
-    fieldStructList.forEach(fieldStruct -> {
-      if (!fieldStruct.isRowKey()) {
-        Object fieldValue =
-            tableMeta.getMethodAccess().invoke(t, fieldStruct.getGetterMethodIndex());
-        put.addColumn(Bytes.toBytes(fieldStruct.getFamily()),
-          Bytes.toBytes(fieldStruct.getQualifier()),
-          fieldStruct.getTypeHandler().toBytes(fieldStruct.getType(), fieldValue));
+    fields.forEach(field -> {
+      if (!field.isRowKey()) {
+        byte[] valueOfCol = field.getByteValue(t);
+        put.addColumn(field.getFamilyBytes(),field.getQualifierBytes(), valueOfCol);
       }
     });
     return put;

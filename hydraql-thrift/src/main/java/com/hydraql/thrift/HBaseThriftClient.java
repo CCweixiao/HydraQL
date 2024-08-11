@@ -28,8 +28,8 @@ import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.common.schema.HBaseTableSchema;
-import com.hydraql.common.schema.ReflectFactory;
+import com.hydraql.common.meta.HBaseTableSchema;
+import com.hydraql.common.meta.HBaseMetaContainer;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.HBaseThriftProtocol;
 import com.hydraql.common.util.StringUtil;
@@ -124,14 +124,14 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
       return;
     }
     final Class<?> clazz0 = lst.get(0).getClass();
-    HBaseTableSchema tableMeta = ReflectFactory.getInstance().register(clazz0);
+    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz0);
     List<BatchMutation> batchMutationList = this.createBatchMutationList(lst, tableMeta);
     this.saveBatch(tableMeta.getTableName(), batchMutationList);
   }
 
   @Override
   public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
-    String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
+    String tableName = HBaseMetaContainer.getInstance().stuff(clazz).getTableName();
     return this.execute(thriftClient -> {
       List<TRowResult> results = getToRowResultList(thriftClient, tableName, getRowParam);
       if (results == null || results.isEmpty()) {
@@ -179,7 +179,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
   @Override
   public <T> List<T> getRows(GetRowsParam getRowsParam, Class<T> clazz) {
-    String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
+    String tableName = HBaseMetaContainer.getInstance().stuff(clazz).getTableName();
     return this.execute(thriftClient -> {
       List<TRowResult> results = getToRowsResultList(thriftClient, tableName, getRowsParam);
       return mapperRowToTList(results, clazz);
@@ -205,7 +205,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
   @Override
   public <T> List<T> scan(ScanParams scanQueryParams, Class<T> clazz) {
-    String tableName = ReflectFactory.getInstance().register(clazz).getTableName();
+    String tableName = HBaseMetaContainer.getInstance().stuff(clazz).getTableName();
     int scannerId = scannerOpen(tableName, scanQueryParams, new HashMap<>(0));
     int limit = scanQueryParams.getLimit();
 

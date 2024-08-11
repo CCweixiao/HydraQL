@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
-package com.hydraql.common.annotation;
+package com.hydraql.common.meta.annotations;
+
+import com.hydraql.common.constants.HBaseConstants;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -25,28 +27,33 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is used to define the field model in HBase and contains two parts: family and
- * qualifier.
+ * This annotation is used to define a table model, including namespace, tableName and
+ * defaultFamily.
  * @author leo
  */
-@Target({ ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface HBaseColumn {
+public @interface HBaseTable {
+  /**
+   * namespace name, and the default value is 'default'.
+   * @return namespace name
+   */
+  String namespace() default HBaseConstants.DEFAULT_NAMESPACE_NAME;
 
   /**
-   * Define family name for the field, it will have the highest priority. if not defined, get the
-   * default family in {@link HBaseTable}. <br/>
-   * <p>
-   * If family name is not defined in both places, exception
-   * {@link com.hydraql.common.exception.InvalidTableModelClassException} will be thrown to the user
-   * @return family name
+   * Define the table name for the table model, <br/>
+   * If the table name is empty, exception
+   * {@link com.hydraql.common.exception.InvalidTableModelClassException} is thrown to the user.
+   * @return table name
    */
-  String family() default "";
+  String tableName();
 
   /**
-   * If qualifier is not defined, the field name of the table model class attribute is taken.
-   * @return qualifier name
+   * If you have only one column family in your table model, <br/>
+   * you can set a default column family and all fields defined in the table model will have this
+   * column family.
+   * @return default family name
    */
-  String qualifier() default "";
+  String defaultFamily() default "";
 }
