@@ -29,7 +29,7 @@ import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
 import com.hydraql.common.meta.HBaseField;
 import com.hydraql.common.meta.HBaseTableSchema;
-import com.hydraql.common.meta.HBaseMetaContainer;
+import com.hydraql.common.meta.HBaseMetaFactory;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.thrift.generated.*;
@@ -103,10 +103,9 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
     List<Mutation> mutations = new ArrayList<>(fields.size());
     fields.forEach(field -> {
       if (!field.isRowKey()) {
-        ByteBuffer fieldValue = field.getByteBufferValue(t);
-        mutations.add(
-          new Mutation(false, ColumnType.toByteBufferFromStr(field.getFamilyAndQualifier()),
-                  fieldValue, true));
+        ByteBuffer fieldValue = field.toByteBuffer(t);
+        mutations.add(new Mutation(false,
+            ColumnType.toByteBufferFromStr(field.getFamilyAndQualifier()), fieldValue, true));
       }
     });
     return mutations;
@@ -135,7 +134,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
       throw new NullPointerException("The data model class object to be saved cannot be null.");
     }
     Class<?> clazz = t.getClass();
-    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    HBaseTableSchema tableMeta = HBaseMetaFactory.getInstance().create(clazz);
     Object rowKeyVal = createRowKeyVal(tableMeta, t);
     List<Mutation> mutations = createMutationList(t, tableMeta);
     this.save(tableMeta.getTableName(), rowKeyVal, mutations);
@@ -219,7 +218,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
     if (tmpDataMap.isEmpty()) {
       return t;
     }
-    HBaseTableSchema hBaseTableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    HBaseTableSchema hBaseTableMeta = HBaseMetaFactory.getInstance().create(clazz);
     List<HBaseField> fields = hBaseTableMeta.getFields();
 
     fields.forEach(field -> {

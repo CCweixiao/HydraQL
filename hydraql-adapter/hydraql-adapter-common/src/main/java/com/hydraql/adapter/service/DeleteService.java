@@ -21,7 +21,7 @@ package com.hydraql.adapter.service;
 import com.hydraql.common.exception.HBaseMetaDataException;
 import com.hydraql.common.exception.HBaseOperationsException;
 import com.hydraql.common.meta.HBaseField;
-import com.hydraql.common.meta.HBaseMetaContainer;
+import com.hydraql.common.meta.HBaseMetaFactory;
 import com.hydraql.common.meta.HBaseTableSchema;
 import com.hydraql.common.query.FamilyQualifierUtil;
 import com.hydraql.common.util.StringUtil;
@@ -54,13 +54,13 @@ public interface DeleteService {
 
   default <T> Delete buildDelete(T t) throws HBaseMetaDataException {
     Class<?> clazz = t.getClass();
-    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    HBaseTableSchema tableMeta = HBaseMetaFactory.getInstance().create(clazz);
     List<HBaseField> fields = tableMeta.getFields();
     HBaseField field = fields.get(0);
     if (!field.isRowKey()) {
       throw new HBaseMetaDataException(
           "The first field is not row key, please check hbase table mata data.");
     }
-    return new Delete(field.getByteValue(t));
+    return new Delete(field.toBytes(t));
   }
 }

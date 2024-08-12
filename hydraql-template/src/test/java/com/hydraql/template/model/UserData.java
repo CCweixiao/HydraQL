@@ -18,11 +18,11 @@
 
 package com.hydraql.template.model;
 
+import com.hydraql.common.meta.annotations.GeneratedValue;
+import com.hydraql.common.meta.annotations.GenerationType;
 import com.hydraql.common.meta.annotations.HBaseColumn;
 import com.hydraql.common.meta.annotations.HBaseRowKey;
 import com.hydraql.common.meta.annotations.HBaseTable;
-
-import java.util.Map;
 
 /**
  * @author leojie@apache.org 2024/7/22 22:23
@@ -30,22 +30,20 @@ import java.util.Map;
 @HBaseTable(tableName = "user_info", defaultFamily = "cf")
 public class UserData {
   @HBaseRowKey
+  @GeneratedValue(strategy = GenerationType.HASHING)
   private String userId;
 
   @HBaseColumn
   private String username;
 
   @HBaseColumn
-  private int age;
+  private Integer age;
 
   @HBaseColumn
-  private boolean isStudent;
+  private Boolean isStudent;
 
   @HBaseColumn
   private Double cost;
-
-  @HBaseColumn
-  private Map<String, String> info;
 
   public String getUserId() {
     return userId;
@@ -63,19 +61,19 @@ public class UserData {
     this.username = username;
   }
 
-  public int getAge() {
+  public Integer getAge() {
     return age;
   }
 
-  public void setAge(int age) {
+  public void setAge(Integer age) {
     this.age = age;
   }
 
-  public boolean isStudent() {
+  public Boolean getStudent() {
     return isStudent;
   }
 
-  public void setStudent(boolean student) {
+  public void setStudent(Boolean student) {
     isStudent = student;
   }
 
@@ -85,13 +83,5 @@ public class UserData {
 
   public void setCost(Double cost) {
     this.cost = cost;
-  }
-
-  public Map<String, String> getInfo() {
-    return info;
-  }
-
-  public void setInfo(Map<String, String> info) {
-    this.info = info;
   }
 }

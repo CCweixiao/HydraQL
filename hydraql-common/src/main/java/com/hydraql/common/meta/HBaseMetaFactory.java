@@ -36,22 +36,23 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author leojie 2022/11/20 10:50
  */
-public class HBaseMetaContainer {
-  private final ConcurrentHashMap<Class<?>, HBaseTableSchema> tableMetas = new ConcurrentHashMap<>();
+public class HBaseMetaFactory {
+  private final ConcurrentHashMap<Class<?>, HBaseTableSchema> tableMetas =
+      new ConcurrentHashMap<>();
   private final Object lock = new Object();
 
-  private HBaseMetaContainer() {
+  private HBaseMetaFactory() {
   }
 
   private static class MetaFactoryHolder {
-    private static final HBaseMetaContainer INSTANCE = new HBaseMetaContainer();
+    private static final HBaseMetaFactory INSTANCE = new HBaseMetaFactory();
   }
 
-  public static HBaseMetaContainer getInstance() {
+  public static HBaseMetaFactory getInstance() {
     return MetaFactoryHolder.INSTANCE;
   }
 
-  public void abandon(Class<?> clazz) {
+  public void destroy(Class<?> clazz) {
     synchronized (lock) {
       HBaseTableSchema existsTableMeta = tableMetas.get(clazz);
       if (existsTableMeta != null) {
@@ -60,7 +61,7 @@ public class HBaseMetaContainer {
     }
   }
 
-  public HBaseTableSchema stuff(Class<?> clazz) {
+  public HBaseTableSchema create(Class<?> clazz) {
     HBaseTableSchema existsTableMeta = tableMetas.get(clazz);
     if (existsTableMeta != null) {
       return existsTableMeta;
@@ -74,8 +75,8 @@ public class HBaseMetaContainer {
       TableMeta tableMetaInfo = extractTableInfo(clazz);
       Reflector reflector = new Reflector(clazz);
       HBaseTableSchema tableMeta = HBaseTableSchema.newBuilder(clazz)
-              .setDefaultConstructor(reflector.getDefaultConstructor())
-              .setTableName(tableMetaInfo.getTableName()).build();
+          .setDefaultConstructor(reflector.getDefaultConstructor())
+          .setTableName(tableMetaInfo.getTableName()).build();
 
       int colCount = 0;
       for (Field field : reflector.getFields()) {
@@ -98,7 +99,8 @@ public class HBaseMetaContainer {
           continue;
         }
 
-        HBaseQualifier.Builder qualifierBuilder = HBaseQualifier.newBuilder(fieldTypeClazz, columnMeta.getName());
+        HBaseQualifier.Builder qualifierBuilder =
+            HBaseQualifier.newBuilder(fieldTypeClazz, columnMeta.getName());
         qualifierBuilder.setFamily(columnMeta.getFamily());
         qualifierBuilder.setQualifier(columnMeta.getQualifier());
         qualifierBuilder.setNullable(columnMeta.isNullable());
@@ -119,12 +121,12 @@ public class HBaseMetaContainer {
     }
   }
 
-  static class TableMeta {
+  private static class TableMeta {
     private final String namespace;
     private final String tableName;
     private final String defaultFamily;
 
-    TableMeta(String namespace, String tableName, String defaultFamily) {
+    public TableMeta(String namespace, String tableName, String defaultFamily) {
       this.namespace = namespace;
       this.tableName = tableName;
       this.defaultFamily = defaultFamily;
@@ -157,25 +159,25 @@ public class HBaseMetaContainer {
     Assert.checkNotNull(clazz);
     if (!clazz.isAnnotationPresent(HBaseTable.class)) {
       throw new InvalidTableModelClassException(String.format(
-              "The model class %s does not contain the HBaseTable annotation.", clazz.getName()));
+        "The model class %s does not contain the HBaseTable annotation.", clazz.getName()));
     }
     HBaseTable table = clazz.getAnnotation(HBaseTable.class);
     String tabledName = table.tableName();
     if (StringUtil.isBlank(tabledName)) {
       throw new InvalidTableModelClassException(
-              "Table name is not defined in the model class " + clazz.getName());
+          "Table name is not defined in the model class " + clazz.getName());
     }
     String namespace = table.namespace();
-    //todo 检查family的命名格式是否符合要求
+    // todo 检查family的命名格式是否符合要求
     String defaultFamily = table.defaultFamily();
     return new TableMeta(namespace, tabledName, defaultFamily);
   }
 
-  static class RowKeyMeta {
+  private static class RowKeyMeta {
     private final String name;
     private final RowKeyGenerator rowKeyGenerator;
 
-    RowKeyMeta(String name, RowKeyGenerator rowKeyGenerator) {
+    public RowKeyMeta(String name, RowKeyGenerator rowKeyGenerator) {
       this.name = name;
       this.rowKeyGenerator = rowKeyGenerator;
     }
@@ -196,7 +198,8 @@ public class HBaseMetaContainer {
       return null;
     }
     if (fieldIsColumn) {
-      throw new InvalidTableModelClassException("A field cannot be defined by HBaseColumn and HBaseRow at the same time.");
+      throw new InvalidTableModelClassException(
+          "A field cannot be defined by HBaseColumn and HBaseRow at the same time.");
     }
     boolean rowKeyGenerator = field.isAnnotationPresent(GeneratedValue.class);
     if (rowKeyGenerator) {
@@ -209,13 +212,13 @@ public class HBaseMetaContainer {
     return new RowKeyMeta(field.getName(), GenerationType.NOTHING.getRowKeyGenerator());
   }
 
-  static class ColumnMeta {
+  private static class ColumnMeta {
     private final String name;
     private final String family;
     private final String qualifier;
     private final boolean nullable;
 
-    ColumnMeta(String name, String family, String qualifier, boolean nullable) {
+    public ColumnMeta(String name, String family, String qualifier, boolean nullable) {
       this.name = name;
       this.family = family;
       this.qualifier = qualifier;
@@ -249,7 +252,8 @@ public class HBaseMetaContainer {
     HBaseColumn column = field.getAnnotation(HBaseColumn.class);
     boolean rowKeyGenerator = field.isAnnotationPresent(GeneratedValue.class);
     if (rowKeyGenerator) {
-      throw new InvalidTableModelClassException("Row key generator can only be used to describe row key.");
+      throw new InvalidTableModelClassException(
+          "Row key generator can only be used to describe row key.");
     }
     if (StringUtil.isNotBlank(column.qualifier())) {
       qualifier = column.qualifier();
@@ -258,11 +262,12 @@ public class HBaseMetaContainer {
       family = column.family();
     }
     if (!tableMeta.defaultFamilyHasSet() && StringUtil.isBlank(family)) {
-      throw new InvalidTableModelClassException(String.format(
-        "The hbase model class does not define a default column family, "
-            + "and the field %s also does not define a column family.", field.getName()));
+      throw new InvalidTableModelClassException(
+          String.format("The hbase model class does not define a default column family, "
+              + "and the field %s also does not define a column family.",
+            field.getName()));
     }
-    //todo 校验family是合法格式
+    // todo 校验family是合法格式
 
     return new ColumnMeta(field.getName(), family, qualifier, column.nullable());
   }

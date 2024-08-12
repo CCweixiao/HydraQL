@@ -18,23 +18,13 @@
 
 package com.hydraql.template;
 
-import com.hydraql.adapter.connection.HBaseConnectionManager;
+import com.hydraql.common.query.GetRowParam;
+import com.hydraql.template.model.UserData;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.MetaTableAccessor;
-import org.apache.hadoop.hbase.ServerName;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.RegionInfo;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
-import java.io.IOException;
+import java.util.Collections;
 
 /**
  * @author leojie@apache.org 2024/8/4 16:53
@@ -44,7 +34,7 @@ public class HBaseTableTemplateTest {
   private static final Configuration configuration = new Configuration();
 
   static {
-    configuration.set(HConstants.ZOOKEEPER_QUORUM, "test_zk1,test_zk2,test_zk3");
+    configuration.set(HConstants.ZOOKEEPER_QUORUM, "zk1,zk2,zk3");
     configuration.setInt(HConstants.ZOOKEEPER_CLIENT_PORT, 2181);
     configuration.set(HConstants.ZOOKEEPER_ZNODE_PARENT, "/hbase2_test");
     tableTemplate = HBaseTableTemplate.of(configuration);
@@ -52,45 +42,38 @@ public class HBaseTableTemplateTest {
 
   @Test
   public void testSave() {
-    Connection connection = HBaseConnectionManager.create().getConnection(configuration);
-    try (Table table = connection.getTable(TableName.META_TABLE_NAME)) {
-      Get get =
-          new Get(Bytes.toBytes("user-tag,06,1702891662406.3165b49a01846726ee0953c72c2d60e3."));
-      Result result = table.get(get);
-      RegionInfo regionInfo =
-          MetaTableAccessor.getRegionInfo(result, HConstants.REGIONINFO_QUALIFIER);
-      long seqNumDuringOpen = getSeqNumDuringOpen(result);
-      ServerName serverName = MetaTableAccessor.getServerName(result, 0);
-      System.out.println(regionInfo);
-      // st-int-hbase-arch-hbase-cluster-5,16020,1722764491477
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    UserData userData = new UserData();
+    userData.setUserId("aaaa1111");
+    userData.setUsername("leojie");
+    userData.setAge(18);
+    userData.setStudent(true);
+    userData.setCost(10000d);
+    tableTemplate.save(userData);
   }
 
   @Test
-  public void testPut() {
-    Connection connection = HBaseConnectionManager.create().getConnection(configuration);
-    try (Table table = connection.getTable(TableName.META_TABLE_NAME)) {
-      Put put = new Put(
-          Bytes.toBytes("leo_test_copy,7ffffffd,1720965343007.f27ae57d4bab9096dcc81e05e96978a5."));
-      // work-arch-kv-redis-1,16020,1722764393804
-      put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("serverstartcode"),
-        Bytes.toBytes(1722764393804L));
-      put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("sn"),
-        Bytes.toBytes("work-arch-kv-redis-1,16020,1722764393804"));
-      put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("state"), Bytes.toBytes("CLOSED"));
-      table.put(put);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public void testBatchSave() {
+    UserData userData = new UserData();
+    userData.setUserId("aaaa1111222");
+    userData.setUsername("leojie222");
+    userData.setAge(18);
+    userData.setStudent(true);
+    userData.setCost(10000d);
+    tableTemplate.saveBatch(Collections.singletonList(userData));
   }
 
-  private static long getSeqNumDuringOpen(final Result r) {
-    Cell cell =
-        r.getColumnLatestCell(HConstants.CATALOG_FAMILY, MetaTableAccessor.getSeqNumColumn(0));
-    if (cell == null || cell.getValueLength() == 0) return HConstants.NO_SEQNUM;
-    return Bytes.toLong(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+  @Test
+  public void testGet() {
+    UserData userData = tableTemplate.getRow(GetRowParam.of("aaaa1111").build(), UserData.class);
+    System.out.println(userData);
+  }
+
+  @Test
+  public void testQuery() {
+    Query<UserData> query = Query.of(UserData.class).config(configuration).config("a", "b")
+        .withRow("aaaa1111").addFamily("cf").build();
+    UserData userData = query.get();
+    System.out.println(userData);
   }
 
 }

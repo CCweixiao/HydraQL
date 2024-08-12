@@ -20,7 +20,7 @@ package com.hydraql.template;
 
 import com.hydraql.common.meta.HBaseField;
 import com.hydraql.common.meta.HBaseTableSchema;
-import com.hydraql.common.meta.HBaseMetaContainer;
+import com.hydraql.common.meta.HBaseMetaFactory;
 import com.hydraql.reflectasm.FieldAccess;
 import com.hydraql.reflectasm.MethodAccess;
 import com.hydraql.template.model.UserData;
@@ -52,7 +52,7 @@ public class TestReflectModel {
   @Test
   public void testReflectModel() throws Exception {
     UserData user = UserData.class.getDeclaredConstructor().newInstance();
-    HBaseTableSchema hBaseTableMeta = HBaseMetaContainer.getInstance().stuff(UserData.class);
+    HBaseTableSchema hBaseTableMeta = HBaseMetaFactory.getInstance().create(UserData.class);
     List<HBaseField> fields = hBaseTableMeta.getFields();
     HBaseField field = fields.get(3);
     field.setValue(user, false);

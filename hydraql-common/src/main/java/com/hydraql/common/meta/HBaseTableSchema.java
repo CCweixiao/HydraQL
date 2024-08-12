@@ -21,6 +21,7 @@ package com.hydraql.common.meta;
 import com.hydraql.common.exception.InvalidTableModelClassException;
 import com.hydraql.common.lang.Preconditions;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -29,12 +30,14 @@ import java.util.List;
 /**
  * @author leojie 2022/11/20 11:07
  */
-public class HBaseTableSchema {
+public class HBaseTableSchema implements Serializable {
+  private static final long serialVersionUID = -1129697459766514524L;
+
   private final Class<?> tableClass;
   private final Constructor<?> defaultConstructor;
   private final String tableName;
   private final List<HBaseField> fields;
-  private int rowCount;
+  private transient int rowCount;
 
   private HBaseTableSchema(Builder builder) {
     this.tableClass = builder.tableClass;
@@ -85,8 +88,8 @@ public class HBaseTableSchema {
 
   public List<HBaseField> getFields() {
     if (fields.isEmpty()) {
-      throw new InvalidTableModelClassException(String.format("No fields defined for the model class [%s].",
-              this.getTableClass().getName()));
+      throw new InvalidTableModelClassException(String
+          .format("No fields defined for the model class [%s].", this.getTableClass().getName()));
     }
     return Collections.unmodifiableList(this.fields);
   }
@@ -96,8 +99,8 @@ public class HBaseTableSchema {
     if (field.isRowKey()) {
       rowCount++;
       if (rowCount > 1) {
-        throw new InvalidTableModelClassException(
-                String.format("The model class [%s] contains more than one row key.", this.getTableClass().getName()));
+        throw new InvalidTableModelClassException(String.format(
+          "The model class [%s] contains more than one row key.", this.getTableClass().getName()));
       }
       fields.add(0, field);
       return;

@@ -21,7 +21,7 @@ package com.hydraql.adapter.service;
 import com.hydraql.common.constants.HBaseConstants;
 import com.hydraql.common.exception.HBaseMetaDataException;
 import com.hydraql.common.meta.HBaseField;
-import com.hydraql.common.meta.HBaseMetaContainer;
+import com.hydraql.common.meta.HBaseMetaFactory;
 import com.hydraql.common.meta.HBaseTableSchema;
 import com.hydraql.common.type.ColumnType;
 import com.hydraql.common.type.TypeHandler;
@@ -54,20 +54,20 @@ public interface UpsertService {
 
   default <T> Put buildPut(T t) throws HBaseMetaDataException {
     Class<?> clazz = t.getClass();
-    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    HBaseTableSchema tableMeta = HBaseMetaFactory.getInstance().create(clazz);
     List<HBaseField> fields = tableMeta.getFields();
     HBaseField rowKeyField = fields.get(0);
     if (!rowKeyField.isRowKey()) {
       throw new HBaseMetaDataException(
           "The first field is not row key, please check hbase table mata data.");
     }
-    byte[] value = rowKeyField.getByteValue(t);
+    byte[] value = rowKeyField.toBytes(t);
     Put put = new Put(value);
 
     fields.forEach(field -> {
       if (!field.isRowKey()) {
-        byte[] valueOfCol = field.getByteValue(t);
-        put.addColumn(field.getFamilyBytes(),field.getQualifierBytes(), valueOfCol);
+        byte[] valueOfCol = field.toBytes(t);
+        put.addColumn(field.getFamilyBytes(), field.getQualifierBytes(), valueOfCol);
       }
     });
     return put;

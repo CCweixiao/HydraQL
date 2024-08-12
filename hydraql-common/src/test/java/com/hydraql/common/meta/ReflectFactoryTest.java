@@ -45,7 +45,7 @@ public class ReflectFactoryTest {
   public void testGetHBaseTableMeta() {
     boolean throwErr = false;
     try {
-      HBaseMetaContainer.getInstance().stuff(User.class);
+      HBaseMetaFactory.getInstance().create(User.class);
     } catch (InvalidTableModelClassException e) {
       throwErr = true;
     }
@@ -114,7 +114,7 @@ public class ReflectFactoryTest {
 
   @Test
   public void testGetHBaseTableMeta2() {
-    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(User2.class);
+    HBaseTableSchema tableMeta = HBaseMetaFactory.getInstance().create(User2.class);
     Assert.assertNotNull(tableMeta);
     Assert.assertEquals(5, tableMeta.getFields().size());
     Assert.assertTrue(tableMeta.getFields().get(0).isRowKey());

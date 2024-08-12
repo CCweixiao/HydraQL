@@ -29,7 +29,9 @@ import java.nio.ByteBuffer;
  * @author leojie 2022/11/20 16:49
  */
 public abstract class HBaseField implements Serializable {
-  private static final long serialVersionUID = -7793261339902482728L;
+  private static final long serialVersionUID = 7543769973218535462L;
+
+  protected static final Object[] NO_ARGUMENTS = {};
 
   private final String name;
   private final boolean isRowKey;
@@ -115,35 +117,41 @@ public abstract class HBaseField implements Serializable {
     return setMethodInvoker;
   }
 
-  public Object getValue(Object target) {
-    Object value = this.getGetMethodInvoker().invoke(target, new Object[]{});
-    if (value == null && !this.isNullable()) {
-      throw new IllegalStateException(String.format("The value of column [%s] can not be null.", this.getName()));
-    }
-    return value;
+  public Object getValue(Object object) {
+    return this.getBeanProperty(object);
   }
 
-  public byte[] getByteValue(Object target) {
-    Object value = this.getGetMethodInvoker().invoke(target, new Object[]{});
-    if (value == null && !this.isNullable()) {
-      throw new IllegalStateException(String.format("The value of column [%s] can not be null.", this.getName()));
-    }
+  public byte[] toBytes(Object object) {
+    Object value = this.getBeanProperty(object);
     return this.getTypeHandler().toBytes(this.getType(), value);
   }
 
-  public ByteBuffer getByteBufferValue(Object target) {
-    Object value = this.getGetMethodInvoker().invoke(target, new Object[]{});
-    if (value == null && !this.isNullable()) {
-      throw new IllegalStateException(String.format("The value of column [%s] can not be null.", this.getName()));
-    }
+  public ByteBuffer toByteBuffer(Object object) {
+    Object value = this.getBeanProperty(object);
     return this.getTypeHandler().toByteBuffer(this.getType(), value);
   }
 
-  public abstract void setByteValue(Object target, byte[] value);
+  protected abstract Object getBeanProperty(Object object);
 
-  public abstract void setByteBufferValue(Object target, ByteBuffer value);
+  protected abstract void setBeanProperty(Object object, Object value);
 
-  public abstract void setValue(Object target, Object value);
+  public void setValue(Object object, byte[] value) {
+    Object val = this.getTypeHandler().toObject(this.getType(), value);
+    this.setValue(object, val);
+  }
+
+  public void setValue(Object object, ByteBuffer value) {
+    Object val = this.getTypeHandler().toObject(this.getType(), value);
+    this.setValue(object, val);
+  }
+
+  public void setValue(Object object, Object value) {
+    this.setBeanProperty(object, value);
+  }
+
+  public byte[] getRow(Object value) {
+    return new byte[0];
+  }
 
   public byte[] getFamilyBytes() {
     return new byte[0];

@@ -52,8 +52,8 @@ public @interface HBaseColumn {
 
   /**
    * Whether the hbase column value can be null. <br/>
-   * If set to false and a null value is passed, an exception {@link java.lang.IllegalStateException} will be thrown.
-   *
+   * If set to false and a null value is passed, an exception
+   * {@link java.lang.IllegalStateException} will be thrown.
    * @return can be null or not, default value is true
    */
   boolean nullable() default true;

@@ -20,7 +20,7 @@ package com.hydraql.adapter.service;
 
 import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.common.meta.HBaseTableSchema;
-import com.hydraql.common.meta.HBaseMetaContainer;
+import com.hydraql.common.meta.HBaseMetaFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -120,7 +120,7 @@ public interface MutatorService {
 
   default <T> String getTableName(T t) {
     final Class<?> clazz = t.getClass();
-    HBaseTableSchema tableMeta = HBaseMetaContainer.getInstance().stuff(clazz);
+    HBaseTableSchema tableMeta = HBaseMetaFactory.getInstance().create(clazz);
     return tableMeta.getTableName();
   }
 }
