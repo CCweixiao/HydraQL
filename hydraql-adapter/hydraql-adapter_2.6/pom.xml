@@ -13,10 +13,6 @@
     <artifactId>hydraql-adapter_2.6</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.hydraql</groupId>
