@@ -18,7 +18,7 @@
 
 package com.hydraql.dsl.client.rowkey;
 
-import com.hydraql.common.type.ColumnType;
+import com.hydraql.core.type.ColumnType;
 
 /**
  * @author leojie 2022/12/3 12:51

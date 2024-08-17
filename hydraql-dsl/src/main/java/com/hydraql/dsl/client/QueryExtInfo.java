@@ -18,7 +18,7 @@
 
 package com.hydraql.dsl.client;
 
-import com.hydraql.common.lang.Assert;
+import com.hydraql.core.toolkit.Assert;
 
 import java.util.Date;
 

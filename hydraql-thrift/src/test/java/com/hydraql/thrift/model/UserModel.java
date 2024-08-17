@@ -18,9 +18,9 @@
 
 package com.hydraql.thrift.model;
 
-import com.hydraql.common.meta.annotations.HBaseColumn;
-import com.hydraql.common.meta.annotations.HBaseRowKey;
-import com.hydraql.common.meta.annotations.HBaseTable;
+import com.hydraql.core.annotations.HBaseField;
+import com.hydraql.core.annotations.HBaseRowKey;
+import com.hydraql.core.annotations.HBaseTable;
 
 /**
  * @author leojie 2022/12/10 17:44
@@ -29,11 +29,11 @@ import com.hydraql.common.meta.annotations.HBaseTable;
 public class UserModel {
   @HBaseRowKey
   private String userId;
-  @HBaseColumn()
+  @HBaseField()
   private String nickName;
-  @HBaseColumn(family = "detail", qualifier = "detailAddress")
+  @HBaseField(family = "detail", qualifier = "detailAddress")
   private String detailAddress;
-  @HBaseColumn(family = "detail")
+  @HBaseField(family = "detail")
   private double detailPay;
 
   public String getUserId() {

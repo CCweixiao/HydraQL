@@ -18,7 +18,7 @@
 
 package com.hydraql.shell;
 
-import com.hydraql.common.exception.HBaseShellSessionEnvInitException;
+import com.hydraql.core.exceptions.HBaseShellSessionEnvInitException;
 import com.hydraql.common.util.StringUtil;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.ScriptingContainer;

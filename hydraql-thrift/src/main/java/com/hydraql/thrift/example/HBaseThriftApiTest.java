@@ -18,7 +18,7 @@
 
 package com.hydraql.thrift.example;
 
-import com.hydraql.common.type.ColumnType;
+import com.hydraql.core.type.ColumnType;
 import org.apache.hadoop.hbase.thrift.generated.Hbase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;

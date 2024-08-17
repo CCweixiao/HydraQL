@@ -52,7 +52,7 @@
     <modules>
         <!-- 项目模块名称 -->
         <module>hydraql-adapter</module>
-        <module>hydraql-common</module>
+        <module>hydraql-core</module>
         <module>hydraql-dsl</module>
         <module>hydraql-examples</module>
         <module>hydraql-shell</module>
@@ -179,7 +179,7 @@
 
             <dependency>
                 <groupId>com.hydraql</groupId>
-                <artifactId>hydraql-common</artifactId>
+                <artifactId>hydraql-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

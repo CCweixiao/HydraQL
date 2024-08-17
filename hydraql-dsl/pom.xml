@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.hydraql</groupId>
-            <artifactId>hydraql-common</artifactId>
+            <artifactId>hydraql-core</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.antlr/antlr4 -->
         <dependency>

@@ -38,10 +38,11 @@ public class GetFieldInvoker implements Invoker {
     try {
       return field.get(target);
     } catch (IllegalAccessException e) {
-      if (!Reflector.canControlMemberAccessible()) {
+      if (Reflector.canControlMemberAccessible()) {
+        field.setAccessible(true);
+      } else {
         throw new ReflectionException(e);
       }
-      field.setAccessible(true);
       try {
         return field.get(target);
       } catch (IllegalAccessException ex) {

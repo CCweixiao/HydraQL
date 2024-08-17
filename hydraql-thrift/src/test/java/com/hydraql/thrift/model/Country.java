@@ -18,10 +18,10 @@
 
 package com.hydraql.thrift.model;
 
-import com.hydraql.common.meta.annotations.HBaseColumn;
+import com.hydraql.core.annotations.HBaseField;
 
 public class Country {
-  @HBaseColumn(family = "info", qualifier = "countryName")
+  @HBaseField(family = "info", qualifier = "countryName")
   private String countryName;
 
   public String getCountryName() {

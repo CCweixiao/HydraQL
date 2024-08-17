@@ -18,11 +18,11 @@
 
 package com.hydraql.template.model;
 
-import com.hydraql.common.meta.annotations.GeneratedValue;
-import com.hydraql.common.meta.annotations.GenerationType;
-import com.hydraql.common.meta.annotations.HBaseColumn;
-import com.hydraql.common.meta.annotations.HBaseRowKey;
-import com.hydraql.common.meta.annotations.HBaseTable;
+import com.hydraql.core.annotations.GeneratedValue;
+import com.hydraql.core.rowkey.GenerationType;
+import com.hydraql.core.annotations.HBaseField;
+import com.hydraql.core.annotations.HBaseRowKey;
+import com.hydraql.core.annotations.HBaseTable;
 
 /**
  * @author leojie@apache.org 2024/7/22 22:23
@@ -33,16 +33,16 @@ public class UserData {
   @GeneratedValue(strategy = GenerationType.HASHING)
   private String userId;
 
-  @HBaseColumn
+  @HBaseField
   private String username;
 
-  @HBaseColumn
+  @HBaseField
   private Integer age;
 
-  @HBaseColumn
+  @HBaseField
   private Boolean isStudent;
 
-  @HBaseColumn
+  @HBaseField
   private Double cost;
 
   public String getUserId() {

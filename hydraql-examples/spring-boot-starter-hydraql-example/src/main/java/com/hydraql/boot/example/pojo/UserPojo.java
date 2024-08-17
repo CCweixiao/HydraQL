@@ -18,8 +18,8 @@
 
 package com.hydraql.boot.example.pojo;
 
-import com.hydraql.common.meta.annotations.HBaseColumn;
-import com.hydraql.common.meta.annotations.HBaseTable;
+import com.hydraql.core.annotations.HBaseField;
+import com.hydraql.core.annotations.HBaseTable;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -34,10 +34,10 @@ import java.util.Map;
  */
 @HBaseTable(namespace = "test", tableName = "user", defaultFamily = "info")
 public class UserPojo extends PeoplePojo {
-  @HBaseColumn(qualifier = "userName")
+  @HBaseField(qualifier = "userName")
   private String username;
   private int age;
-  @HBaseColumn(qualifier = "pay", family = "info2")
+  @HBaseField(qualifier = "pay", family = "info2")
   private float pay;
   private List<String> address;
   private double cost;
@@ -46,7 +46,7 @@ public class UserPojo extends PeoplePojo {
   private Map<String, Object> info;
   private BigDecimal bigDecimal;
   private String[] roles;
-  @HBaseColumn(qualifier = "is_vip", family = "info")
+  @HBaseField(qualifier = "is_vip", family = "info")
   private boolean isVip;
 
   public String getUsername() {

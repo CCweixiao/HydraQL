@@ -19,7 +19,7 @@
 package com.hydraql.adapter;
 
 import com.hydraql.adapter.context.HTableContext;
-import com.hydraql.common.exception.HBaseQueryParamsException;
+import com.hydraql.core.exceptions.HBaseQueryParamsException;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;

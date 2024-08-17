@@ -20,8 +20,8 @@ package com.hydraql.adapter;
 
 import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.common.exception.HBaseOperationsException;
-import com.hydraql.common.exception.HBaseSqlAnalysisException;
+import com.hydraql.core.exceptions.HBaseOperationsException;
+import com.hydraql.core.exceptions.HBaseSqlAnalysisException;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.adapter.dsl.antlr.data.InsertColData;

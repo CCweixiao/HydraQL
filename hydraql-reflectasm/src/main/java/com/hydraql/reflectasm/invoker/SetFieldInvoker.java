@@ -38,10 +38,11 @@ public class SetFieldInvoker implements Invoker {
     try {
       field.set(target, args[0]);
     } catch (IllegalAccessException e) {
-      if (!Reflector.canControlMemberAccessible()) {
+      if (Reflector.canControlMemberAccessible()) {
+        field.setAccessible(true);
+      } else {
         throw new ReflectionException(e);
       }
-      field.setAccessible(true);
       try {
         field.set(target, args[0]);
       } catch (IllegalAccessException ex) {

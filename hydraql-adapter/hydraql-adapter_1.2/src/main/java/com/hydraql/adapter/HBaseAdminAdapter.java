@@ -19,11 +19,11 @@
 package com.hydraql.adapter;
 
 import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.common.exception.HBaseFamilyHasExistsException;
-import com.hydraql.common.exception.HBaseFamilyNotFoundException;
-import com.hydraql.common.exception.HBaseOperationsException;
-import com.hydraql.common.exception.NoSuchColumnFamilyException;
-import com.hydraql.common.lang.Assert;
+import com.hydraql.core.exceptions.HBaseFamilyHasExistsException;
+import com.hydraql.core.exceptions.HBaseFamilyNotFoundException;
+import com.hydraql.core.exceptions.HBaseOperationsException;
+import com.hydraql.core.exceptions.NoSuchColumnFamilyException;
+import com.hydraql.core.toolkit.Assert;
 import com.hydraql.common.model.*;
 import com.hydraql.adapter.hbtop.HBaseMetricOperations;
 import com.hydraql.adapter.hbtop.Record;

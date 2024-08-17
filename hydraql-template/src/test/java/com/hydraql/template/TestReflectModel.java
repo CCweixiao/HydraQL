@@ -18,9 +18,9 @@
 
 package com.hydraql.template;
 
-import com.hydraql.common.meta.HBaseField;
-import com.hydraql.common.meta.HBaseTableSchema;
-import com.hydraql.common.meta.HBaseMetaFactory;
+import com.hydraql.core.metadata.HBaseFieldInfo;
+import com.hydraql.core.metadata.HBaseTableInfo;
+import com.hydraql.core.metadata.HBaseTableInfoHelper;
 import com.hydraql.reflectasm.FieldAccess;
 import com.hydraql.reflectasm.MethodAccess;
 import com.hydraql.template.model.UserData;
@@ -52,9 +52,9 @@ public class TestReflectModel {
   @Test
   public void testReflectModel() throws Exception {
     UserData user = UserData.class.getDeclaredConstructor().newInstance();
-    HBaseTableSchema hBaseTableMeta = HBaseMetaFactory.getInstance().create(UserData.class);
-    List<HBaseField> fields = hBaseTableMeta.getFields();
-    HBaseField field = fields.get(3);
+    HBaseTableInfo hBaseTableMeta = HBaseTableInfoHelper.getTableInfo(UserData.class);
+    List<HBaseFieldInfo> fields = hBaseTableMeta.getFields();
+    HBaseFieldInfo field = fields.get(3);
     field.setValue(user, false);
     System.out.println(user);
   }

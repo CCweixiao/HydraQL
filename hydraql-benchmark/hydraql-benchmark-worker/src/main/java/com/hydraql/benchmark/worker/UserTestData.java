@@ -18,9 +18,9 @@
 
 package com.hydraql.benchmark.worker;
 
-import com.hydraql.common.meta.annotations.HBaseColumn;
-import com.hydraql.common.meta.annotations.HBaseRowKey;
-import com.hydraql.common.meta.annotations.HBaseTable;
+import com.hydraql.core.annotations.HBaseField;
+import com.hydraql.core.annotations.HBaseRowKey;
+import com.hydraql.core.annotations.HBaseTable;
 
 /**
  * @author leojie@apache.org 2024/4/11 11:17
@@ -30,34 +30,34 @@ public class UserTestData {
   @HBaseRowKey
   private String userId;
 
-  @HBaseColumn(qualifier = "field0")
+  @HBaseField(qualifier = "field0")
   private String field0;
 
-  @HBaseColumn(qualifier = "field1")
+  @HBaseField(qualifier = "field1")
   private String field1;
 
-  @HBaseColumn(qualifier = "field2")
+  @HBaseField(qualifier = "field2")
   private String field2;
 
-  @HBaseColumn(qualifier = "field3")
+  @HBaseField(qualifier = "field3")
   private String field3;
 
-  @HBaseColumn(qualifier = "field4")
+  @HBaseField(qualifier = "field4")
   private String field4;
 
-  @HBaseColumn(qualifier = "field5")
+  @HBaseField(qualifier = "field5")
   private String field5;
 
-  @HBaseColumn(qualifier = "field6")
+  @HBaseField(qualifier = "field6")
   private String field6;
 
-  @HBaseColumn(qualifier = "field7")
+  @HBaseField(qualifier = "field7")
   private String field7;
 
-  @HBaseColumn(qualifier = "field8")
+  @HBaseField(qualifier = "field8")
   private String field8;
 
-  @HBaseColumn(qualifier = "field9")
+  @HBaseField(qualifier = "field9")
   private String field9;
 
   public String getUserId() {

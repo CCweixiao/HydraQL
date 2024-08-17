@@ -18,9 +18,9 @@
 
 package com.hydraql.thrift.model;
 
-import com.hydraql.common.meta.annotations.HBaseColumn;
-import com.hydraql.common.meta.annotations.HBaseRowKey;
-import com.hydraql.common.meta.annotations.HBaseTable;
+import com.hydraql.core.annotations.HBaseField;
+import com.hydraql.core.annotations.HBaseRowKey;
+import com.hydraql.core.annotations.HBaseTable;
 
 import java.util.List;
 
@@ -34,11 +34,11 @@ public class CityModel extends Country {
   private String cityName;
   private String cityAddress;
 
-  @HBaseColumn(family = "detail")
+  @HBaseField(family = "detail")
   private Integer cityArea;
-  @HBaseColumn(family = "detail")
+  @HBaseField(family = "detail")
   private Integer totalPopulation;
-  @HBaseColumn(family = "detail", qualifier = "cityTagList")
+  @HBaseField(family = "detail", qualifier = "cityTagList")
   private List<CityTag> cityTagList;
 
   public String getCityId() {

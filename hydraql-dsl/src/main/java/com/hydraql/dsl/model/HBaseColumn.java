@@ -19,8 +19,8 @@
 package com.hydraql.dsl.model;
 
 import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.common.lang.Assert;
-import com.hydraql.common.type.ColumnType;
+import com.hydraql.core.toolkit.Assert;
+import com.hydraql.core.type.ColumnType;
 import com.hydraql.common.util.BytesUtil;
 import com.hydraql.common.util.StringUtil;
 

@@ -61,11 +61,11 @@
 ├── bin
 ├── build
 ├── hydraql-adapter
-│   ├── hydraql-adapter-common
+│   ├── hydraql-adapter-core
 │   ├── hydraql-adapter_1.2
 │   ├── hydraql-adapter_1.4
 │   ├── hydraql-adapter_2.2
-├── hydraql-common
+├── hydraql-core
 ├── hydraql-console
 ├── hydraql-dsl
 ├── hydraql-examples
@@ -88,7 +88,7 @@
 
 | 模块                          | 介绍                                                                          |
 |-----------------------------|-----------------------------------------------------------------------------|
-| hydraql-common              | 对一些公共方法的封装                                                                  |
+| hydraql-core                | 对一些公共方法的封装                                                                  |
 | hydraql-dsl                 | hql的定义，以及使用antr4解析hql，并转换hbase-client的调用                                    |
 | hydraql-adapter             | 统一HBase数据读写的接口，并针对不同版本的`hbase-client` api进行适配和增强，屏蔽了多版本下hbase-client api不兼容 |
 | hydraql-template            | 依赖hydraql-adapter，对外统一暴露为模版类和模版方法                                           |

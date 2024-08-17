@@ -18,7 +18,7 @@
 
 package com.hydraql.thrift;
 
-import com.hydraql.common.exception.HBaseThriftTSocketException;
+import com.hydraql.core.exceptions.HBaseThriftTSocketException;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;

@@ -18,8 +18,8 @@
 
 package com.hydraql.dsl.client.rowkey.func;
 
-import com.hydraql.common.exception.HBaseFuncNotSupportedException;
-import com.hydraql.common.lang.Assert;
+import com.hydraql.core.exceptions.HBaseFuncNotSupportedException;
+import com.hydraql.core.toolkit.Assert;
 import com.hydraql.common.util.StringUtil;
 
 /**

@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.hydraql</groupId>
-            <artifactId>hydraql-adapter-common</artifactId>
+            <artifactId>hydraql-adapter-core</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

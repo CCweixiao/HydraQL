@@ -19,9 +19,9 @@
             <!--依赖包中是否包含当前工程-->
             <useProjectArtifact>true</useProjectArtifact>
             <excludes>
-                <exclude>com.hydraql:hydraql-common</exclude>
+                <exclude>com.hydraql:hydraql-core</exclude>
                 <exclude>com.hydraql:hydraql-dsl</exclude>
-                <exclude>com.hydraql:hydraql-adapter-common</exclude>
+                <exclude>com.hydraql:hydraql-adapter-core</exclude>
                 <exclude>com.hydraql:hydraql-adapter_${hydraql.hbase.adapter.version}</exclude>
             </excludes>
         </dependencySet>

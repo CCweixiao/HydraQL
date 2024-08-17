@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.hql.filter;
 
-import com.hydraql.common.exception.HBaseSqlAnalysisException;
+import com.hydraql.core.exceptions.HBaseSqlAnalysisException;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.adapter.dsl.antlr.visitor.BaseVisitor;
 import com.hydraql.dsl.model.HBaseColumn;

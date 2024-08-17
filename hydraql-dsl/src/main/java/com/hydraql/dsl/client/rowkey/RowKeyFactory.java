@@ -18,7 +18,7 @@
 
 package com.hydraql.dsl.client.rowkey;
 
-import com.hydraql.common.exception.HBaseSqlRowKeyUnsupportedException;
+import com.hydraql.core.exceptions.HBaseSqlRowKeyUnsupportedException;
 import com.hydraql.dsl.client.rowkey.func.RowKeyFunction;
 import com.hydraql.dsl.model.HBaseColumn;
 import com.hydraql.dsl.model.HBaseTableSchema;
