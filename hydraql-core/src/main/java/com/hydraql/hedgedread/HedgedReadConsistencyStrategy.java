@@ -49,8 +49,8 @@ public class HedgedReadConsistencyStrategy extends AbstractHedgedReadStrategy {
     // todo 优化时间定义
     this.maxThreads =
         executor.getConfiguration().getHedgedReadProperty().getHedgedReadThreadpoolSize();
-    this.overallTimeoutMillis = executor.getConfiguration().getHedgedReadProperty()
-        .getHedgedReadOverallTimeoutMillis();
+    this.overallTimeoutMillis =
+        executor.getConfiguration().getHedgedReadProperty().getHedgedReadOverallTimeoutMillis();
   }
 
   @Override

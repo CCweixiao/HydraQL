@@ -33,7 +33,7 @@ public class WrapperBufferedMutatorImpl implements WrapperBufferedMutator {
   private BufferedMutator bufferedMutator;
 
   public WrapperBufferedMutatorImpl(HQlConnection hydraQlConnection,
-                                    BufferedMutator bufferedMutator) {
+      BufferedMutator bufferedMutator) {
     this.hydraQlConnection = hydraQlConnection;
     this.bufferedMutator = bufferedMutator;
   }

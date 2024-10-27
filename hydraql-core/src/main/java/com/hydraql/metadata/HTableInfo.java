@@ -85,15 +85,16 @@ public class HTableInfo implements Serializable {
   public HFieldInfo.RowKey getRowKey() {
     if (this.rowKey == null) {
       throw new InvalidTableModelClassException(String.format(
-              "The model class [%s] should contain one row key.", this.getTableEntityClass().getName()));
+        "The model class [%s] should contain one row key.", this.getTableEntityClass().getName()));
     }
     return rowKey;
   }
 
   public List<HFieldInfo.Qualifier> getQualifiers() {
     if (this.qualifiers.isEmpty()) {
-      throw new InvalidTableModelClassException(String.format(
-              "The model class [%s] should contain least one qualifier.", this.getTableEntityClass().getName()));
+      throw new InvalidTableModelClassException(
+          String.format("The model class [%s] should contain least one qualifier.",
+            this.getTableEntityClass().getName()));
     }
     return Collections.unmodifiableList(this.qualifiers);
   }
@@ -103,22 +104,23 @@ public class HTableInfo implements Serializable {
     if (this.rowKey == null) {
       this.rowKey = rowKey;
     }
-    throw new InvalidTableModelClassException(String.format(
-            "The model class [%s] contains more than one row key.", this.getTableEntityClass().getName()));
+    throw new InvalidTableModelClassException(
+        String.format("The model class [%s] contains more than one row key.",
+          this.getTableEntityClass().getName()));
   }
 
   public void appendQualifier(HFieldInfo.Qualifier qualifier) {
     Preconditions.checkNotNull(rowKey, "qualifier cannot be null");
     if (qualifiers.contains(qualifier)) {
-      throw new InvalidTableModelClassException(String.format(
-              "The qualifier [%s] has been added.", qualifier.getName()));
+      throw new InvalidTableModelClassException(
+          String.format("The qualifier [%s] has been added.", qualifier.getName()));
     }
     qualifiers.add(qualifier);
   }
 
   @SuppressWarnings("unchecked")
   public <T> T newInstance() {
-    Preconditions.checkNotNull(this.reflector,"Reflector cannot be null");
+    Preconditions.checkNotNull(this.reflector, "Reflector cannot be null");
     return (T) this.reflector.create(this.getTableEntityClass());
   }
 }

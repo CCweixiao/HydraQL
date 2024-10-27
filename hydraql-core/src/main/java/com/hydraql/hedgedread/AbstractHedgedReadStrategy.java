@@ -60,8 +60,7 @@ public abstract class AbstractHedgedReadStrategy implements HedgedReadStrategy {
     }
   }
 
-  protected void mutateOnPrefer(MutatorAction<WrapperBufferedMutator> action)
-      throws IOException {
+  protected void mutateOnPrefer(MutatorAction<WrapperBufferedMutator> action) throws IOException {
     try {
       WrapperBufferedMutator mutator = executor.getConnection().getWrapperBufferedMutator();
       action.execute(mutator);
@@ -70,10 +69,10 @@ public abstract class AbstractHedgedReadStrategy implements HedgedReadStrategy {
     }
   }
 
-  protected void mutateOnSpare(MutatorAction<WrapperBufferedMutator> action)
-      throws IOException {
+  protected void mutateOnSpare(MutatorAction<WrapperBufferedMutator> action) throws IOException {
     try {
-      WrapperBufferedMutator mutator = executor.getConnection().getHedgedReadWrapperBufferedMutator();
+      WrapperBufferedMutator mutator =
+          executor.getConnection().getHedgedReadWrapperBufferedMutator();
       action.execute(mutator);
     } catch (Throwable throwable) {
       throw new IOException(throwable);
@@ -81,7 +80,7 @@ public abstract class AbstractHedgedReadStrategy implements HedgedReadStrategy {
   }
 
   protected <T> CompletionService<T> getHedgedReadService(int maxThreads) {
-    //TODO 是否考虑并发优化
+    // TODO 是否考虑并发优化
     return new ExecutorCompletionService<>(HedgedReadExecutor.create().getExecutor(maxThreads));
   }
 

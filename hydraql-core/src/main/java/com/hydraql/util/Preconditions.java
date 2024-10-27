@@ -37,7 +37,7 @@ public class Preconditions {
   }
 
   public static <T> T checkNotNull(T reference, String errorMessageTemplate,
-                                   Object... errorMessageArgs) {
+      Object... errorMessageArgs) {
     if (reference == null) {
       throw new NullPointerException(format(errorMessageTemplate, errorMessageArgs));
     }

@@ -45,7 +45,6 @@ public class HTableInfoContainer {
   private static final Map<Class<?>, HTableInfo> TABLE_INFO_CACHE = new HashMap<>();
   private final ReadWriteLock tableInfoMappingLock = new ReentrantReadWriteLock();
 
-
   private HTableInfoContainer() {
   }
 
@@ -70,7 +69,7 @@ public class HTableInfoContainer {
     tableInfoMappingLock.writeLock().lock();
     try {
       if (clazz == null || clazz.isPrimitive() || SimpleTypeRegistry.isSimpleType(clazz)
-              || clazz.isInterface()) {
+          || clazz.isInterface()) {
         throw new InvalidTableModelClassException("Invalid table model class info.");
       }
       HTableInfo tableInfo = TABLE_INFO_CACHE.get(clazz);
@@ -80,7 +79,7 @@ public class HTableInfoContainer {
       TableMeta tableMeta = extractTableMeta(clazz);
       Reflector reflector = new Reflector(clazz);
       tableInfo = HTableInfo.newBuilder(clazz).setReflector(reflector)
-              .setTableName(tableMeta.getTableName()).build();
+          .setTableName(tableMeta.getTableName()).build();
 
       int qualifierCount = 0;
       for (Field field : reflector.getFields()) {
@@ -91,7 +90,8 @@ public class HTableInfoContainer {
 
         RowKeyMeta rowKeyMeta = extractRowKeyMetaData(field);
         if (rowKeyMeta != null) {
-          HFieldInfo.RowKey.Builder rowKeyBuilder = HFieldInfo.RowKey.newBuilder(fieldTypeClazz, rowKeyMeta.getName());
+          HFieldInfo.RowKey.Builder rowKeyBuilder =
+              HFieldInfo.RowKey.newBuilder(fieldTypeClazz, rowKeyMeta.getName());
           rowKeyBuilder.setRowKeyGenerator(rowKeyMeta.getRowKeyGenerator());
           // 设置row key setter and getter
           rowKeyBuilder.setGetMethodInvoker(reflector.getGetInvoker(field.getName()));
@@ -105,7 +105,8 @@ public class HTableInfoContainer {
           continue;
         }
 
-        HFieldInfo.Qualifier.Builder qualifierBuilder = HFieldInfo.Qualifier.newBuilder(fieldTypeClazz, columnMeta.getName());
+        HFieldInfo.Qualifier.Builder qualifierBuilder =
+            HFieldInfo.Qualifier.newBuilder(fieldTypeClazz, columnMeta.getName());
         qualifierBuilder.setFamily(columnMeta.getFamily());
         qualifierBuilder.setQualifier(columnMeta.getQualifier());
         qualifierBuilder.setNullable(columnMeta.isNullable());
@@ -117,9 +118,9 @@ public class HTableInfoContainer {
       }
 
       if (qualifierCount < 1) {
-        throw new InvalidTableModelClassException(
-                String.format("The table model class [%s] should contain at least one qualifier definition.",
-                        clazz.getName()));
+        throw new InvalidTableModelClassException(String.format(
+          "The table model class [%s] should contain at least one qualifier definition.",
+          clazz.getName()));
       }
       TABLE_INFO_CACHE.put(clazz, tableInfo);
     } finally {
@@ -132,7 +133,8 @@ public class HTableInfoContainer {
     try {
       HTableInfo tableInfo = TABLE_INFO_CACHE.get(clazz);
       if (tableInfo == null) {
-        throw new InvalidTableModelClassException(String.format("The table model class [%s] does not register a table info.", clazz.getName()));
+        throw new InvalidTableModelClassException(String
+            .format("The table model class [%s] does not register a table info.", clazz.getName()));
       }
       return tableInfo;
     } finally {

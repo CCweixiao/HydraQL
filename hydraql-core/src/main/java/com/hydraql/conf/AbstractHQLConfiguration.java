@@ -71,16 +71,15 @@ public abstract class AbstractHQLConfiguration {
 
     private HedgedReadProperty(Configuration configuration) {
       Preconditions.checkNotNull(configuration, "The configuration of hbase client is null");
-      this.hedgedReadStrategyOption =
-          HedgedReadStrategy.Option.find(configuration.get(HQLConfigKeys.HedgedRead.STRATEGY,
-            HQLConfigKeys.HedgedRead.DEFAULT_STRATEGY));
-      this.hedgedReadWriteDisable =
-              configuration.getBoolean(HQLConfigKeys.HedgedRead.WRITE_DISABLE,
-                      HQLConfigKeys.HedgedRead.DEFAULT_WRITE_DISABLE);
+      this.hedgedReadStrategyOption = HedgedReadStrategy.Option.find(configuration
+          .get(HQLConfigKeys.HedgedRead.STRATEGY, HQLConfigKeys.HedgedRead.DEFAULT_STRATEGY));
+      this.hedgedReadWriteDisable = configuration.getBoolean(HQLConfigKeys.HedgedRead.WRITE_DISABLE,
+        HQLConfigKeys.HedgedRead.DEFAULT_WRITE_DISABLE);
       this.hedgedReadThreadpoolSize =
           configuration.getInt(HQLConfigKeys.HedgedRead.THREADPOOL_SIZE_KEY,
             HQLConfigKeys.HedgedRead.DEFAULT_THREADPOOL_SIZE);
-      this.isActivate = this.hedgedReadStrategyOption.isActivate() && this.hedgedReadThreadpoolSize > 0;
+      this.isActivate =
+          this.hedgedReadStrategyOption.isActivate() && this.hedgedReadThreadpoolSize > 0;
       this.hedgedReadThresholdMillis =
           configuration.getLong(HQLConfigKeys.HedgedRead.THRESHOLD_MILLIS_KEY,
             HQLConfigKeys.HedgedRead.DEFAULT_THRESHOLD_MILLIS);

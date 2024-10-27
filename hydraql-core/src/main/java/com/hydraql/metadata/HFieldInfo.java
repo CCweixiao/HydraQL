@@ -181,14 +181,14 @@ public abstract class HFieldInfo implements Serializable {
       Object value = this.getGetMethodInvoker().invoke(object, NO_ARGUMENTS);
       if (value == null) {
         throw new IllegalStateException(
-                String.format("The value of column [%s] can not be null.", this.getName()));
+            String.format("The value of column [%s] can not be null.", this.getName()));
       }
       if (rowKeyGenerator == null || rowKeyGenerator.isDefault()) {
         return value;
       }
       if (this.getType() != String.class) {
         throw new InvalidTableModelClassException(
-                "RowKeyGenerator cannot be used for non-string type row key.");
+            "RowKeyGenerator cannot be used for non-string type row key.");
       }
       return rowKeyGenerator.apply(value.toString());
     }
@@ -204,7 +204,7 @@ public abstract class HFieldInfo implements Serializable {
       }
       if (this.getType() != String.class) {
         throw new InvalidTableModelClassException(
-                "RowKeyGenerator cannot be used for non-string type row key.");
+            "RowKeyGenerator cannot be used for non-string type row key.");
       }
       String originalRow = rowKeyGenerator.recover(value.toString());
       this.getSetMethodInvoker().invoke(object, new Object[] { originalRow });
@@ -219,7 +219,7 @@ public abstract class HFieldInfo implements Serializable {
       }
       if (this.getType() != String.class) {
         throw new InvalidTableModelClassException(
-                "RowKeyGenerator cannot be used for non-string type row key.");
+            "RowKeyGenerator cannot be used for non-string type row key.");
       }
       return BytesUtil.toBytes(rowKeyGenerator.apply(value.toString()));
     }
@@ -258,7 +258,6 @@ public abstract class HFieldInfo implements Serializable {
       private String familyAndQualifier;
       private int hashcode;
 
-
       private Builder(Class<?> type, String name) {
         super(type, name);
       }
@@ -276,9 +275,9 @@ public abstract class HFieldInfo implements Serializable {
       @Override
       Qualifier build() {
         Preconditions.checkState(StringUtil.isNotBlank(familyString),
-                "The family cannot be null or empty.");
+          "The family cannot be null or empty.");
         Preconditions.checkState(StringUtil.isNotBlank(qualifierString),
-                "The qualifier cannot be null or empty.");
+          "The qualifier cannot be null or empty.");
         this.familyAndQualifier = familyString + ":" + qualifierString;
         this.hashcode = this.familyAndQualifier.hashCode();
         return new Qualifier(this);
@@ -290,7 +289,7 @@ public abstract class HFieldInfo implements Serializable {
       Object value = this.getGetMethodInvoker().invoke(object, NO_ARGUMENTS);
       if (value == null && !this.isNullable()) {
         throw new IllegalStateException(
-                String.format("The value of column [%s] can not be null.", this.getName()));
+            String.format("The value of column [%s] can not be null.", this.getName()));
       }
       return value;
     }

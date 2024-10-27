@@ -42,8 +42,8 @@ public class HQlExecutor extends BaseExecutor {
       return null;
     }
     if (null == table.getTableInfo()) {
-      throw new ExecutorException(
-          String.format("Table meta data of entity class %s is not set.", entity.getClass().getName()));
+      throw new ExecutorException(String.format("Table meta data of entity class %s is not set.",
+        entity.getClass().getName()));
     }
     HFieldInfo.RowKey rowKey = table.getTableInfo().getRowKey();
     List<HFieldInfo.Qualifier> qualifiers = table.getTableInfo().getQualifiers();

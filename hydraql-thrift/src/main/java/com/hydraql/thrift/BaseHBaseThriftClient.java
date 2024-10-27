@@ -102,7 +102,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
     qualifiers.forEach(qualifier -> {
       ByteBuffer fieldValue = qualifier.getByteBufferValue(t);
       mutations.add(new Mutation(false,
-              ColumnType.toByteBufferFromStr(qualifier.getFamilyAndQualifier()), fieldValue, true));
+          ColumnType.toByteBufferFromStr(qualifier.getFamilyAndQualifier()), fieldValue, true));
     });
     return mutations;
   }
