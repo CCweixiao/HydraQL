@@ -18,7 +18,7 @@
 
 package com.hydraql.common.util;
 
-import com.hydraql.core.toolkit.Preconditions;
+import com.hydraql.util.Preconditions;
 
 /**
  * @author leojie 2020/11/28 12:00 下午
@@ -31,7 +31,7 @@ public class EncodingUtil {
    * Convert bytes to hex string.
    */
   public static String toHexString(byte[] bytes) {
-    Preconditions.checkIsNotNull(bytes);
+    Preconditions.checkNotNull(bytes);
 
     StringBuilder sb = new StringBuilder();
     for (byte b : bytes) {

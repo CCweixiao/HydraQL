@@ -19,9 +19,9 @@
 package com.hydraql.adapter.connection;
 
 import com.hydraql.adapter.context.HTableContext;
-import com.hydraql.common.constants.HBaseConfigKeys;
-import com.hydraql.core.exceptions.HydraQLConnectionException;
-import com.hydraql.common.security.AuthType;
+import com.hydraql.common.constants.HydraQlClientConfigKeys;
+import com.hydraql.exceptions.HydraQLConnectionException;
+import com.hydraql.enums.AuthType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.BufferedMutator;
@@ -180,12 +180,12 @@ public class HBaseConnectionManager {
   }
 
   private void doKerberosLogin(Configuration configuration) {
-    String principal = configuration.get(HBaseConfigKeys.KERBEROS_PRINCIPAL);
+    String principal = configuration.get(HydraQlClientConfigKeys.KERBEROS_PRINCIPAL);
     if (StringUtil.isBlank(principal)) {
       kerberosEnvInit.set(false);
       throw new HydraQLConnectionException("The kerberos principal is not empty.");
     }
-    String keytab = configuration.get(HBaseConfigKeys.KERBEROS_KEYTAB_FILE);
+    String keytab = configuration.get(HydraQlClientConfigKeys.KERBEROS_KEYTAB_FILE);
     if (StringUtil.isBlank(keytab)) {
       kerberosEnvInit.set(false);
       throw new HydraQLConnectionException("The keytab file path is not empty.");
@@ -200,7 +200,8 @@ public class HBaseConnectionManager {
       throw new HydraQLConnectionException("The keytab file is not a file.");
     }
     try {
-      configuration.set(HBaseConfigKeys.HADOOP_SECURITY_AUTH, AuthType.KERBEROS.getAuthType());
+      configuration.set(HydraQlClientConfigKeys.HADOOP_SECURITY_AUTH,
+        AuthType.KERBEROS.getAuthType());
       UserGroupInformation.setConfiguration(configuration);
       UserGroupInformation.loginUserFromKeytab(principal, keytab);
       LOG.debug("Login successfully via keytab: {} and principal: {}", keytab, principal);
@@ -264,7 +265,7 @@ public class HBaseConnectionManager {
   }
 
   private boolean isKerberosAuthType(Configuration configuration) {
-    String authType = configuration.get(HBaseConfigKeys.HBASE_SECURITY_AUTH, "");
+    String authType = configuration.get(HydraQlClientConfigKeys.HBASE_SECURITY_AUTH, "");
     return AuthType.isKerberos(authType);
   }
 

@@ -18,19 +18,19 @@
 
 package com.hydraql.thrift;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.exceptions.HBaseSdkUnsupportedFunctionException;
-import com.hydraql.core.exceptions.HBaseThriftException;
-import com.hydraql.core.toolkit.Assert;
-import com.hydraql.core.callback.RowMapper;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.exceptions.HBaseSdkUnsupportedFunctionException;
+import com.hydraql.exceptions.HBaseThriftException;
+import com.hydraql.util.Assert;
+import com.hydraql.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.core.metadata.HBaseTableInfo;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.metadata.HTableInfo;
+import com.hydraql.metadata.HTableInfoContainer;
+import com.hydraql.type.ColumnType;
 import com.hydraql.common.util.HBaseThriftProtocol;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.thrift.generated.*;
@@ -124,14 +124,14 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
       return;
     }
     final Class<?> clazz0 = lst.get(0).getClass();
-    HBaseTableInfo tableMeta = HBaseTableInfoHelper.getTableInfo(clazz0);
+    HTableInfo tableMeta = HTableInfoContainer.getInstance().get(clazz0);
     List<BatchMutation> batchMutationList = this.createBatchMutationList(lst, tableMeta);
     this.saveBatch(tableMeta.getTableName(), batchMutationList);
   }
 
   @Override
   public <T> T getRow(GetRowParam getRowParam, Class<T> clazz) {
-    String tableName = HBaseTableInfoHelper.getTableInfo(clazz).getTableName();
+    String tableName = HTableInfoContainer.getInstance().get(clazz).getTableName();
     return this.execute(thriftClient -> {
       List<TRowResult> results = getToRowResultList(thriftClient, tableName, getRowParam);
       if (results == null || results.isEmpty()) {
@@ -179,7 +179,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
   @Override
   public <T> List<T> getRows(GetRowsParam getRowsParam, Class<T> clazz) {
-    String tableName = HBaseTableInfoHelper.getTableInfo(clazz).getTableName();
+    String tableName = HTableInfoContainer.getInstance().get(clazz).getTableName();
     return this.execute(thriftClient -> {
       List<TRowResult> results = getToRowsResultList(thriftClient, tableName, getRowsParam);
       return mapperRowToTList(results, clazz);
@@ -205,7 +205,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
 
   @Override
   public <T> List<T> scan(ScanParams scanQueryParams, Class<T> clazz) {
-    String tableName = HBaseTableInfoHelper.getTableInfo(clazz).getTableName();
+    String tableName = HTableInfoContainer.getInstance().get(clazz).getTableName();
     int scannerId = scannerOpen(tableName, scanQueryParams, new HashMap<>(0));
     int limit = scanQueryParams.getLimit();
 
@@ -498,7 +498,7 @@ public class HBaseThriftClient extends BaseHBaseThriftClient implements IHBaseTh
   public List<String> getMetaTableRegions() {
     try {
       List<TRegionInfo> regions = hbaseClient
-          .getTableRegions(ColumnType.toByteBufferFromStr(HBaseConstants.META_TABLE_NAME));
+          .getTableRegions(ColumnType.toByteBufferFromStr(HydraQLConstants.META_TABLE_NAME));
       return regions.stream().map(r -> ColumnType.toStrFromBuffer(r.bufferForName()))
           .collect(Collectors.toList());
     } catch (TException e) {

@@ -18,12 +18,12 @@
 
 package com.hydraql.adapter;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.exceptions.HBaseFamilyHasExistsException;
-import com.hydraql.core.exceptions.HBaseFamilyNotFoundException;
-import com.hydraql.core.exceptions.HBaseOperationsException;
-import com.hydraql.core.exceptions.NoSuchColumnFamilyException;
-import com.hydraql.core.toolkit.Assert;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.exceptions.HBaseFamilyHasExistsException;
+import com.hydraql.exceptions.HBaseFamilyNotFoundException;
+import com.hydraql.exceptions.HBaseOperationsException;
+import com.hydraql.exceptions.NoSuchColumnFamilyException;
+import com.hydraql.util.Assert;
 import com.hydraql.common.model.*;
 import com.hydraql.adapter.hbtop.HBaseMetricOperations;
 import com.hydraql.adapter.hbtop.Record;
@@ -53,8 +53,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import static com.hydraql.common.constants.HBaseConstants.DISABLE_REPLICATION_SCOPE;
-import static com.hydraql.common.constants.HBaseConstants.ENABLE_REPLICATION_SCOPE;
+import static com.hydraql.common.constants.HydraQLConstants.DISABLE_REPLICATION_SCOPE;
+import static com.hydraql.common.constants.HydraQLConstants.ENABLE_REPLICATION_SCOPE;
 
 /**
  * @author leojie 2020/9/25 11:11 下午
@@ -821,7 +821,7 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     return this.execute(admin -> {
       List<RecordFilter> recordFilters = new ArrayList<>();
       RecordFilter recordFilter = RecordFilter.newBuilder(Field.NAMESPACE, false).notEqual(
-        new FieldValue(HBaseConstants.DEFAULT_SYS_TABLE_NAMESPACE, FieldValueType.STRING));
+        new FieldValue(HydraQLConstants.DEFAULT_SYS_TABLE_NAMESPACE, FieldValueType.STRING));
       recordFilters.add(recordFilter);
       ClusterStatus clusterStatus = admin.getClusterStatus();
       List<Record> records = Mode.TABLE.getRecords(clusterStatus);
@@ -943,9 +943,9 @@ public class HBaseAdminAdapter extends AbstractHBaseAdminAdapter implements HBas
     List<RecordFilter> recordFilters = new ArrayList<>();
 
     RecordFilter namespaceFilter = RecordFilter.newBuilder(Field.NAMESPACE, false)
-        .equal(new FieldValue(HBaseConstants.getNamespaceName(tableName), FieldValueType.STRING));
+        .equal(new FieldValue(HydraQLConstants.getNamespaceName(tableName), FieldValueType.STRING));
     RecordFilter tableFilter = RecordFilter.newBuilder(Field.TABLE, false)
-        .equal(new FieldValue(HBaseConstants.getTableName(tableName), FieldValueType.STRING));
+        .equal(new FieldValue(HydraQLConstants.getTableName(tableName), FieldValueType.STRING));
     recordFilters.add(namespaceFilter);
     recordFilters.add(tableFilter);
     return recordFilters;

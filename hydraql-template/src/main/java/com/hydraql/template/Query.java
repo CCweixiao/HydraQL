@@ -19,9 +19,9 @@
 package com.hydraql.template;
 
 import com.hydraql.adapter.HBaseTableAdapter;
-import com.hydraql.core.metadata.HBaseFieldInfo;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
-import com.hydraql.core.metadata.HBaseTableInfo;
+import com.hydraql.metadata.HFieldInfo;
+import com.hydraql.metadata.HTableInfoContainer;
+import com.hydraql.metadata.HTableInfo;
 import com.hydraql.common.query.GetRowParam;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -58,9 +58,9 @@ public class Query<T> {
     if (this.rows.isEmpty()) {
       return null;
     }
-    HBaseTableInfo tableSchema = HBaseTableInfoHelper.getTableInfo(this.getModelClass());
-    HBaseFieldInfo rowField = tableSchema.getFields().get(0);
-    byte[] row = rowField.getRow(rows.get(0));
+    HTableInfo tableSchema = HTableInfoContainer.getInstance().get(this.getModelClass());
+    HFieldInfo.RowKey rowKey = tableSchema.getRowKey();
+    byte[] row = rowKey.getRow(rows.get(0));
     // todo 此处需优化
     GetRowParam getRowParam = GetRowParam.of(Bytes.toString(row)).family(this.getFamily())
         .qualifiers(this.getQualifiers()).build();

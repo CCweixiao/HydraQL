@@ -18,16 +18,16 @@
 
 package com.hydraql.dsl.model;
 
-import com.hydraql.common.constants.HBaseConfigKeys;
+import com.hydraql.common.constants.HydraQlClientConfigKeys;
 
 /**
  * @author leojie 2022/12/3 11:13
  */
 public class TableQueryProperties {
-  private int scanCaching = HBaseConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHING;
-  private int scanBatch = HBaseConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_BATCH;
-  private boolean scanCacheBlocks = HBaseConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHE;
-  private int deleteBatch = HBaseConfigKeys.HBASE_CLIENT_DEFAULT_DELETE_BATCH;
+  private int scanCaching = HydraQlClientConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHING;
+  private int scanBatch = HydraQlClientConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_BATCH;
+  private boolean scanCacheBlocks = HydraQlClientConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHE;
+  private int deleteBatch = HydraQlClientConfigKeys.HBASE_CLIENT_DEFAULT_DELETE_BATCH;
 
   public int getScanCaching() {
     return scanCaching;

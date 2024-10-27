@@ -18,8 +18,8 @@
 
 package com.hydraql.dsl.client.rowkey;
 
-import com.hydraql.core.toolkit.Assert;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.util.Assert;
+import com.hydraql.type.ColumnType;
 import com.hydraql.common.util.EncodingUtil;
 import com.hydraql.dsl.client.rowkey.func.RowKeyFunc;
 

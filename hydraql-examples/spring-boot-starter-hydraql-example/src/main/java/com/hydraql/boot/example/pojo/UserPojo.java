@@ -18,8 +18,8 @@
 
 package com.hydraql.boot.example.pojo;
 
-import com.hydraql.core.annotations.HBaseField;
-import com.hydraql.core.annotations.HBaseTable;
+import com.hydraql.annotation.HBaseField;
+import com.hydraql.annotation.HBaseTable;
 
 import java.math.BigDecimal;
 import java.util.Date;

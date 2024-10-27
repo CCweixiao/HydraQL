@@ -18,8 +18,8 @@
 
 package com.hydraql.common.model.row;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.type.ColumnType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class HBaseDataRow {
     if (this.columns == null) {
       this.columns = new ArrayList<>();
     }
-    String alias = HBaseConstants.getColumnName(family, qualifier);
+    String alias = HydraQLConstants.getColumnName(family, qualifier);
     this.columns.add(new HBaseDataColumn(family, qualifier, alias, columnType, value, 0L));
     return this;
   }
@@ -78,7 +78,7 @@ public class HBaseDataRow {
   }
 
   public HBaseDataRow appendColumn(String family, String qualifier, Object value) {
-    String alias = HBaseConstants.getColumnName(family, qualifier);
+    String alias = HydraQLConstants.getColumnName(family, qualifier);
     return appendColumn(family, qualifier, alias, value);
   }
 

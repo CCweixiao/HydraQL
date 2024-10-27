@@ -18,10 +18,10 @@
 
 package com.hydraql.adapter.dsl.antlr.visitor;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.exceptions.HBaseSqlAnalysisException;
-import com.hydraql.core.exceptions.HBaseSqlColValueAnalysisException;
-import com.hydraql.core.exceptions.HBaseSqlTableSchemaMissingException;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.exceptions.HBaseSqlAnalysisException;
+import com.hydraql.exceptions.HBaseSqlColValueAnalysisException;
+import com.hydraql.exceptions.HBaseSqlTableSchemaMissingException;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.antlr.HydraQLParserBaseVisitor;
@@ -105,7 +105,7 @@ public abstract class BaseVisitor<T> extends HydraQLParserBaseVisitor<T> {
     if (!nullAble && val == null) {
       throw new HBaseSqlAnalysisException(
           String.format("The value of filter field %s cannot be null.",
-            HBaseConstants.getColumnName(column.getFamily(), column.getColumnName())));
+            HydraQLConstants.getColumnName(column.getFamily(), column.getColumnName())));
     }
     return val;
   }

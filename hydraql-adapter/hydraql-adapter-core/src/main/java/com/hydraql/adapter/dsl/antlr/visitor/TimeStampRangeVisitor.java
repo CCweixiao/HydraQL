@@ -18,8 +18,8 @@
 
 package com.hydraql.adapter.dsl.antlr.visitor;
 
-import com.hydraql.core.exceptions.HBaseSqlAnalysisException;
-import com.hydraql.core.toolkit.Assert;
+import com.hydraql.exceptions.HBaseSqlAnalysisException;
+import com.hydraql.util.Assert;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.adapter.dsl.antlr.data.TimeStampRange;
 import com.hydraql.dsl.model.HBaseTableSchema;

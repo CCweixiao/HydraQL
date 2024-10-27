@@ -18,9 +18,9 @@
 
 package com.hydraql.dsl.model;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.toolkit.Assert;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.util.Assert;
+import com.hydraql.type.ColumnType;
 import com.hydraql.common.util.BytesUtil;
 import com.hydraql.common.util.StringUtil;
 
@@ -159,7 +159,7 @@ public class HBaseColumn {
     sb.append("—— ");
     if (!this.columnIsRow()) {
       sb.append(this.getFamily());
-      sb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+      sb.append(HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR);
     }
     sb.append(this.getColumnName());
     sb.append(": ");
@@ -184,6 +184,6 @@ public class HBaseColumn {
     if (this.columnIsRow()) {
       return this.getColumnName();
     }
-    return HBaseConstants.getColumnName(this.getFamily(), this.getColumnName());
+    return HydraQLConstants.getColumnName(this.getFamily(), this.getColumnName());
   }
 }

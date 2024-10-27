@@ -21,8 +21,8 @@ package com.hydraql.adapter.service;
 import com.hydraql.adapter.WrapperBufferedMutator;
 import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.hedgedread.HedgedReadStrategy;
-import com.hydraql.core.callback.MutatorCallback;
-import com.hydraql.core.exceptions.HTableServiceException;
+import com.hydraql.action.MutatorAction;
+import com.hydraql.exceptions.HTableServiceException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Mutation;
@@ -40,7 +40,7 @@ public abstract class HTableUpsertService extends HTableQueryService {
   }
 
   public void execSinglePut(String tableName, Put put) {
-    HedgedReadStrategy hedgedReadStrategy = createHedgedReadStrategy();
+    HedgedReadStrategy hedgedReadStrategy = null;
     hedgedReadStrategy.execute(tableName, table -> {
       table.put(put);
       return true;
@@ -48,7 +48,7 @@ public abstract class HTableUpsertService extends HTableQueryService {
   }
 
   public void execSingleDelete(String tableName, Delete delete) {
-    HedgedReadStrategy hedgedReadStrategy = createHedgedReadStrategy();
+    HedgedReadStrategy hedgedReadStrategy = null;
     hedgedReadStrategy.execute(tableName, table -> {
       table.delete(delete);
       return true;
@@ -82,9 +82,9 @@ public abstract class HTableUpsertService extends HTableQueryService {
     this.executeMutationBatch(HTableContext.createDefault(tableName), deletes);
   }
 
-  private void mutate(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action)
+  private void mutate(HTableContext tableContext, MutatorAction<WrapperBufferedMutator> action)
       throws IOException {
-    HedgedReadStrategy hedgedReadStrategy = createHedgedReadStrategy();
+    HedgedReadStrategy hedgedReadStrategy = null;
     hedgedReadStrategy.mutate(tableContext, action);
   }
 

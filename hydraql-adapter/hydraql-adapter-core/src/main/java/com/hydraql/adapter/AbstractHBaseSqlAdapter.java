@@ -30,9 +30,9 @@ import com.hydraql.adapter.dsl.antlr.interpreter.ShowVirtualTablesExecutor;
 import com.hydraql.adapter.dsl.antlr.interpreter.UpsetExecutor;
 import com.hydraql.adapter.service.HQLService;
 import com.hydraql.adapter.service.HTableUpsertService;
-import com.hydraql.common.constants.HBaseConfigKeys;
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.exceptions.HBaseSqlTableSchemaMissingException;
+import com.hydraql.common.constants.HydraQlClientConfigKeys;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.exceptions.HBaseSqlTableSchemaMissingException;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.client.QueryExtInfo;
@@ -95,7 +95,7 @@ public abstract class AbstractHBaseSqlAdapter extends HTableUpsertService implem
 
   public HBaseTableSchema getTableSchema(String tableName) {
     String uniqueKey = HBaseConnectionUtil.generateUniqueConnectionKey(this.getConfiguration());
-    uniqueKey = uniqueKey + "#" + HBaseConstants.getFullTableName(tableName);
+    uniqueKey = uniqueKey + "#" + HydraQLConstants.getFullTableName(tableName);
     HBaseTableSchema tableSchema = HBaseSqlContext.getInstance().getTableSchema(uniqueKey);
     if (tableSchema != null) {
       return tableSchema;
@@ -194,8 +194,9 @@ public abstract class AbstractHBaseSqlAdapter extends HTableUpsertService implem
   public void registerTableSchema(HBaseTableSchema tableSchema) {
     String uniqueKey = HBaseConnectionUtil.generateUniqueConnectionKey(this.getConfiguration());
     uniqueKey = uniqueKey + "#" + tableSchema.getTableName();
-    int caching = this.getConfiguration().getInt(HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHING,
-      HBaseConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHING);
+    int caching =
+        this.getConfiguration().getInt(HydraQlClientConfigKeys.HBASE_CLIENT_SCANNER_CACHING,
+          HydraQlClientConfigKeys.HBASE_CLIENT_DEFAULT_SCANNER_CACHING);
     TableQueryProperties tableQueryProperties = tableSchema.getTableQueryProperties();
     if (tableQueryProperties.getScanCaching() < 1) {
       tableQueryProperties.setScanCaching(caching);

@@ -18,7 +18,7 @@
 
 package com.hydraql.thrift;
 
-import com.hydraql.core.exceptions.HBaseThriftTSocketException;
+import com.hydraql.exceptions.HBaseThriftTSocketException;
 import org.apache.thrift.transport.TSocket;
 
 /**

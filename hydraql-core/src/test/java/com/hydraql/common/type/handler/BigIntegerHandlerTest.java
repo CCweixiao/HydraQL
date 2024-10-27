@@ -18,7 +18,7 @@
 
 package com.hydraql.common.type.handler;
 
-import com.hydraql.core.type.handler.BigIntegerHandler;
+import com.hydraql.type.handler.BigIntegerHandler;
 import org.junit.Test;
 
 import java.math.BigDecimal;

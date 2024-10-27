@@ -18,7 +18,7 @@
 
 package com.hydraql.dsl.client.rowkey.func;
 
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.type.ColumnType;
 import com.hydraql.dsl.client.rowkey.BaseRowKey;
 import com.hydraql.dsl.model.HBaseColumn;
 

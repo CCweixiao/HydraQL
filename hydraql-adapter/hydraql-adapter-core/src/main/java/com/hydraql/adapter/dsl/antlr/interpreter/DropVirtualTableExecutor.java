@@ -19,7 +19,7 @@
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
 import com.hydraql.adapter.AbstractHBaseSqlAdapter;
-import com.hydraql.core.exceptions.HBaseSqlAnalysisException;
+import com.hydraql.exceptions.HBaseSqlAnalysisException;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.adapter.connection.HBaseConnectionUtil;

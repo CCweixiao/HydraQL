@@ -18,7 +18,7 @@
 
 package com.hydraql.shell;
 
-import com.hydraql.common.constants.HBaseConfigKeys;
+import com.hydraql.common.constants.HydraQlClientConfigKeys;
 import com.hydraql.common.util.DigestUtil;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.HConstants;
@@ -73,7 +73,7 @@ public class HBaseShellSessionManager {
     if (StringUtil.isBlank(zkClientPort)) {
       throw new IllegalArgumentException("The zkClientPort must be specified.");
     }
-    String proxyUser = properties.getProperty(HBaseConfigKeys.KERBEROS_PROXY_USER);
+    String proxyUser = properties.getProperty(HydraQlClientConfigKeys.KERBEROS_PROXY_USER);
     String connectionUniqueKey = DigestUtil.md5Hex(zkQuorum.concat(zkClientPort));
     if (StringUtil.isNotBlank(proxyUser)) {
       connectionUniqueKey = connectionUniqueKey + "#" + proxyUser;

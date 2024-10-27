@@ -19,8 +19,8 @@
 package com.hydraql.adapter.service;
 
 import com.hydraql.adapter.context.HTableContext;
-import com.hydraql.core.metadata.HBaseTableInfo;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
+import com.hydraql.metadata.HTableInfo;
+import com.hydraql.metadata.HTableInfoContainer;
 
 import java.util.List;
 import java.util.Map;
@@ -120,7 +120,7 @@ public interface MutatorService {
 
   default <T> String getTableName(T t) {
     final Class<?> clazz = t.getClass();
-    HBaseTableInfo tableInfo = HBaseTableInfoHelper.getTableInfo(clazz);
+    HTableInfo tableInfo = HTableInfoContainer.getInstance().get(clazz);
     return tableInfo.getTableName();
   }
 }

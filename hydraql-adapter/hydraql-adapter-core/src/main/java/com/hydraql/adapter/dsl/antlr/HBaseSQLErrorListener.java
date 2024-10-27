@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.dsl.antlr;
 
-import com.hydraql.core.exceptions.HBaseSqlSyntaxException;
+import com.hydraql.exceptions.HBaseSqlSyntaxException;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;

@@ -415,4 +415,25 @@ public class Reflector {
     int modifiers = field.getModifiers();
     return Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers);
   }
+
+  public <T> T create(Class<T> type) {
+    return instantiateClass(type);
+  }
+
+  private <T> T instantiateClass(Class<T> type) {
+    try {
+      Constructor<T> constructor = type.getDeclaredConstructor();
+      try {
+        return constructor.newInstance();
+      } catch (IllegalAccessException e) {
+        if (Reflector.canControlMemberAccessible()) {
+          constructor.setAccessible(true);
+          return constructor.newInstance();
+        }
+        throw e;
+      }
+    } catch (Exception e) {
+      throw new ReflectionException("Error instantiating " + type + ". Cause: " + e, e);
+    }
+  }
 }

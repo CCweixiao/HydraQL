@@ -52,4 +52,8 @@ public interface HBaseClientConfigKeys {
 
   String HBASE_CLIENT_SCANNER_CACHING = PREFIX + "scanner.caching";
   int HBASE_CLIENT_SCANNER_CACHING_DEFAULT = 1000;
+
+  String ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum";
+  String ZOOKEEPER_CLIENT_PORT = "hbase.zookeeper.property.clientPort";
+  String ZOOKEEPER_NODE_PARENT = "zookeeper.znode.parent";
 }

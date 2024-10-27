@@ -18,7 +18,7 @@
 
 package com.hydraql.common.model.row;
 
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.type.ColumnType;
 
 /**
  * @author leojie 2022/12/5 23:03

@@ -22,8 +22,8 @@ import com.hydraql.adapter.HBaseClientConf;
 import com.hydraql.adapter.WrapperBufferedMutator;
 import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.service.AbstractHTableService;
-import com.hydraql.core.callback.MutatorCallback;
-import com.hydraql.core.callback.TableCallback;
+import com.hydraql.action.MutatorAction;
+import com.hydraql.action.HTableAction;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Table;
 
@@ -45,41 +45,41 @@ public abstract class AbstractHedgedReadStrategy implements HedgedReadStrategy {
     this.tableService = tableService;
   }
 
-  protected <T> T executeOnPrefer(String tableName, TableCallback<T, Table> action)
+  protected <T> T executeOnPrefer(String tableName, HTableAction<T, Table> action)
       throws IOException {
     try (Table table = this.tableService.getConnection().getTable(TableName.valueOf(tableName))) {
-      return action.doInTable(table);
+      return action.execute(table);
     } catch (Throwable throwable) {
       throw new IOException(throwable);
     }
   }
 
-  protected <T> T executeOnSpare(String tableName, TableCallback<T, Table> action)
+  protected <T> T executeOnSpare(String tableName, HTableAction<T, Table> action)
       throws IOException {
     try (Table table =
         this.tableService.getHedgedReadConnection().getTable(TableName.valueOf(tableName))) {
-      return action.doInTable(table);
+      return action.execute(table);
     } catch (Throwable throwable) {
       throw new IOException(throwable);
     }
   }
 
   protected void executeOnPreferWithBuffer(HTableContext tableContext,
-      MutatorCallback<WrapperBufferedMutator> action) throws IOException {
+      MutatorAction<WrapperBufferedMutator> action) throws IOException {
     try {
       WrapperBufferedMutator mutator = this.tableService.getWrapperBufferedMutator(tableContext);
-      action.doInMutator(mutator);
+      action.execute(mutator);
     } catch (Throwable throwable) {
       throw new IOException(throwable);
     }
   }
 
   protected void executeOnSpareWithBuffer(HTableContext tableContext,
-      MutatorCallback<WrapperBufferedMutator> action) throws IOException {
+      MutatorAction<WrapperBufferedMutator> action) throws IOException {
     try {
       WrapperBufferedMutator mutator =
           this.tableService.getHedgedReadWrapperBufferedMutator(tableContext);
-      action.doInMutator(mutator);
+      action.execute(mutator);
     } catch (Throwable throwable) {
       throw new IOException(throwable);
     }

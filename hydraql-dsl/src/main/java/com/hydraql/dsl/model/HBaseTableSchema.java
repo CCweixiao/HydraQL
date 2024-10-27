@@ -20,11 +20,11 @@ package com.hydraql.dsl.model;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.exceptions.HBaseColumnNotFoundException;
-import com.hydraql.core.toolkit.Converter;
-import com.hydraql.core.toolkit.Assert;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.exceptions.HBaseColumnNotFoundException;
+import com.hydraql.util.Converter;
+import com.hydraql.util.Assert;
+import com.hydraql.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -97,7 +97,7 @@ public class HBaseTableSchema {
       }
       String familyName = column.getFamily();
       this.columnSchemaMap.put(
-        familyName + HBaseConstants.FAMILY_QUALIFIER_SEPARATOR + column.getColumnName(), column);
+        familyName + HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR + column.getColumnName(), column);
       return this;
     }
 
@@ -209,7 +209,7 @@ public class HBaseTableSchema {
       family = this.getDefaultFamily();
     }
     column =
-        this.columnSchemaMap.get(family + HBaseConstants.FAMILY_QUALIFIER_SEPARATOR + columnName);
+        this.columnSchemaMap.get(family + HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR + columnName);
     if (column == null) {
       throw new HBaseColumnNotFoundException(
           String.format("The column of %s:%s is not defined.", family, columnName));
@@ -302,7 +302,7 @@ public class HBaseTableSchema {
     if (StringUtil.isBlank(tableName)) {
       throw new IllegalArgumentException("The table name is not allowed to be empty.");
     }
-    String fullTableName = HBaseConstants.getFullTableName(tableName);
+    String fullTableName = HydraQLConstants.getFullTableName(tableName);
     return new Builder(fullTableName);
   }
 

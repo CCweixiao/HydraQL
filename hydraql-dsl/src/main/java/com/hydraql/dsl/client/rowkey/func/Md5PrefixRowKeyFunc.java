@@ -18,7 +18,7 @@
 
 package com.hydraql.dsl.client.rowkey.func;
 
-import com.hydraql.core.toolkit.Assert;
+import com.hydraql.util.Assert;
 import com.hydraql.common.util.DigestUtil;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.dsl.client.rowkey.BaseRowKey;

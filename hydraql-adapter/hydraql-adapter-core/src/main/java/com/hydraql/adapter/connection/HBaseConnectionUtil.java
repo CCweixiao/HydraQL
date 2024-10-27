@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.connection;
 
-import com.hydraql.common.constants.HBaseConfigKeys;
+import com.hydraql.common.constants.HydraQlClientConfigKeys;
 import com.hydraql.common.util.DigestUtil;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -59,6 +59,6 @@ public class HBaseConnectionUtil {
   }
 
   public static String proxyUser(Configuration configuration) {
-    return configuration.get(HBaseConfigKeys.KERBEROS_PROXY_USER);
+    return configuration.get(HydraQlClientConfigKeys.KERBEROS_PROXY_USER);
   }
 }

@@ -18,7 +18,7 @@
 
 package com.hydraql.service;
 
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.type.ColumnType;
 import com.hydraql.adapter.schema.ColumnFamilyDesc;
 import com.hydraql.adapter.schema.HTableDesc;
 import com.hydraql.template.*;

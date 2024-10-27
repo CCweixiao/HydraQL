@@ -19,7 +19,7 @@
 package com.hydraql.common.type.handler;
 
 import com.hydraql.common.util.BytesUtil;
-import com.hydraql.core.type.handler.EnumHandler;
+import com.hydraql.type.handler.EnumHandler;
 import org.junit.Test;
 
 /**

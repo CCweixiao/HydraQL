@@ -18,7 +18,7 @@
 
 package com.hydraql.thrift;
 
-import com.hydraql.core.HTableService;
+import com.hydraql.HTableService;
 
 /**
  * <p>

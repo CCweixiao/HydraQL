@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.dsl.antlr.interpreter;
 
-import com.hydraql.core.exceptions.HydraQLTypeMissmatchException;
+import com.hydraql.exceptions.HydraQLTypeMissmatchException;
 import com.hydraql.common.model.HQLType;
 
 /**

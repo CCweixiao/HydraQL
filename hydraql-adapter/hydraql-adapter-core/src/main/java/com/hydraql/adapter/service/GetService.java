@@ -24,17 +24,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.callback.RowMapper;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseColData;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.BaseGetRowParam;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
-import com.hydraql.core.metadata.HBaseFieldInfo;
-import com.hydraql.core.metadata.HBaseTableInfo;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
+import com.hydraql.metadata.HFieldInfo;
+import com.hydraql.metadata.HTableInfo;
+import com.hydraql.metadata.HTableInfoContainer;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -85,16 +85,15 @@ public interface GetService {
    */
   default <T> T mapperRowToT(Result result, Class<T> clazz) throws Exception {
     // TODO 这里的反射调用构造函数是否可以再优化
-    T t = clazz.getDeclaredConstructor().newInstance();
-    HBaseTableInfo tableInfo = HBaseTableInfoHelper.getTableInfo(clazz);
-    List<HBaseFieldInfo> fields = tableInfo.getFields();
-    fields.forEach(field -> {
-      if (field.isRowKey()) {
-        field.setValue(t, result.getRow());
-      } else {
-        byte[] valBytes = result.getValue(field.getFamilyBytes(), field.getQualifierBytes());
-        field.setValue(t, valBytes);
-      }
+    HTableInfo tableInfo = HTableInfoContainer.getInstance().get(clazz);
+    T t = tableInfo.newInstance();
+    HFieldInfo.RowKey rowKey = tableInfo.getRowKey();
+    rowKey.setBytesValue(t, result.getRow());
+
+    List<HFieldInfo.Qualifier> qualifiers = tableInfo.getQualifiers();
+    qualifiers.forEach(field -> {
+      byte[] valBytes = result.getValue(field.getFamily(), field.getQualifier());
+      field.setBytesValue(t, valBytes);
     });
     return t;
   }
@@ -107,36 +106,26 @@ public interface GetService {
     if (versions == Integer.MAX_VALUE) {
       throw new IllegalArgumentException("You must specify an exact number of versions.");
     }
-    HBaseTableInfo tableInfo = HBaseTableInfoHelper.getTableInfo(clazz);
-    List<HBaseFieldInfo> fields = tableInfo.getFields();
-    HBaseFieldInfo rowKeyField = null;
-    for (HBaseFieldInfo field : fields) {
-      if (field.isRowKey()) {
-        rowKeyField = field;
-      }
-    }
-    if (rowKeyField == null) {
-      throw new IllegalStateException("There is no rowKey in model class.");
-    }
+    HTableInfo tableInfo = HTableInfoContainer.getInstance().get(clazz);
+    HFieldInfo.RowKey rowKey = tableInfo.getRowKey();
+    List<HFieldInfo.Qualifier> qualifiers = tableInfo.getQualifiers();
+
     List<T> rowDataList = new ArrayList<>(versions);
     for (int i = 0; i < versions; i++) {
       // todo 优化构造器获取
       T t = clazz.getDeclaredConstructor().newInstance();
-      rowKeyField.setValue(t, result.getRow());
+      rowKey.setBytesValue(t, result.getRow());
       rowDataList.add(t);
     }
 
-    for (HBaseFieldInfo field : fields) {
-      if (field.isRowKey()) {
-        continue;
-      }
-      List<Cell> cells = result.getColumnCells(field.getFamilyBytes(), field.getQualifierBytes());
+    for (HFieldInfo.Qualifier qualifier : qualifiers) {
+      List<Cell> cells = result.getColumnCells(qualifier.getFamily(), qualifier.getQualifier());
       if (cells.isEmpty()) {
         continue;
       }
       for (int i = 0; i < cells.size(); i++) {
         byte[] value = CellUtil.cloneValue(cells.get(i));
-        field.setValue(rowDataList.get(i), value);
+        qualifier.setBytesValue(rowDataList.get(i), value);
         if (i >= (versions - 1)) {
           break;
         }
@@ -163,11 +152,11 @@ public interface GetService {
 
       if (i > 0) {
         preFieldSb.append(Bytes.toString(CellUtil.cloneFamily(cells.get(i - 1))));
-        preFieldSb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+        preFieldSb.append(HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR);
         preFieldSb.append(Bytes.toString(CellUtil.cloneQualifier(cells.get(i - 1))));
       }
       currentFieldSb.append(Bytes.toString(CellUtil.cloneFamily(cells.get(i))));
-      currentFieldSb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+      currentFieldSb.append(HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR);
       currentFieldSb.append(Bytes.toString(CellUtil.cloneQualifier(cells.get(i))));
       String value = Bytes.toString(cells.get(i).getValueArray(), cells.get(i).getValueOffset(),
         cells.get(i).getValueLength());
@@ -198,7 +187,7 @@ public interface GetService {
     for (Cell cell : cells) {
       colNameSb.delete(0, colNameSb.length());
       colNameSb.append(Bytes.toString(CellUtil.cloneFamily(cell)));
-      colNameSb.append(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+      colNameSb.append(HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR);
       colNameSb.append(Bytes.toString(CellUtil.cloneQualifier(cell)));
       String value =
           Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());

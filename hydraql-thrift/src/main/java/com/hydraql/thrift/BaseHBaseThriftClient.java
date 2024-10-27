@@ -18,19 +18,19 @@
 
 package com.hydraql.thrift;
 
-import com.hydraql.core.callback.TableCallback;
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.exceptions.HBaseMetaDataException;
-import com.hydraql.core.exceptions.HBaseThriftException;
-import com.hydraql.core.toolkit.Assert;
+import com.hydraql.action.HTableAction;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.exceptions.HBaseMetaDataException;
+import com.hydraql.exceptions.HBaseThriftException;
+import com.hydraql.util.Assert;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.query.GetRowParam;
 import com.hydraql.common.query.GetRowsParam;
 import com.hydraql.common.query.ScanParams;
-import com.hydraql.core.metadata.HBaseFieldInfo;
-import com.hydraql.core.metadata.HBaseTableInfo;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.metadata.HFieldInfo;
+import com.hydraql.metadata.HTableInfo;
+import com.hydraql.metadata.HTableInfoContainer;
+import com.hydraql.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.thrift.generated.*;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -63,9 +63,9 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
 
   abstract boolean ping();
 
-  protected <T> T execute(TableCallback<T, Hbase.Client> action) {
+  protected <T> T execute(HTableAction<T, Hbase.Client> action) {
     try {
-      return action.doInTable(this.hbaseClient);
+      return action.execute(this.hbaseClient);
     } catch (Throwable throwable) {
       throw new HBaseThriftException(throwable);
     }
@@ -91,33 +91,29 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
 
   }
 
-  protected <T> List<Mutation> createMutationList(T t, HBaseTableInfo tableMeta)
+  protected <T> List<Mutation> createMutationList(T t, HTableInfo tableMeta)
       throws HBaseMetaDataException {
     if (t == null) {
       return new ArrayList<>(0);
     }
-    List<HBaseFieldInfo> fields = tableMeta.getFields();
-    if (fields == null || fields.isEmpty()) {
-      return new ArrayList<>(0);
-    }
-    List<Mutation> mutations = new ArrayList<>(fields.size());
-    fields.forEach(field -> {
-      if (!field.isRowKey()) {
-        ByteBuffer fieldValue = field.toByteBuffer(t);
-        mutations.add(new Mutation(false,
-            ColumnType.toByteBufferFromStr(field.getFamilyAndQualifier()), fieldValue, true));
-      }
+
+    List<HFieldInfo.Qualifier> qualifiers = tableMeta.getQualifiers();
+    List<Mutation> mutations = new ArrayList<>(qualifiers.size());
+    qualifiers.forEach(qualifier -> {
+      ByteBuffer fieldValue = qualifier.getByteBufferValue(t);
+      mutations.add(new Mutation(false,
+              ColumnType.toByteBufferFromStr(qualifier.getFamilyAndQualifier()), fieldValue, true));
     });
     return mutations;
   }
 
-  protected <T> BatchMutation createBatchMutation(T t, HBaseTableInfo tableMeta) {
+  protected <T> BatchMutation createBatchMutation(T t, HTableInfo tableMeta) {
     Object rowKeyVal = createRowKeyVal(tableMeta, t);
     List<Mutation> mutations = createMutationList(t, tableMeta);
     return new BatchMutation(ColumnType.toByteBuffer(rowKeyVal), mutations);
   }
 
-  protected <T> List<BatchMutation> createBatchMutationList(List<T> lst, HBaseTableInfo tableMeta)
+  protected <T> List<BatchMutation> createBatchMutationList(List<T> lst, HTableInfo tableMeta)
       throws HBaseMetaDataException {
     if (lst == null || lst.isEmpty()) {
       return new ArrayList<>(0);
@@ -134,7 +130,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
       throw new NullPointerException("The data model class object to be saved cannot be null.");
     }
     Class<?> clazz = t.getClass();
-    HBaseTableInfo tableMeta = HBaseTableInfoHelper.getTableInfo(clazz);
+    HTableInfo tableMeta = HTableInfoContainer.getInstance().get(clazz);
     Object rowKeyVal = createRowKeyVal(tableMeta, t);
     List<Mutation> mutations = createMutationList(t, tableMeta);
     this.save(tableMeta.getTableName(), rowKeyVal, mutations);
@@ -218,19 +214,17 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
     if (tmpDataMap.isEmpty()) {
       return t;
     }
-    HBaseTableInfo hBaseTableMeta = HBaseTableInfoHelper.getTableInfo(clazz);
-    List<HBaseFieldInfo> fields = hBaseTableMeta.getFields();
+    HTableInfo hBaseTableMeta = HTableInfoContainer.getInstance().get(clazz);
+    HFieldInfo.RowKey rowKey = hBaseTableMeta.getRowKey();
+    Object rowVal = ColumnType.toObject(rowKey.getType(), result.getRow());
+    rowKey.setValue(t, rowVal);
+    List<HFieldInfo.Qualifier> qualifiers = hBaseTableMeta.getQualifiers();
 
-    fields.forEach(field -> {
-      if (field.isRowKey()) {
-        Object rowVal = ColumnType.toObject(field.getType(), result.getRow());
-        field.setValue(t, rowVal);
-      } else {
-        TCell tCell = tmpDataMap.get(field.getFamilyAndQualifier());
-        if (tCell != null) {
-          Object fieldValue = ColumnType.toObject(field.getType(), tCell.getValue());
-          field.setValue(t, fieldValue);
-        }
+    qualifiers.forEach(field -> {
+      TCell tCell = tmpDataMap.get(field.getFamilyAndQualifier());
+      if (tCell != null) {
+        Object fieldValue = ColumnType.toObject(field.getType(), tCell.getValue());
+        field.setValue(t, fieldValue);
       }
     });
     return t;
@@ -333,12 +327,9 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
     }
   }
 
-  private <T> Object createRowKeyVal(HBaseTableInfo tableMeta, T t) {
-    List<HBaseFieldInfo> fields = tableMeta.getFields();
-    HBaseFieldInfo rowField = fields.get(0);
-    Assert.checkArgument(rowField.isRowKey(),
-      "The first field is not row key, please check hbase table mata data.");
-    return rowField.getValue(t);
+  private <T> Object createRowKeyVal(HTableInfo tableMeta, T t) {
+    HFieldInfo.RowKey rowKey = tableMeta.getRowKey();
+    return rowKey.getValue(t);
   }
 
   private List<ByteBuffer> createFamilyQualifiesBuffer(String familyName, List<String> qualifiers) {
@@ -347,7 +338,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
       if (qualifiers != null && !qualifiers.isEmpty()) {
         familyQualifiers = qualifiers.stream()
             .map(q -> ColumnType
-                .toByteBufferFromStr(familyName + HBaseConstants.FAMILY_QUALIFIER_SEPARATOR + q))
+                .toByteBufferFromStr(familyName + HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR + q))
             .collect(Collectors.toList());
       } else {
         familyQualifiers = Collections.singletonList(ColumnType.toByteBufferFromStr(familyName));
@@ -358,7 +349,7 @@ public abstract class BaseHBaseThriftClient extends HBaseThriftConnection {
 
   protected void checkFamilyAndQualifierName(String colName) {
     Assert.checkArgument(StringUtil.isNotBlank(colName), "The col name is not empty.");
-    Assert.checkArgument(colName.split(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR).length == 2,
+    Assert.checkArgument(colName.split(HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR).length == 2,
       "The col name must be in the format 'family:qualifier'.");
   }
 

@@ -18,12 +18,13 @@
 
 package com.hydraql.common.meta;
 
-import com.hydraql.core.annotations.HBaseField;
-import com.hydraql.core.annotations.HBaseRowKey;
-import com.hydraql.core.annotations.HBaseTable;
-import com.hydraql.core.exceptions.InvalidTableModelClassException;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
-import com.hydraql.core.metadata.HBaseTableInfo;
+import com.hydraql.annotation.HBaseField;
+import com.hydraql.annotation.HBaseRowKey;
+import com.hydraql.annotation.HBaseTable;
+import com.hydraql.exceptions.InvalidTableModelClassException;
+import com.hydraql.metadata.HFieldInfo;
+import com.hydraql.metadata.HTableInfoContainer;
+import com.hydraql.metadata.HTableInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class ReflectFactoryTest {
   public void testGetHBaseTableMeta() {
     boolean throwErr = false;
     try {
-      HBaseTableInfoHelper.getTableInfo(User.class);
+      HTableInfoContainer.getInstance().get(User.class);
     } catch (InvalidTableModelClassException e) {
       throwErr = true;
     }
@@ -116,9 +117,10 @@ public class ReflectFactoryTest {
 
   @Test
   public void testGetHBaseTableMeta2() {
-    HBaseTableInfo tableMeta = HBaseTableInfoHelper.getTableInfo(User2.class);
+    HTableInfo tableMeta = HTableInfoContainer.getInstance().get(User2.class);
     Assert.assertNotNull(tableMeta);
-    Assert.assertEquals(5, tableMeta.getFields().size());
-    Assert.assertTrue(tableMeta.getFields().get(0).isRowKey());
+    HFieldInfo.RowKey rowKey = tableMeta.getRowKey();
+    Assert.assertNotNull(rowKey);
+    Assert.assertEquals(4, tableMeta.getQualifiers().size());
   }
 }

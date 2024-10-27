@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.util;
 
-import com.hydraql.core.toolkit.Preconditions;
+import com.hydraql.util.Preconditions;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.util.Bytes;

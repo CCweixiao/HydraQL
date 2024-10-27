@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.schema;
 
-import com.hydraql.core.toolkit.Converter;
+import com.hydraql.util.Converter;
 
 import java.util.Objects;
 

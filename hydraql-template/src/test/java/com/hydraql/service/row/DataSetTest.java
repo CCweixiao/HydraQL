@@ -21,7 +21,7 @@ package com.hydraql.service.row;
 import com.hydraql.common.model.row.HBaseDataSet;
 import com.hydraql.common.model.row.DataSetFormatter;
 import com.hydraql.common.model.row.HBaseDataRow;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.type.ColumnType;
 import org.junit.Test;
 
 import java.util.Arrays;

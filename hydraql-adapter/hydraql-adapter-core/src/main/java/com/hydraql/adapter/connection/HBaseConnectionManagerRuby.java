@@ -18,9 +18,9 @@
 
 package com.hydraql.adapter.connection;
 
-import com.hydraql.common.constants.HBaseConfigKeys;
-import com.hydraql.core.exceptions.HydraQLConnectionException;
-import com.hydraql.common.security.AuthType;
+import com.hydraql.common.constants.HydraQlClientConfigKeys;
+import com.hydraql.exceptions.HydraQLConnectionException;
+import com.hydraql.enums.AuthType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -46,7 +46,8 @@ public class HBaseConnectionManagerRuby {
   public static Configuration getConfiguration(Properties properties) {
     final List<String> keys =
         properties.keySet().stream().map(Object::toString).collect(Collectors.toList());
-    AuthType auth = getAuthType(properties.getProperty(HBaseConfigKeys.HBASE_SECURITY_AUTH, ""));
+    AuthType auth =
+        getAuthType(properties.getProperty(HydraQlClientConfigKeys.HBASE_SECURITY_AUTH, ""));
     Configuration configuration = HBaseConfiguration.create();
     switch (auth) {
       case SIMPLE:
@@ -54,7 +55,7 @@ public class HBaseConnectionManagerRuby {
         break;
       case KERBEROS:
         keys.forEach(key -> {
-          if (key.startsWith(HBaseConfigKeys.JAVA_SECURITY_PREFIX)) {
+          if (key.startsWith(HydraQlClientConfigKeys.JAVA_SECURITY_PREFIX)) {
             System.setProperty(key, properties.getProperty(key));
           } else {
             configuration.set(key, properties.getProperty(key));

@@ -21,9 +21,9 @@ package com.hydraql.adapter.hedgedread;
 import com.hydraql.adapter.WrapperBufferedMutator;
 import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.adapter.service.AbstractHTableService;
-import com.hydraql.core.callback.MutatorCallback;
-import com.hydraql.core.callback.TableCallback;
-import com.hydraql.core.exceptions.HTableServiceException;
+import com.hydraql.action.MutatorAction;
+import com.hydraql.action.HTableAction;
+import com.hydraql.exceptions.HTableServiceException;
 import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy {
   }
 
   @Override
-  public <T> T execute(String tableName, TableCallback<T, Table> action) {
+  public <T> T execute(String tableName, HTableAction<T, Table> action) {
     if (this.getHBaseClientConf().isHedgedReadWriteDisable()) {
       try {
         return executeOnPrefer(tableName, action);
@@ -62,7 +62,7 @@ public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy {
   }
 
   @Override
-  public void mutate(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action) {
+  public void mutate(HTableContext tableContext, MutatorAction<WrapperBufferedMutator> action) {
     if (this.getHBaseClientConf().isHedgedReadWriteDisable()) {
       try {
         executeOnPreferWithBuffer(tableContext, action);

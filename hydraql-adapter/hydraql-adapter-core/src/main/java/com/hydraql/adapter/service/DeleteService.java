@@ -18,11 +18,11 @@
 
 package com.hydraql.adapter.service;
 
-import com.hydraql.core.exceptions.HBaseMetaDataException;
-import com.hydraql.core.exceptions.HBaseOperationsException;
-import com.hydraql.core.metadata.HBaseFieldInfo;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
-import com.hydraql.core.metadata.HBaseTableInfo;
+import com.hydraql.exceptions.HBaseMetaDataException;
+import com.hydraql.exceptions.HBaseOperationsException;
+import com.hydraql.metadata.HFieldInfo;
+import com.hydraql.metadata.HTableInfoContainer;
+import com.hydraql.metadata.HTableInfo;
 import com.hydraql.common.query.FamilyQualifierUtil;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.client.Delete;
@@ -54,13 +54,8 @@ public interface DeleteService {
 
   default <T> Delete buildDelete(T t) throws HBaseMetaDataException {
     Class<?> clazz = t.getClass();
-    HBaseTableInfo tableInfo = HBaseTableInfoHelper.getTableInfo(clazz);
-    List<HBaseFieldInfo> fields = tableInfo.getFields();
-    HBaseFieldInfo field = fields.get(0);
-    if (!field.isRowKey()) {
-      throw new HBaseMetaDataException(
-          "The first field is not row key, please check hbase table mata data.");
-    }
-    return new Delete(field.toBytes(t));
+    HTableInfo tableInfo = HTableInfoContainer.getInstance().get(clazz);
+    HFieldInfo.RowKey rowKey = tableInfo.getRowKey();
+    return new Delete(rowKey.getBytesValue(t));
   }
 }

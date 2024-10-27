@@ -18,7 +18,7 @@
 
 package com.hydraql.thrift;
 
-import com.hydraql.core.callback.RowMapper;
+import com.hydraql.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;

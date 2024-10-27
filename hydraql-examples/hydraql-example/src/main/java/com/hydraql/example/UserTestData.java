@@ -18,9 +18,9 @@
 
 package com.hydraql.example;
 
-import com.hydraql.core.annotations.HBaseField;
-import com.hydraql.core.annotations.HBaseRowKey;
-import com.hydraql.core.annotations.HBaseTable;
+import com.hydraql.annotation.HBaseField;
+import com.hydraql.annotation.HBaseRowKey;
+import com.hydraql.annotation.HBaseTable;
 
 /**
  * @author leojie@apache.org 2024/4/11 11:17

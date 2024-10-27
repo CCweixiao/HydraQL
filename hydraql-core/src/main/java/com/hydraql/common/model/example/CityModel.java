@@ -18,9 +18,9 @@
 
 package com.hydraql.common.model.example;
 
-import com.hydraql.core.annotations.HBaseField;
-import com.hydraql.core.annotations.HBaseRowKey;
-import com.hydraql.core.annotations.HBaseTable;
+import com.hydraql.annotation.HBaseField;
+import com.hydraql.annotation.HBaseRowKey;
+import com.hydraql.annotation.HBaseTable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -20,8 +20,8 @@ package com.hydraql.adapter;
 
 import com.hydraql.adapter.context.ConnectionContext;
 import com.hydraql.adapter.service.AdminService;
-import com.hydraql.core.callback.AdminCallback;
-import com.hydraql.core.exceptions.HydraQLAdminOpException;
+import com.hydraql.action.AdminAction;
+import com.hydraql.exceptions.HydraQLAdminOpException;
 import com.hydraql.common.model.NamespaceDesc;
 import com.hydraql.common.model.SnapshotDesc;
 import com.hydraql.common.util.StringUtil;
@@ -429,9 +429,9 @@ abstract class AbstractHBaseAdminAdapter implements ConnectionContext, AdminServ
     }
   }
 
-  protected <T> T execute(AdminCallback<T, Admin> action) {
+  protected <T> T execute(AdminAction<T, Admin> action) {
     try (Admin admin = this.getConnection().getAdmin()) {
-      return action.doInAdmin(admin);
+      return action.execute(admin);
     } catch (Throwable e) {
       throw new HydraQLAdminOpException(e);
     }

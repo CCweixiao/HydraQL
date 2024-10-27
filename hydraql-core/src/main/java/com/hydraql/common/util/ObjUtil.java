@@ -18,7 +18,7 @@
 
 package com.hydraql.common.util;
 
-import com.hydraql.core.exceptions.HBaseOperationsException;
+import com.hydraql.exceptions.HBaseOperationsException;
 import java.util.List;
 
 /**

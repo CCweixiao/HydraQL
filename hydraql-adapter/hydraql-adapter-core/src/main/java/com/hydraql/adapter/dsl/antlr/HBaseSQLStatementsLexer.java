@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.dsl.antlr;
 
-import com.hydraql.core.exceptions.HBaseSqlAnalysisException;
+import com.hydraql.exceptions.HBaseSqlAnalysisException;
 import com.hydraql.dsl.antlr.HydraQLLexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.LexerNoViableAltException;

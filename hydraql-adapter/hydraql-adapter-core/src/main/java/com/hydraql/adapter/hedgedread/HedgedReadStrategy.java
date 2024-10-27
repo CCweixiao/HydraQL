@@ -21,8 +21,8 @@ package com.hydraql.adapter.hedgedread;
 import com.hydraql.adapter.HBaseClientConfigKeys;
 import com.hydraql.adapter.WrapperBufferedMutator;
 import com.hydraql.adapter.context.HTableContext;
-import com.hydraql.core.callback.MutatorCallback;
-import com.hydraql.core.callback.TableCallback;
+import com.hydraql.action.MutatorAction;
+import com.hydraql.action.HTableAction;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.client.Table;
 
@@ -70,7 +70,7 @@ public interface HedgedReadStrategy {
     }
   }
 
-  <T> T execute(String tableName, TableCallback<T, Table> action);
+  <T> T execute(String tableName, HTableAction<T, Table> action);
 
-  void mutate(HTableContext tableContext, MutatorCallback<WrapperBufferedMutator> action);
+  void mutate(HTableContext tableContext, MutatorAction<WrapperBufferedMutator> action);
 }

@@ -18,9 +18,9 @@
 
 package com.hydraql.adapter.dsl.antlr.visitor;
 
-import com.hydraql.common.constants.HBaseConfigKeys;
-import com.hydraql.core.exceptions.HBaseSqlAnalysisException;
-import com.hydraql.core.type.ColumnType;
+import com.hydraql.common.constants.HydraQlClientConfigKeys;
+import com.hydraql.exceptions.HBaseSqlAnalysisException;
+import com.hydraql.type.ColumnType;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.model.HBaseColumn;
@@ -73,16 +73,16 @@ public class CreateVirtualTableVisitor extends BaseVisitor<HBaseTableSchema> {
         String optionName = getText(optionContext.name()).trim();
         String optionValue = extractLiteralVal(optionContext.literal());
         switch (optionName) {
-          case HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHING:
+          case HydraQlClientConfigKeys.HBASE_CLIENT_SCANNER_CACHING:
             tableSchemaBuilder.scanCaching(Integer.parseInt(optionValue));
             break;
-          case HBaseConfigKeys.HBASE_CLIENT_SCANNER_BATCH:
+          case HydraQlClientConfigKeys.HBASE_CLIENT_SCANNER_BATCH:
             tableSchemaBuilder.scanBatch(Integer.parseInt(optionValue));
             break;
-          case HBaseConfigKeys.HBASE_CLIENT_DELETE_BATCH:
+          case HydraQlClientConfigKeys.HBASE_CLIENT_DELETE_BATCH:
             tableSchemaBuilder.deleteBatch(Integer.parseInt(optionValue));
             break;
-          case HBaseConfigKeys.HBASE_CLIENT_SCANNER_CACHE:
+          case HydraQlClientConfigKeys.HBASE_CLIENT_SCANNER_CACHE:
             tableSchemaBuilder.scanCacheBlocks(Boolean.parseBoolean(optionValue));
             break;
           default:

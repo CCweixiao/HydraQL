@@ -23,7 +23,7 @@ import com.hydraql.adapter.dsl.antlr.data.RowKeyRange;
 import com.hydraql.adapter.dsl.antlr.visitor.DeleteColListVisitor;
 import com.hydraql.adapter.dsl.antlr.visitor.RowKeyRangeVisitor;
 import com.hydraql.adapter.dsl.antlr.visitor.TableNameVisitor;
-import com.hydraql.core.exceptions.HBaseSqlExecuteException;
+import com.hydraql.exceptions.HBaseSqlExecuteException;
 import com.hydraql.common.model.HQLType;
 import com.hydraql.dsl.antlr.HydraQLParser;
 import com.hydraql.dsl.client.rowkey.RowKey;

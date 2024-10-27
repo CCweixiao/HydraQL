@@ -18,7 +18,7 @@
 
 package com.hydraql.common.retry;
 
-import com.hydraql.core.exceptions.BaseRetryTemplateHandleException;
+import com.hydraql.exceptions.BaseRetryTemplateHandleException;
 
 /**
  * @author leojie 2023/7/5 16:57

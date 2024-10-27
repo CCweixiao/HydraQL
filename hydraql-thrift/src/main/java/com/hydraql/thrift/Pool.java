@@ -18,9 +18,9 @@
 
 package com.hydraql.thrift;
 
-import com.hydraql.core.exceptions.HBaseThriftConnectionException;
-import com.hydraql.core.exceptions.HBaseThriftException;
-import com.hydraql.core.exceptions.HBaseThriftExhaustedPoolException;
+import com.hydraql.exceptions.HBaseThriftConnectionException;
+import com.hydraql.exceptions.HBaseThriftException;
+import com.hydraql.exceptions.HBaseThriftExhaustedPoolException;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;

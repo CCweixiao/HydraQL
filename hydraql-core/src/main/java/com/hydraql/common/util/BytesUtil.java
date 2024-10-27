@@ -18,7 +18,7 @@
 
 package com.hydraql.common.util;
 
-import com.hydraql.core.toolkit.Assert;
+import com.hydraql.util.Assert;
 import sun.misc.Unsafe;
 
 import java.io.DataInput;

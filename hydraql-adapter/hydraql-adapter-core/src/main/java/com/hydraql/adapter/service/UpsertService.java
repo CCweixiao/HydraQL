@@ -18,13 +18,13 @@
 
 package com.hydraql.adapter.service;
 
-import com.hydraql.common.constants.HBaseConstants;
-import com.hydraql.core.exceptions.HBaseMetaDataException;
-import com.hydraql.core.metadata.HBaseFieldInfo;
-import com.hydraql.core.metadata.HBaseTableInfoHelper;
-import com.hydraql.core.metadata.HBaseTableInfo;
-import com.hydraql.core.type.ColumnType;
-import com.hydraql.core.type.TypeHandler;
+import com.hydraql.common.constants.HydraQLConstants;
+import com.hydraql.exceptions.HBaseMetaDataException;
+import com.hydraql.metadata.HFieldInfo;
+import com.hydraql.metadata.HTableInfoContainer;
+import com.hydraql.metadata.HTableInfo;
+import com.hydraql.type.ColumnType;
+import com.hydraql.type.TypeHandler;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -44,7 +44,7 @@ public interface UpsertService {
 
     Put put = new Put(Bytes.toBytes(rowKey));
     data.forEach((fieldName, fieldValue) -> {
-      String[] familyQualifierArr = fieldName.split(HBaseConstants.FAMILY_QUALIFIER_SEPARATOR);
+      String[] familyQualifierArr = fieldName.split(HydraQLConstants.FAMILY_QUALIFIER_SEPARATOR);
       TypeHandler<?> fieldTypeHandler = ColumnType.findTypeHandler(fieldValue.getClass());
       put.addColumn(Bytes.toBytes(familyQualifierArr[0]), Bytes.toBytes(familyQualifierArr[1]),
         ColumnType.StringType.getTypeHandler().toBytes(fieldTypeHandler.toString(fieldValue)));
@@ -54,21 +54,16 @@ public interface UpsertService {
 
   default <T> Put buildPut(T t) throws HBaseMetaDataException {
     Class<?> clazz = t.getClass();
-    HBaseTableInfo tableInfo = HBaseTableInfoHelper.getTableInfo(clazz);
-    List<HBaseFieldInfo> fields = tableInfo.getFields();
-    HBaseFieldInfo rowKeyField = fields.get(0);
-    if (!rowKeyField.isRowKey()) {
-      throw new HBaseMetaDataException(
-          "The first field is not row key, please check hbase table mata data.");
-    }
-    byte[] value = rowKeyField.toBytes(t);
+    HTableInfo tableInfo = HTableInfoContainer.getInstance().get(clazz);
+    HFieldInfo.RowKey rowKey = tableInfo.getRowKey();
+    List<HFieldInfo.Qualifier> qualifiers = tableInfo.getQualifiers();
+
+    byte[] value = rowKey.getBytesValue(t);
     Put put = new Put(value);
 
-    fields.forEach(field -> {
-      if (!field.isRowKey()) {
-        byte[] valueOfCol = field.toBytes(t);
-        put.addColumn(field.getFamilyBytes(), field.getQualifierBytes(), valueOfCol);
-      }
+    qualifiers.forEach(qualifier -> {
+      byte[] valueOfCol = qualifier.getBytesValue(t);
+      put.addColumn(qualifier.getFamily(), qualifier.getQualifier(), valueOfCol);
     });
     return put;
   }
