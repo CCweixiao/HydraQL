@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 19:50
  */
+@Deprecated
 public class FamilyQualifierUtil {
   /**
    * 判断列簇名满足条件，需要筛选的字段列表未指定

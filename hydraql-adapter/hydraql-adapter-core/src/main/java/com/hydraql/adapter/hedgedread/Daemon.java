@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * @author leojie@apache.org 2024/4/8 16:52
  */
+@Deprecated
 class Daemon extends Thread {
 
   {

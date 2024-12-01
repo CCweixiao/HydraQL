@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.hydraql.common.constants.HydraQLConstants;
-import com.hydraql.handler.RowMapper;
+import com.hydraql.result.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseColData;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
@@ -47,6 +47,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  * 定义HBase的数据操作接口
  * @author leojie 2020/9/26 11:04 上午
  */
+@Deprecated
 public interface GetService {
   /**
    * 传入GetParams对象，生成Get的接口方法，由具体的HBaseTableAdapterImpl类去实现

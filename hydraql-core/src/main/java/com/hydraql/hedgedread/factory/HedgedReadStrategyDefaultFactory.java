@@ -33,8 +33,12 @@ import com.hydraql.hedgedread.UnsupportedHedgedReadStrategyException;
 public class HedgedReadStrategyDefaultFactory implements HedgedReadStrategyFactory {
   private final Executor executor;
 
-  public HedgedReadStrategyDefaultFactory(Executor executor) {
+  private HedgedReadStrategyDefaultFactory(Executor executor) {
     this.executor = executor;
+  }
+
+  public static HedgedReadStrategyDefaultFactory newInstance(Executor executor) {
+    return new HedgedReadStrategyDefaultFactory(executor);
   }
 
   @Override

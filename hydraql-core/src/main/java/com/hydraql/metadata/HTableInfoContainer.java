@@ -25,8 +25,8 @@ import com.hydraql.annotation.HBaseTable;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.exceptions.InvalidTableModelClassException;
 import com.hydraql.reflectasm.Reflector;
-import com.hydraql.rowkey.GenerationType;
-import com.hydraql.rowkey.RowKeyGenerator;
+import com.hydraql.generator.GenerationType;
+import com.hydraql.generator.RowKeyGenerator;
 import com.hydraql.type.SimpleTypeRegistry;
 import com.hydraql.util.AnnotationUtils;
 import com.hydraql.util.TableNameUtils;
@@ -65,80 +65,82 @@ public class HTableInfoContainer {
     }
   }
 
-  public void register(Class<?> clazz) {
-    tableInfoMappingLock.writeLock().lock();
-    try {
-      if (clazz == null || clazz.isPrimitive() || SimpleTypeRegistry.isSimpleType(clazz)
-          || clazz.isInterface()) {
-        throw new InvalidTableModelClassException("Invalid table model class info.");
-      }
-      HTableInfo tableInfo = TABLE_INFO_CACHE.get(clazz);
-      if (tableInfo != null) {
-        return;
-      }
-      TableMeta tableMeta = extractTableMeta(clazz);
-      Reflector reflector = new Reflector(clazz);
-      tableInfo = HTableInfo.newBuilder(clazz).setReflector(reflector)
-          .setTableName(tableMeta.getTableName()).build();
-
-      int qualifierCount = 0;
-      for (Field field : reflector.getFields()) {
-        if (Reflector.isNotGeneralProperty(field)) {
-          continue;
-        }
-        Class<?> fieldTypeClazz = reflector.getGetterType(field.getName());
-
-        RowKeyMeta rowKeyMeta = extractRowKeyMetaData(field);
-        if (rowKeyMeta != null) {
-          HFieldInfo.RowKey.Builder rowKeyBuilder =
-              HFieldInfo.RowKey.newBuilder(fieldTypeClazz, rowKeyMeta.getName());
-          rowKeyBuilder.setRowKeyGenerator(rowKeyMeta.getRowKeyGenerator());
-          // 设置row key setter and getter
-          rowKeyBuilder.setGetMethodInvoker(reflector.getGetInvoker(field.getName()));
-          rowKeyBuilder.setSetMethodInvoker(reflector.getSetInvoker(field.getName()));
-          tableInfo.addRowKey(rowKeyBuilder.build());
-          continue;
-        }
-
-        ColumnMeta columnMeta = extractColumnMetaData(tableMeta, field);
-        if (columnMeta == null) {
-          continue;
-        }
-
-        HFieldInfo.Qualifier.Builder qualifierBuilder =
-            HFieldInfo.Qualifier.newBuilder(fieldTypeClazz, columnMeta.getName());
-        qualifierBuilder.setFamily(columnMeta.getFamily());
-        qualifierBuilder.setQualifier(columnMeta.getQualifier());
-        qualifierBuilder.setNullable(columnMeta.isNullable());
-        // 设置column setter and getter
-        qualifierBuilder.setGetMethodInvoker(reflector.getGetInvoker(field.getName()));
-        qualifierBuilder.setSetMethodInvoker(reflector.getSetInvoker(field.getName()));
-        tableInfo.appendQualifier(qualifierBuilder.build());
-        qualifierCount += 1;
-      }
-
-      if (qualifierCount < 1) {
-        throw new InvalidTableModelClassException(String.format(
-          "The table model class [%s] should contain at least one qualifier definition.",
-          clazz.getName()));
-      }
-      TABLE_INFO_CACHE.put(clazz, tableInfo);
-    } finally {
-      tableInfoMappingLock.writeLock().unlock();
+  private HTableInfo register(Class<?> clazz) {
+    if (clazz == null || clazz.isPrimitive() || SimpleTypeRegistry.isSimpleType(clazz)
+        || clazz.isInterface()) {
+      throw new InvalidTableModelClassException("Invalid table model class info.");
     }
+
+    TableMeta tableMeta = extractTableMeta(clazz);
+    Reflector reflector = new Reflector(clazz);
+    HTableInfo tableInfo = HTableInfo.newBuilder(clazz).setReflector(reflector)
+        .setTableName(tableMeta.getTableName()).build();
+
+    int qualifierCount = 0;
+    for (Field field : reflector.getFields()) {
+      if (Reflector.isNotGeneralProperty(field)) {
+        continue;
+      }
+      Class<?> fieldTypeClazz = reflector.getGetterType(field.getName());
+
+      RowKeyMeta rowKeyMeta = extractRowKeyMetaData(field);
+      if (rowKeyMeta != null) {
+        HFieldInfo.RowKey.Builder rowKeyBuilder =
+            HFieldInfo.RowKey.newBuilder(fieldTypeClazz, rowKeyMeta.getName());
+        rowKeyBuilder.setRowKeyGenerator(rowKeyMeta.getRowKeyGenerator());
+        // 设置row key setter and getter
+        rowKeyBuilder.setGetMethodInvoker(reflector.getGetInvoker(field.getName()));
+        rowKeyBuilder.setSetMethodInvoker(reflector.getSetInvoker(field.getName()));
+        tableInfo.addRowKey(rowKeyBuilder.build());
+        continue;
+      }
+
+      ColumnMeta columnMeta = extractColumnMetaData(tableMeta, field);
+      if (columnMeta == null) {
+        continue;
+      }
+
+      HFieldInfo.Qualifier.Builder qualifierBuilder =
+          HFieldInfo.Qualifier.newBuilder(fieldTypeClazz, columnMeta.getName());
+      qualifierBuilder.setFamily(columnMeta.getFamily());
+      qualifierBuilder.setQualifier(columnMeta.getQualifier());
+      qualifierBuilder.setNullable(columnMeta.isNullable());
+      // 设置column setter and getter
+      qualifierBuilder.setGetMethodInvoker(reflector.getGetInvoker(field.getName()));
+      qualifierBuilder.setSetMethodInvoker(reflector.getSetInvoker(field.getName()));
+      tableInfo.appendQualifier(qualifierBuilder.build());
+      qualifierCount += 1;
+    }
+
+    if (qualifierCount < 1) {
+      throw new InvalidTableModelClassException(String.format(
+        "The table model class [%s] should contain at least one qualifier definition.",
+        clazz.getName()));
+    }
+    TABLE_INFO_CACHE.put(clazz, tableInfo);
+    return tableInfo;
   }
 
   public HTableInfo get(Class<?> clazz) {
     tableInfoMappingLock.readLock().lock();
     try {
       HTableInfo tableInfo = TABLE_INFO_CACHE.get(clazz);
-      if (tableInfo == null) {
-        throw new InvalidTableModelClassException(String
-            .format("The table model class [%s] does not register a table info.", clazz.getName()));
+      if (tableInfo != null) {
+        return tableInfo;
       }
-      return tableInfo;
     } finally {
       tableInfoMappingLock.readLock().unlock();
+    }
+
+    tableInfoMappingLock.writeLock().lock();
+    try {
+      HTableInfo tableInfo = TABLE_INFO_CACHE.get(clazz);
+      if (tableInfo != null) {
+        return tableInfo;
+      }
+      return register(clazz);
+    } finally {
+      tableInfoMappingLock.writeLock().unlock();
     }
   }
 

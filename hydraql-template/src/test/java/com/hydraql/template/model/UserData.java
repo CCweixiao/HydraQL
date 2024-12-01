@@ -19,7 +19,7 @@
 package com.hydraql.template.model;
 
 import com.hydraql.annotation.GeneratedValue;
-import com.hydraql.rowkey.GenerationType;
+import com.hydraql.generator.GenerationType;
 import com.hydraql.annotation.HBaseField;
 import com.hydraql.annotation.HBaseRowKey;
 import com.hydraql.annotation.HBaseTable;

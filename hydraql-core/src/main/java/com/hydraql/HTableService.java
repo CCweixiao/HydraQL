@@ -18,7 +18,7 @@
 
 package com.hydraql;
 
-import com.hydraql.handler.RowMapper;
+import com.hydraql.result.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
@@ -32,6 +32,7 @@ import java.util.Map;
  * 定义HBase的数据操作接口
  * @author leojie 2020/9/26 11:04 上午
  */
+@Deprecated
 public interface HTableService {
 
   /**

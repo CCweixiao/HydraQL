@@ -21,6 +21,7 @@ package com.hydraql.adapter.hedgedread;
 /**
  * @author leojie@apache.org 2024/4/14 21:05
  */
+@Deprecated
 public class UnsupportedHedgedReadStrategyException extends RuntimeException {
 
   private static final long serialVersionUID = 1607940322689035520L;

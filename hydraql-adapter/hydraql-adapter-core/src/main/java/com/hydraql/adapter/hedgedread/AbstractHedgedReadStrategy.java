@@ -38,6 +38,7 @@ import java.util.concurrent.Future;
 /**
  * @author leojie@apache.org 2024/4/12 22:31
  */
+@Deprecated
 public abstract class AbstractHedgedReadStrategy implements HedgedReadStrategy {
   private final AbstractHTableService tableService;
 

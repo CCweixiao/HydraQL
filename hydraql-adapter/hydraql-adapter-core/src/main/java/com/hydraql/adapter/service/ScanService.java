@@ -18,7 +18,7 @@
 
 package com.hydraql.adapter.service;
 
-import com.hydraql.handler.RowMapper;
+import com.hydraql.result.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.ScanParams;
@@ -29,6 +29,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 19:36
  */
+@Deprecated
 public interface ScanService {
   Scan buildScan(ScanParams scanParams);
 

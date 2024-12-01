@@ -18,7 +18,7 @@
 
 package com.hydraql.mutator;
 
-import com.hydraql.session.HQlConnection;
+import com.hydraql.session.HqlConnection;
 import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Mutation;
 
@@ -29,10 +29,10 @@ import java.util.List;
  * @author leojie@apache.org 2024/4/7 22:18
  */
 public class WrapperBufferedMutatorImpl implements WrapperBufferedMutator {
-  private final HQlConnection hydraQlConnection;
+  private final HqlConnection hydraQlConnection;
   private BufferedMutator bufferedMutator;
 
-  public WrapperBufferedMutatorImpl(HQlConnection hydraQlConnection,
+  public WrapperBufferedMutatorImpl(HqlConnection hydraQlConnection,
       BufferedMutator bufferedMutator) {
     this.hydraQlConnection = hydraQlConnection;
     this.bufferedMutator = bufferedMutator;

@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * @author leojie 2022/11/5 10:31
  */
+@Deprecated
 public class ScanParams {
   private final String familyName;
   private final List<String> columnNames;

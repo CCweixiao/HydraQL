@@ -35,6 +35,7 @@ import java.util.Map;
 /**
  * @author leojie 2023/7/20 19:32
  */
+@Deprecated
 public interface UpsertService {
 
   default Put buildPut(String rowKey, Map<String, Object> data) {

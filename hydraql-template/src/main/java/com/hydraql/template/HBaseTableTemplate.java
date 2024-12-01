@@ -19,7 +19,7 @@
 package com.hydraql.template;
 
 import com.hydraql.adapter.HBaseTableAdapter;
-import com.hydraql.handler.RowMapper;
+import com.hydraql.result.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;
@@ -36,6 +36,7 @@ import java.util.Properties;
 /**
  * @author leojie 2022/10/22 18:58
  */
+@Deprecated
 public class HBaseTableTemplate extends BaseHBaseTableTemplate {
   private final Configuration configuration;
   private final HBaseTableAdapter tableOpAdapter;

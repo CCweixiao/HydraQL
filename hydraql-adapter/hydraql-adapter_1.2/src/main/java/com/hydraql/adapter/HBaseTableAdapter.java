@@ -37,6 +37,7 @@ import java.util.*;
 /**
  * @author leo.jie (weixiao.me@aliyun.com)
  */
+@Deprecated
 public class HBaseTableAdapter extends AbstractHBaseTableAdapter {
   public HBaseTableAdapter(Configuration configuration) {
     super(configuration);

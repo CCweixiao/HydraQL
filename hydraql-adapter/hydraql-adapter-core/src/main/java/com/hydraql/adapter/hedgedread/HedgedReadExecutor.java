@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author leojie 2023/6/30 18:49
  */
+@Deprecated
 public class HedgedReadExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(HedgedReadExecutor.class);
   private static volatile HedgedReadExecutor executor;

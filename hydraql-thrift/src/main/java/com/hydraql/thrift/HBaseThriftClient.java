@@ -22,7 +22,7 @@ import com.hydraql.common.constants.HydraQLConstants;
 import com.hydraql.exceptions.HBaseSdkUnsupportedFunctionException;
 import com.hydraql.exceptions.HBaseThriftException;
 import com.hydraql.util.Assert;
-import com.hydraql.handler.RowMapper;
+import com.hydraql.result.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import com.hydraql.common.query.GetRowParam;

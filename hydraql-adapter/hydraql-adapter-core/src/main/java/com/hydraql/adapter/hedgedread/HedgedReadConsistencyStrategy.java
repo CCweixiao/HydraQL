@@ -40,6 +40,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author leojie@apache.org 2024/4/8 19:43
  */
+@Deprecated
 public class HedgedReadConsistencyStrategy extends AbstractHedgedReadStrategy {
   private final int maxThreads;
   private final long overallTimeoutMillis;

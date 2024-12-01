@@ -26,7 +26,7 @@ import com.hydraql.adapter.service.MutatorService;
 import com.hydraql.adapter.service.ScanService;
 import com.hydraql.adapter.service.UpsertService;
 import com.hydraql.HTableService;
-import com.hydraql.handler.RowMapper;
+import com.hydraql.result.handler.RowMapper;
 import com.hydraql.metadata.HTableInfo;
 import com.hydraql.metadata.HTableInfoContainer;
 import com.hydraql.common.model.data.HBaseRowData;
@@ -60,6 +60,7 @@ import static com.hydraql.adapter.HBaseClientConfigKeys.HBASE_CLIENT_SCANNER_CAC
  * </p>
  * @author leo.jie (leojie1314@gmail.com)
  */
+@Deprecated
 abstract class AbstractHBaseTableAdapter extends HTableUpsertService implements HTableService,
     GetService, UpsertService, MutatorService, DeleteService, ScanService {
 

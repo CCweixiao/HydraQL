@@ -28,6 +28,7 @@ import java.util.Map;
 /**
  * @author leojie@apache.org 2024/4/14 21:18
  */
+@Deprecated
 public interface MutatorService {
   default void saveWithBuffer(String tableName, String rowKey, Map<String, Object> data) {
     if (data == null || data.isEmpty()) {

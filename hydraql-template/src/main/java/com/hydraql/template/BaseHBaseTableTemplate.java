@@ -20,7 +20,7 @@ package com.hydraql.template;
 
 import com.hydraql.adapter.service.ScanService;
 import com.hydraql.HTableService;
-import com.hydraql.handler.RowMapper;
+import com.hydraql.result.handler.RowMapper;
 import com.hydraql.common.model.data.HBaseRowData;
 import com.hydraql.common.model.data.HBaseRowDataWithMultiVersions;
 import org.apache.hadoop.hbase.client.Get;
@@ -29,6 +29,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 22:12
  */
+@Deprecated
 public abstract class BaseHBaseTableTemplate implements HTableService, ScanService {
   abstract <T> T get(Get get, Class<T> clazz);
 

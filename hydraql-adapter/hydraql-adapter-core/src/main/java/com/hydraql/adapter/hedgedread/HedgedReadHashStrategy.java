@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * @author leojie@apache.org 2024/4/8 20:07
  */
+@Deprecated
 public class HedgedReadHashStrategy extends AbstractHedgedReadStrategy {
   private final static LongAdder COUNTER = new LongAdder();
 

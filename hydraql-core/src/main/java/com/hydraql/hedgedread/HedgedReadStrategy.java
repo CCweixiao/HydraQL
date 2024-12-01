@@ -21,7 +21,7 @@ package com.hydraql.hedgedread;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.action.MutatorAction;
 import com.hydraql.action.HTableAction;
-import com.hydraql.conf.HQLConfigKeys;
+import com.hydraql.conf.HqlConfigKeys;
 import com.hydraql.mutator.WrapperBufferedMutator;
 import org.apache.hadoop.hbase.client.Table;
 
@@ -65,7 +65,7 @@ public interface HedgedReadStrategy {
         }
       }
       throw new UnsupportedHedgedReadStrategyException(String.format("%s=%s is not supported yet",
-        HQLConfigKeys.HedgedRead.STRATEGY, strategyName));
+        HqlConfigKeys.HedgedRead.STRATEGY, strategyName));
     }
 
     public boolean isActivate() {

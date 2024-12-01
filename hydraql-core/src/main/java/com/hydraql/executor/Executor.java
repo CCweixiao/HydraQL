@@ -18,59 +18,51 @@
 
 package com.hydraql.executor;
 
-import com.hydraql.action.MutatorAction;
-import com.hydraql.action.HTableAction;
-import com.hydraql.hedgedread.HedgedReadStrategy;
-import com.hydraql.hedgedread.factory.HedgedReadStrategyDefaultFactory;
-import com.hydraql.mutator.WrapperBufferedMutator;
-import com.hydraql.conf.AbstractHQLConfiguration;
-import com.hydraql.session.HQlConnection;
+import com.hydraql.result.GetResult;
+import com.hydraql.result.MultiGetResult;
+import com.hydraql.result.ScanResult;
+import com.hydraql.conf.AbstractHqlConfiguration;
+import com.hydraql.session.HqlConnection;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author leojie@apache.org 2024/8/18 22:58
  */
 public interface Executor {
-  AbstractHQLConfiguration getConfiguration();
+  AbstractHqlConfiguration getConfiguration();
 
-  HQlConnection getConnection();
+  HqlConnection getConnection();
 
-  default HedgedReadStrategy getHedgedReadStrategy() {
-    return new HedgedReadStrategyDefaultFactory(this).create();
-  }
+  <E> E get(Get get, Class<E> entityClass);
 
-  default <E> E execute(HTableAction<E, Table> action, boolean isWrite) {
-    return this.getHedgedReadStrategy().execute(action, isWrite);
-  }
+  GetResult get(Get get);
 
-  <E> E get(Get get);
+  <E> Map<byte[], E> get(List<Get> gets, Class<E> entityClass);
 
-  <E> List<E> gets(List<Get> gets);
+  MultiGetResult get(List<Get> gets);
 
-  <E> List<E> scan(Scan scan);
+  <E> List<E> scan(Scan scan, Class<E> entityClass);
+
+  ScanResult scan(Scan scan);
 
   void put(Put put);
 
-  void puts(List<Put> puts);
+  void put(List<Put> puts);
 
   void delete(Delete delete);
 
-  void deletes(List<Delete> deletes);
-
-  default void mutate(MutatorAction<WrapperBufferedMutator> action) {
-    this.getHedgedReadStrategy().mutate(action);
-  }
+  void delete(List<Delete> deletes);
 
   void mutate(Mutation mutation);
 
-  void mutates(List<? extends Mutation> mutations);
+  void mutate(List<? extends Mutation> mutations);
 
   void close();
 

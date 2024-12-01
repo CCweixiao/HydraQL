@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * @author leojie 2023/9/6 20:03
  */
+@Deprecated
 public abstract class BaseGetRowParam<T> {
   private final String family;
   private final List<String> qualifiers;

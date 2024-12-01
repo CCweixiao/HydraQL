@@ -22,7 +22,7 @@ import com.hydraql.common.util.BytesUtil;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.exceptions.InvalidTableModelClassException;
 import com.hydraql.reflectasm.invoker.Invoker;
-import com.hydraql.rowkey.RowKeyGenerator;
+import com.hydraql.generator.RowKeyGenerator;
 import com.hydraql.type.ColumnType;
 import com.hydraql.type.TypeHandler;
 import com.hydraql.util.Preconditions;

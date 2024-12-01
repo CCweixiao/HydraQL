@@ -29,6 +29,7 @@ import org.apache.hadoop.hbase.client.Table;
 /**
  * @author leojie@apache.org 2024/4/8 17:29
  */
+@Deprecated
 public interface HedgedReadStrategy {
   enum Level {
     /**

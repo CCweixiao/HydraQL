@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author leojie@apache.org 2024/4/8 17:44
  */
+@Deprecated
 public class HedgedReadThresholdStrategy extends AbstractHedgedReadStrategy {
   private final int maxThreads;
   private final long thresholdMillis;

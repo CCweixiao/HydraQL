@@ -3,10 +3,10 @@
   <parent>
     <artifactId>hydraql</artifactId>
     <groupId>com.hydraql</groupId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>hydraql-shell_2.6</artifactId>
+  <artifactId>hydraql-shell_1.2</artifactId>
   <build>
     <plugins>
       <plugin>

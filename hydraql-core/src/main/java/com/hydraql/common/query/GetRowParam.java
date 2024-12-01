@@ -23,6 +23,7 @@ import com.hydraql.common.util.StringUtil;
 /**
  * @author leojie 2023/7/20 11:09
  */
+@Deprecated
 public class GetRowParam extends BaseGetRowParam<GetRowParam> {
   private final String rowKey;
 

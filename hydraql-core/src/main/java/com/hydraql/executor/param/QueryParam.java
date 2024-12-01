@@ -19,7 +19,7 @@
 package com.hydraql.executor.param;
 
 import com.hydraql.common.util.StringUtil;
-import com.hydraql.rowkey.RowKeyGenerator;
+import com.hydraql.generator.RowKeyGenerator;
 import com.hydraql.util.Assert;
 
 import java.util.ArrayList;

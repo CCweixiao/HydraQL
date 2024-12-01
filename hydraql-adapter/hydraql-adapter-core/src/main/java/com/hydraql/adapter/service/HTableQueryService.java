@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author leojie@apache.org 2024/4/12 19:45
  */
+@Deprecated
 public abstract class HTableQueryService extends AbstractHTableService {
   private static final Logger LOG = LoggerFactory.getLogger(HTableQueryService.class);
 

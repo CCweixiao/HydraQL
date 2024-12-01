@@ -31,6 +31,7 @@ import java.io.IOException;
 /**
  * @author leojie@apache.org 2024/4/14 20:58
  */
+@Deprecated
 public class HedgedReadEmptyStrategy extends AbstractHedgedReadStrategy {
 
   public HedgedReadEmptyStrategy(AbstractHTableService tableService) {

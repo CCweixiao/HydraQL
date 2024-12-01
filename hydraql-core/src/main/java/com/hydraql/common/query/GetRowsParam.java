@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 11:09
  */
+@Deprecated
 public class GetRowsParam extends BaseGetRowParam<GetRowsParam> {
   private final List<String> rowKeyList;
 

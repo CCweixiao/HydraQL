@@ -34,6 +34,7 @@ import java.util.List;
 /**
  * @author leojie@apache.org 2024/4/12 19:49
  */
+@Deprecated
 public abstract class HTableUpsertService extends HTableQueryService {
   protected HTableUpsertService(Configuration configuration) {
     super(configuration);

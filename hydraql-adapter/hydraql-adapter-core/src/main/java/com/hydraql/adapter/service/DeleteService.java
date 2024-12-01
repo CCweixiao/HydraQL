@@ -33,6 +33,7 @@ import java.util.List;
 /**
  * @author leojie 2023/7/20 19:36
  */
+@Deprecated
 public interface DeleteService {
   default Delete buildDeleteCondition(String rowKey, String familyName, List<String> qualifiers) {
     if (StringUtil.isBlank(rowKey)) {
