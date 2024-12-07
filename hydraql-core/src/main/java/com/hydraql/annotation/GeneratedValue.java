@@ -18,7 +18,7 @@
 
 package com.hydraql.annotation;
 
-import com.hydraql.generator.GenerationType;
+import com.hydraql.generator.RowKeyGenerationStrategy;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -26,7 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import static com.hydraql.generator.GenerationType.NOTHING;
+import static com.hydraql.generator.RowKeyGenerationStrategy.NOTHING;
 
 /**
  * Specify strategy to generate required row key.
@@ -37,7 +37,7 @@ import static com.hydraql.generator.GenerationType.NOTHING;
 @Target({ ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 public @interface GeneratedValue {
   /**
-   * (Optional) The row key generation strategy {@link GenerationType}.
+   * (Optional) The row key generation strategy {@link RowKeyGenerationStrategy}.
    */
-  GenerationType strategy() default NOTHING;
+  RowKeyGenerationStrategy strategy() default NOTHING;
 }

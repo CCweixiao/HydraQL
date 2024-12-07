@@ -16,29 +16,26 @@
  * limitations under the License.
  */
 
-package com.hydraql.generator;
+package com.hydraql.wrapper;
+
+import org.apache.hadoop.hbase.client.Scan;
 
 /**
- * @author leojie@apache.org 2024/8/11 20:14
+ * @author leojie@apache.org 2024/12/7 11:23
  */
-public class RowKeyNothingGenerator implements RowKeyGenerator {
-  @Override
-  public Object apply(Object originalRow) {
-    return originalRow;
-  }
+public abstract class BaseScanWrapper extends Scan {
 
-  @Override
-  public byte[] applyToBytes(Object originalRow) {
-    throw new UnsupportedOperationException();
-  }
+  public abstract BaseScanWrapper includeStartRow(byte[] startRow, boolean inclusive);
 
-  @Override
-  public Object recover(Object generatedRow) {
-    return generatedRow;
-  }
+  public abstract BaseScanWrapper includeStartRow(byte[] startRow);
 
-  @Override
-  public byte[] recoverToBytes(byte[] generatedRow) {
-    throw new UnsupportedOperationException();
+  public abstract BaseScanWrapper includeStopRow(byte[] stopRow, boolean inclusive);
+
+  public abstract BaseScanWrapper includeStopRow(byte[] stopRow);
+
+  public abstract BaseScanWrapper withLimit(int limit);
+
+  public Scan unwrapper() {
+    return this;
   }
 }

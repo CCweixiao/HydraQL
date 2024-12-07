@@ -18,88 +18,88 @@
 
 package com.hydraql.session;
 
+import com.hydraql.executor.HqlExecutor;
 import com.hydraql.result.GetResult;
 import com.hydraql.result.MultiGetResult;
 import com.hydraql.result.ScanResult;
-import com.hydraql.executor.BaseExecutor;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Scan;
+import com.hydraql.wrapper.BaseScanWrapper;
+import com.hydraql.wrapper.DeleteWrapper;
+import com.hydraql.wrapper.GetWrapper;
+import com.hydraql.wrapper.MultiDeleteWrapper;
+import com.hydraql.wrapper.MultiGetWrapper;
+import com.hydraql.wrapper.MultiPutWrapper;
+import com.hydraql.wrapper.PutWrapper;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author leojie@apache.org 2024/9/5 21:41
  */
 public class DefaultHqlSession implements HqlSession {
-  private final BaseExecutor executor;
+  private final HqlExecutor executor;
 
-  public DefaultHqlSession(BaseExecutor executor) {
+  public DefaultHqlSession(HqlExecutor executor) {
     this.executor = executor;
   }
 
   @Override
-  public <E> E get(Get get, Class<E> entityClass) {
+  public <E> E get(GetWrapper get, Class<E> entityClass) {
     return executor.get(get, entityClass);
   }
 
   @Override
-  public GetResult get(Get get) {
+  public GetResult get(GetWrapper get) {
     return executor.get(get);
   }
 
   @Override
-  public <E> Map<byte[], E> get(List<Get> gets, Class<E> entityClass) {
+  public <E> MultiGetResult<E> multiGet(MultiGetWrapper gets, Class<E> entityClass) {
     return executor.get(gets, entityClass);
   }
 
   @Override
-  public MultiGetResult get(List<Get> gets) {
+  public MultiGetResult<GetResult> multiGet(MultiGetWrapper gets) {
     return executor.get(gets);
   }
 
   @Override
-  public <E> List<E> scan(Scan scan, Class<E> entityClass) {
-    return executor.scan(scan, entityClass);
+  public <E> List<E> scan(BaseScanWrapper scan, Class<E> entityClass) {
+    return executor.scan(scan.unwrapper(), entityClass);
   }
 
   @Override
-  public ScanResult scan(Scan scan) {
-    return executor.scan(scan);
+  public ScanResult scan(BaseScanWrapper scan) {
+    return executor.scan(scan.unwrapper());
   }
 
   @Override
-  public void put(Put put) {
-    executor.put(put);
+  public void put(PutWrapper put) {
+    executor.put(put.unwrapper());
   }
 
   @Override
-  public void put(List<Put> puts) {
-    executor.put(puts);
+  public void multiPut(MultiPutWrapper put) {
+    executor.put(put.unwrapper());
   }
 
   @Override
-  public <E> void put(E entity, Class<E> entityClass) {
-    Put put = executor.buildPut(entity, entityClass);
-    executor.put(put);
+  public <E> void put(E entity) {
+    executor.put(entity);
   }
 
   @Override
-  public <E> void put(List<E> entities, Class<E> entityClass) {
-    List<Put> puts = executor.buildPuts(entities, entityClass);
-    executor.put(puts);
+  public <E> void multiPut(List<E> entities) {
+    executor.multiPut(entities);
   }
 
   @Override
-  public void delete(Delete delete) {
-    executor.delete(delete);
+  public void delete(DeleteWrapper delete) {
+    executor.delete(delete.unwrapper());
   }
 
   @Override
-  public void delete(List<Delete> deletes) {
-    executor.delete(deletes);
+  public void delete(MultiDeleteWrapper deletes) {
+    executor.delete(deletes.unwrapper());
   }
 
   @Override

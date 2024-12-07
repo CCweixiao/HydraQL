@@ -18,11 +18,9 @@
 
 package com.hydraql.metadata;
 
-import com.hydraql.common.util.BytesUtil;
 import com.hydraql.common.util.StringUtil;
-import com.hydraql.exceptions.InvalidTableModelClassException;
-import com.hydraql.reflectasm.invoker.Invoker;
 import com.hydraql.generator.RowKeyGenerator;
+import com.hydraql.reflectasm.invoker.Invoker;
 import com.hydraql.type.ColumnType;
 import com.hydraql.type.TypeHandler;
 import com.hydraql.util.Preconditions;
@@ -35,10 +33,9 @@ import java.nio.ByteBuffer;
  * @author leojie 2022/11/20 16:49
  */
 public abstract class HFieldInfo implements Serializable {
-  private static final long serialVersionUID = 3663662954420611000L;
+  private static final long serialVersionUID = -1453016266875621946L;
 
   protected static final Object[] NO_ARGUMENTS = {};
-
   private final String name;
   private final Class<?> type;
   private final TypeHandler<?> typeHandler;
@@ -183,14 +180,10 @@ public abstract class HFieldInfo implements Serializable {
         throw new IllegalStateException(
             String.format("The value of column [%s] can not be null.", this.getName()));
       }
-      if (rowKeyGenerator == null || rowKeyGenerator.isDefault()) {
+      if (rowKeyGenerator == null) {
         return value;
       }
-      if (this.getType() != String.class) {
-        throw new InvalidTableModelClassException(
-            "RowKeyGenerator cannot be used for non-string type row key.");
-      }
-      return rowKeyGenerator.apply(value.toString());
+      return rowKeyGenerator.apply(value);
     }
 
     @Override
@@ -198,32 +191,27 @@ public abstract class HFieldInfo implements Serializable {
       if (value == null) {
         return;
       }
-      if (rowKeyGenerator == null || rowKeyGenerator.isDefault()) {
+      if (rowKeyGenerator == null) {
         this.getSetMethodInvoker().invoke(object, new Object[] { value });
         return;
       }
-      if (this.getType() != String.class) {
-        throw new InvalidTableModelClassException(
-            "RowKeyGenerator cannot be used for non-string type row key.");
-      }
-      String originalRow = rowKeyGenerator.recover(value.toString());
+      Object originalRow = rowKeyGenerator.recover(value);
       this.getSetMethodInvoker().invoke(object, new Object[] { originalRow });
     }
 
-    public byte[] getRow(Object value) {
-      if (value == null) {
-        throw new IllegalStateException("The value can not be null.");
-      }
-      if (rowKeyGenerator == null || rowKeyGenerator.isDefault()) {
-        return this.getTypeHandler().toBytes(this.getType(), value);
-      }
-      if (this.getType() != String.class) {
-        throw new InvalidTableModelClassException(
-            "RowKeyGenerator cannot be used for non-string type row key.");
-      }
-      return BytesUtil.toBytes(rowKeyGenerator.apply(value.toString()));
-    }
-
+    // public byte[] getRow(Object value) {
+    // if (value == null) {
+    // throw new IllegalStateException("The value can not be null.");
+    // }
+    // if (rowKeyGenerator == null || rowKeyGenerator.isDefault()) {
+    // return this.getTypeHandler().toBytes(this.getType(), value);
+    // }
+    // if (this.getType() != String.class) {
+    // throw new InvalidTableModelClassException(
+    // "RowKeyGenerator cannot be used for non-string type row key.");
+    // }
+    // return rowKeyGenerator.applyToBytes(value);
+    // }
   }
 
   public static class Qualifier extends HFieldInfo implements Comparable<Qualifier> {
@@ -302,7 +290,7 @@ public abstract class HFieldInfo implements Serializable {
       this.getSetMethodInvoker().invoke(object, new Object[] { value });
     }
 
-    public String getFamilyString() {
+    public String getFamilyAsString() {
       return familyString;
     }
 
@@ -310,7 +298,7 @@ public abstract class HFieldInfo implements Serializable {
       return family;
     }
 
-    public String getQualifierString() {
+    public String getQualifierAsString() {
       return qualifierString;
     }
 

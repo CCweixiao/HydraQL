@@ -23,7 +23,6 @@ import com.hydraql.adapter.schema.HTableDesc;
 import com.hydraql.common.util.SplitGoEnum;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -81,9 +80,9 @@ public class HBaseAdminTemplateTest {
             .setConfiguration("hbase.hstore.blockingStoreFiles", "120")
             .setValue("CUSTOM_KEY", "custom_value").build())
         .setValue("CUSTOM_KEY", "custom_value").build();
-    TableDescriptor tableDescriptor = tableDesc.convertTo();
-    String customKey = tableDescriptor.getValue("CUSTOM_KEY");
-    String stringCustomizedValues = tableDescriptor.toStringCustomizedValues();
+    // TableDescriptor tableDescriptor = tableDesc.convertTo();
+    // String customKey = tableDescriptor.getValue("CUSTOM_KEY");
+    // String stringCustomizedValues = tableDescriptor.toStringCustomizedValues();
     String humanReadableTTL = tableDesc.getColumnFamilyDescList().get(0).getHumanReadableTTL();
     System.out.println(humanReadableTTL);
   }

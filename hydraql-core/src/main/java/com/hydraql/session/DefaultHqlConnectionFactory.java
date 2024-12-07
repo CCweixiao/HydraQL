@@ -18,7 +18,7 @@
 
 package com.hydraql.session;
 
-import com.hydraql.AbstractHqlTable;
+import com.hydraql.HqlTable;
 
 import java.io.IOException;
 
@@ -34,7 +34,7 @@ public class DefaultHqlConnectionFactory implements HqlConnectionFactory {
   }
 
   @Override
-  public HqlConnection newConnection(AbstractHqlTable table) throws IOException {
+  public HqlConnection newConnection(HqlTable table) throws IOException {
     return new HqlConnection(table);
   }
 }

@@ -25,16 +25,28 @@ public interface RowKeyGenerator {
   /**
    * The original row key gets a new row key after applying the generation strategy.
    * @param originalRow original row key
-   * @return new row key
+   * @return new row key after applying the row generation strategy
    */
-  String apply(String originalRow);
+  Object apply(Object originalRow);
 
   /**
-   * Restore the generated key
+   * The original row key gets a new bytes[] row key after applying the generation strategy.
+   * @param originalRow original row key
+   * @return new bytes[] row key after applying the row generation strategy
+   */
+  byte[] applyToBytes(Object originalRow);
+
+  /**
+   * Recover the generated key
    * @param generatedRow generated row key
    * @return original row key
    */
-  String recover(String generatedRow);
+  Object recover(Object generatedRow);
 
-  boolean isDefault();
+  /**
+   * Recover the generated row, return byte[]
+   * @param generatedRow generated row key
+   * @return original row key, byte[]
+   */
+  byte[] recoverToBytes(byte[] generatedRow);
 }

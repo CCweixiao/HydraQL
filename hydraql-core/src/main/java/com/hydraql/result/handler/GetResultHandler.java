@@ -18,6 +18,8 @@
 
 package com.hydraql.result.handler;
 
+import com.hydraql.generator.RowKeyGenerationStrategy;
+
 /**
  * @author leojie@apache.org 2024/8/18 23:07
  */
@@ -29,4 +31,8 @@ public interface GetResultHandler<E> {
    * @throws Exception throw error
    */
   <R> E handleResult(R r) throws Exception;
+
+  default <R> E handleResult(R r, RowKeyGenerationStrategy strategy) throws Exception {
+    throw new UnsupportedOperationException("Need to provide implementation");
+  }
 }

@@ -16,29 +16,39 @@
  * limitations under the License.
  */
 
-package com.hydraql.generator;
+package com.hydraql.wrapper;
 
 /**
- * @author leojie@apache.org 2024/8/11 20:14
+ * @author leojie@apache.org 2024/12/7 11:30
  */
-public class RowKeyNothingGenerator implements RowKeyGenerator {
+public class ScanWrapper extends BaseScanWrapper {
+
   @Override
-  public Object apply(Object originalRow) {
-    return originalRow;
+  public BaseScanWrapper includeStartRow(byte[] startRow, boolean inclusive) {
+    this.setStartRow(startRow);
+    return this;
   }
 
   @Override
-  public byte[] applyToBytes(Object originalRow) {
-    throw new UnsupportedOperationException();
+  public BaseScanWrapper includeStartRow(byte[] startRow) {
+    this.setStartRow(startRow);
+    return this;
   }
 
   @Override
-  public Object recover(Object generatedRow) {
-    return generatedRow;
+  public BaseScanWrapper includeStopRow(byte[] stopRow, boolean inclusive) {
+    this.setStopRow(stopRow);
+    return this;
   }
 
   @Override
-  public byte[] recoverToBytes(byte[] generatedRow) {
-    throw new UnsupportedOperationException();
+  public BaseScanWrapper includeStopRow(byte[] stopRow) {
+    this.setStopRow(stopRow);
+    return this;
+  }
+
+  @Override
+  public BaseScanWrapper withLimit(int limit) {
+    return this;
   }
 }

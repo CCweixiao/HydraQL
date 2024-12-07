@@ -18,6 +18,7 @@
 
 package com.hydraql.result.handler;
 
+import com.hydraql.generator.RowKeyGenerationStrategy;
 import com.hydraql.result.GetResult;
 import com.hydraql.result.MultiGetResult;
 
@@ -25,20 +26,42 @@ import com.hydraql.result.MultiGetResult;
  * @author leojie@apache.org 2024/11/17 18:46
  */
 public class DefaultMultiGetResultHandler extends DefaultGetResultHandler
-    implements MultiGetResultHandler<MultiGetResult> {
+    implements MultiGetResultHandler<MultiGetResult<GetResult>> {
 
   @Override
-  public <R> MultiGetResult handleResult(R[] rs) throws Exception {
+  public <R> MultiGetResult<GetResult> handleResult(R[] rs) throws Exception {
     if (null == rs || rs.length == 0) {
-      return null;
+      return new MultiGetResult<>();
     }
-    MultiGetResult multiGetResult = new MultiGetResult();
+
+    MultiGetResult<GetResult> multiGetResult = new MultiGetResult<>();
     for (R r : rs) {
       GetResult result = handleResult(r);
       if (result == null) {
         continue;
       }
-      multiGetResult.appendValue(result);
+      multiGetResult.appendResult(result.getRow(), result);
+    }
+    return multiGetResult;
+  }
+
+  @Override
+  public <R> MultiGetResult<GetResult> handleResult(R[] rs, RowKeyGenerationStrategy strategy)
+      throws Exception {
+    if (strategy == null || strategy.isNotDefined()) {
+      return handleResult(rs);
+    }
+
+    if (null == rs || rs.length == 0) {
+      return new MultiGetResult<>();
+    }
+    MultiGetResult<GetResult> multiGetResult = new MultiGetResult<>();
+    for (R r : rs) {
+      GetResult result = handleResult(r, strategy);
+      if (result == null) {
+        continue;
+      }
+      multiGetResult.appendResult(result.getRow(), result);
     }
     return multiGetResult;
   }

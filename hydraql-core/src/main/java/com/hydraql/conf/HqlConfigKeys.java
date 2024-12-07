@@ -33,9 +33,9 @@ public interface HqlConfigKeys {
 
     String DEFAULT_STRATEGY = "NONE";
 
-    String WRITE_DISABLE = PREFIX + "write.disable";
+    String WRITE_ENABLE = PREFIX + "write.enable";
 
-    boolean DEFAULT_WRITE_DISABLE = false;
+    boolean DEFAULT_WRITE_ENABLE = false;
 
     String OVERALL_TIMEOUT_MILLIS = PREFIX + "overall.timeout.millis";
 

@@ -50,7 +50,6 @@ public class GetResultToEntityClassHandler<E> implements GetResultHandler<E> {
     E entity = tableInfo.newInstance();
     HFieldInfo.RowKey rowKey = tableInfo.getRowKey();
     rowKey.setBytesValue(entity, result.getRow());
-
     List<HFieldInfo.Qualifier> qualifiers = tableInfo.getQualifiers();
     for (HFieldInfo.Qualifier qualifier : qualifiers) {
       byte[] value = result.getValue(qualifier.getFamily(), qualifier.getQualifier());

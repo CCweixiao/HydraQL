@@ -18,37 +18,59 @@
 
 package com.hydraql.result.handler;
 
+import com.hydraql.generator.RowKeyGenerationStrategy;
 import com.hydraql.metadata.HTableInfo;
+import com.hydraql.result.MultiGetResult;
 import org.apache.hadoop.hbase.client.Result;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * @author leojie@apache.org 2024/9/4 22:01
  */
 public class MultiGetResultToEntityClassHandler<E> extends GetResultToEntityClassHandler<E>
-    implements MultiGetResultHandler<Map<byte[], E>> {
+    implements MultiGetResultHandler<MultiGetResult<E>> {
 
   public MultiGetResultToEntityClassHandler(HTableInfo tableInfo) {
     super(tableInfo);
   }
 
   @Override
-  public <R> Map<byte[], E> handleResult(R[] rs) throws Exception {
+  public <R> MultiGetResult<E> handleResult(R[] rs) throws Exception {
     if (null == rs || rs.length == 0) {
-      return Collections.emptyMap();
+      return new MultiGetResult<>();
     }
-    Map<byte[], E> resultMap = new HashMap<>(rs.length);
+
+    MultiGetResult<E> multiGetResult = new MultiGetResult<>();
     for (R r : rs) {
       E e = handleResult(r);
       if (e == null) {
         continue;
       }
+
       Result result = (Result) r;
-      resultMap.put(result.getRow(), e);
+      multiGetResult.appendResult(result.getRow(), e);
     }
-    return resultMap;
+    return multiGetResult;
+  }
+
+  @Override
+  public <R> MultiGetResult<E> handleResult(R[] rs, RowKeyGenerationStrategy strategy)
+      throws Exception {
+    if (strategy == null || strategy.isNotDefined()) {
+      return handleResult(rs);
+    }
+
+    MultiGetResult<E> multiGetResult = new MultiGetResult<>();
+    for (R r : rs) {
+      E e = handleResult(r);
+      if (e == null) {
+        continue;
+      }
+
+      Result result = (Result) r;
+      byte[] row = strategy.getRowKeyGenerator().recoverToBytes(result.getRow());
+      multiGetResult.appendResult(row, e);
+    }
+    return multiGetResult;
   }
 }

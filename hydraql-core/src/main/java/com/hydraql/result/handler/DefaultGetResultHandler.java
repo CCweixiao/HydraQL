@@ -18,6 +18,8 @@
 
 package com.hydraql.result.handler;
 
+import com.hydraql.generator.RowKeyGenerationStrategy;
+import com.hydraql.generator.RowKeyGenerator;
 import com.hydraql.result.GetResult;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -37,6 +39,28 @@ public class DefaultGetResultHandler implements GetResultHandler<GetResult> {
       return null;
     }
     GetResult getResult = new GetResult(result.getRow());
+    for (Cell cell : result.rawCells()) {
+      getResult.appendValue(CellUtil.cloneFamily(cell), CellUtil.cloneQualifier(cell),
+        CellUtil.cloneValue(cell), cell.getTimestamp());
+    }
+    return getResult;
+  }
+
+  @Override
+  public <R> GetResult handleResult(R r, RowKeyGenerationStrategy strategy) throws Exception {
+    if (strategy == null || strategy.isNotDefined()) {
+      return handleResult(r);
+    }
+    if (r == null) {
+      return null;
+    }
+    Result result = (Result) r;
+    if (result.isEmpty()) {
+      return null;
+    }
+
+    GetResult getResult =
+        new GetResult(strategy.getRowKeyGenerator().recoverToBytes(result.getRow()));
     for (Cell cell : result.rawCells()) {
       getResult.appendValue(CellUtil.cloneFamily(cell), CellUtil.cloneQualifier(cell),
         CellUtil.cloneValue(cell), cell.getTimestamp());

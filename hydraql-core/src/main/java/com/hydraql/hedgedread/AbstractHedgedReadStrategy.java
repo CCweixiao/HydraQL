@@ -113,6 +113,6 @@ public abstract class AbstractHedgedReadStrategy implements HedgedReadStrategy {
     if (!isWrite) {
       return false;
     }
-    return executor.getConfiguration().getHedgedReadProperty().isHedgedReadWriteDisable();
+    return !executor.getConfiguration().getHedgedReadProperty().isHedgedReadWriteEnable();
   }
 }

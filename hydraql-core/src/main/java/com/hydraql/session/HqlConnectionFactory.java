@@ -18,7 +18,7 @@
 
 package com.hydraql.session;
 
-import com.hydraql.AbstractHqlTable;
+import com.hydraql.HqlTable;
 
 import java.io.IOException;
 
@@ -26,5 +26,5 @@ import java.io.IOException;
  * @author leojie@apache.org 2024/9/4 23:06
  */
 public interface HqlConnectionFactory {
-  HqlConnection newConnection(AbstractHqlTable table) throws IOException;
+  HqlConnection newConnection(HqlTable table) throws IOException;
 }

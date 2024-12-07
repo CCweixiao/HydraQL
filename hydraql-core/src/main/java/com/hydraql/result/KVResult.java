@@ -18,6 +18,7 @@
 
 package com.hydraql.result;
 
+import com.hydraql.convertor.ValueConvertor;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.math.BigDecimal;
@@ -88,10 +89,6 @@ public abstract class KVResult {
     public byte[] getValue() {
       return value;
     }
-
-    interface Supplier<T> {
-      T get(byte[] V);
-    }
   }
 
   public byte[] getValue(String family, String qualifier) {
@@ -108,38 +105,30 @@ public abstract class KVResult {
   }
 
   public String getValueAsString(String family, String qualifier) {
-    return getValue(family, qualifier, Bytes::toString);
-  }
-
-  public Integer getValueAsInt(String family, String qualifier) {
-    return getValue(family, qualifier, Bytes::toInt);
-  }
-
-  public Long getValueAsLong(String family, String qualifier) {
-    return getValue(family, qualifier, Bytes::toLong);
-  }
-
-  public Double getValueAsDouble(String family, String qualifier) {
-    return getValue(family, qualifier, Bytes::toDouble);
-  }
-
-  public Float getValueAsFloat(String family, String qualifier) {
-    return getValue(family, qualifier, Bytes::toFloat);
+    return ValueConvertor.getValueAsString(getValue(family, qualifier));
   }
 
   public Boolean getValueAsBoolean(String family, String qualifier) {
-    return getValue(family, qualifier, Bytes::toBoolean);
+    return ValueConvertor.getValueAsBoolean(getValue(family, qualifier));
+  }
+
+  public Integer getValueAsInteger(String family, String qualifier) {
+    return ValueConvertor.getValueAsInteger(getValue(family, qualifier));
+  }
+
+  public Long getValueAsLong(String family, String qualifier) {
+    return ValueConvertor.getValueAsLong(getValue(family, qualifier));
   }
 
   public BigDecimal getValueAsBigDecimal(String family, String qualifier) {
-    return getValue(family, qualifier, Bytes::toBigDecimal);
+    return ValueConvertor.getValueAsBigDecimal(getValue(family, qualifier));
   }
 
-  private <T> T getValue(String family, String qualifier, ResultData.Supplier<T> valueParser) {
-    byte[] value = getValue(family, qualifier);
-    if (value == null) {
-      return null;
-    }
-    return valueParser.get(value);
+  public Double getValueAsDouble(String family, String qualifier) {
+    return ValueConvertor.getValueAsDouble(getValue(family, qualifier));
+  }
+
+  public Float getValueAsFloat(String family, String qualifier) {
+    return ValueConvertor.getValueAsFloat(getValue(family, qualifier));
   }
 }

@@ -21,8 +21,10 @@ package com.hydraql.executor;
 import com.hydraql.result.GetResult;
 import com.hydraql.result.MultiGetResult;
 import com.hydraql.result.ScanResult;
-import com.hydraql.conf.AbstractHqlConfiguration;
+import com.hydraql.conf.HqlConfiguration;
 import com.hydraql.session.HqlConnection;
+import com.hydraql.wrapper.GetWrapper;
+import com.hydraql.wrapper.MultiGetWrapper;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Mutation;
@@ -36,17 +38,17 @@ import java.util.Map;
  * @author leojie@apache.org 2024/8/18 22:58
  */
 public interface Executor {
-  AbstractHqlConfiguration getConfiguration();
+  HqlConfiguration getConfiguration();
 
   HqlConnection getConnection();
 
-  <E> E get(Get get, Class<E> entityClass);
+  <E> E get(GetWrapper get, Class<E> entityClass);
 
-  GetResult get(Get get);
+  GetResult get(GetWrapper get);
 
-  <E> Map<byte[], E> get(List<Get> gets, Class<E> entityClass);
+  <E> MultiGetResult<E> get(MultiGetWrapper gets, Class<E> entityClass);
 
-  MultiGetResult get(List<Get> gets);
+  MultiGetResult<GetResult> get(MultiGetWrapper gets);
 
   <E> List<E> scan(Scan scan, Class<E> entityClass);
 
@@ -55,6 +57,10 @@ public interface Executor {
   void put(Put put);
 
   void put(List<Put> puts);
+
+  <E> void put(E entity);
+
+  <E> void multiPut(List<E> entities);
 
   void delete(Delete delete);
 

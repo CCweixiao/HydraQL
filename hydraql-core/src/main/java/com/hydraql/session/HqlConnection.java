@@ -18,7 +18,7 @@
 
 package com.hydraql.session;
 
-import com.hydraql.AbstractHqlTable;
+import com.hydraql.HqlTable;
 import com.hydraql.conf.BufferedMutatorOptions;
 import com.hydraql.mutator.WrapperBufferedMutator;
 import com.hydraql.mutator.WrapperBufferedMutatorImpl;
@@ -48,11 +48,11 @@ public class HqlConnection {
   private WrapperBufferedMutator wrapperBufferedMutator;
   private WrapperBufferedMutator hedgedReadWrapperBufferedMutator;
 
-  public HqlConnection(AbstractHqlTable table) throws IOException {
+  public HqlConnection(HqlTable table) throws IOException {
     this.bufferedMutatorOptions = table.getBufferedMutatorOptions();
     this.tableName = table.getTableName();
-    this.configuration = table.getConfiguration().getHBaseConfiguration();
-    this.hedgedConfiguration = table.getConfiguration().getHBaseHedgedReadConfiguration();
+    this.configuration = table.getConfiguration();
+    this.hedgedConfiguration = table.getConfiguration().getHedgedReadConfiguration();
     this.openHydraQlConnection();
     this.openHedgedHydraQlConnection();
   }

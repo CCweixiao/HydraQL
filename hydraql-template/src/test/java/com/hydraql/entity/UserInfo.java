@@ -16,19 +16,19 @@
  * limitations under the License.
  */
 
-package com.hydraql.template.model;
+package com.hydraql.entity;
 
 import com.hydraql.annotation.GeneratedValue;
-import com.hydraql.generator.RowKeyGenerationStrategy;
 import com.hydraql.annotation.HBaseField;
 import com.hydraql.annotation.HBaseRowKey;
 import com.hydraql.annotation.HBaseTable;
+import com.hydraql.generator.RowKeyGenerationStrategy;
 
 /**
  * @author leojie@apache.org 2024/7/22 22:23
  */
-@HBaseTable(tableName = "user_info", defaultFamily = "cf")
-public class UserData {
+@HBaseTable(tableName = "hydraql_test_table", defaultFamily = "cf")
+public class UserInfo {
   @HBaseRowKey
   @GeneratedValue(strategy = RowKeyGenerationStrategy.HASHING)
   private String userId;
@@ -39,11 +39,17 @@ public class UserData {
   @HBaseField
   private Integer age;
 
-  @HBaseField
+  @HBaseField(qualifier = "is_student")
   private Boolean isStudent;
 
   @HBaseField
   private Double cost;
+
+  @HBaseField
+  private String address;
+
+  @HBaseField
+  private Long createdTime;
 
   public String getUserId() {
     return userId;
@@ -83,5 +89,21 @@ public class UserData {
 
   public void setCost(Double cost) {
     this.cost = cost;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+
+  public Long getCreatedTime() {
+    return createdTime;
+  }
+
+  public void setCreatedTime(Long createdTime) {
+    this.createdTime = createdTime;
   }
 }

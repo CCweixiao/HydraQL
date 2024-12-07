@@ -103,6 +103,7 @@ public class HTableInfo implements Serializable {
     Preconditions.checkNotNull(rowKey, "rowKey cannot be null");
     if (this.rowKey == null) {
       this.rowKey = rowKey;
+      return;
     }
     throw new InvalidTableModelClassException(
         String.format("The model class [%s] contains more than one row key.",
@@ -110,7 +111,7 @@ public class HTableInfo implements Serializable {
   }
 
   public void appendQualifier(HFieldInfo.Qualifier qualifier) {
-    Preconditions.checkNotNull(rowKey, "qualifier cannot be null");
+    Preconditions.checkNotNull(qualifier, "qualifier cannot be null");
     if (qualifiers.contains(qualifier)) {
       throw new InvalidTableModelClassException(
           String.format("The qualifier [%s] has been added.", qualifier.getName()));

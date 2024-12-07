@@ -25,7 +25,7 @@ import com.hydraql.annotation.HBaseTable;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.exceptions.InvalidTableModelClassException;
 import com.hydraql.reflectasm.Reflector;
-import com.hydraql.generator.GenerationType;
+import com.hydraql.generator.RowKeyGenerationStrategy;
 import com.hydraql.generator.RowKeyGenerator;
 import com.hydraql.type.SimpleTypeRegistry;
 import com.hydraql.util.AnnotationUtils;
@@ -214,23 +214,24 @@ public class HTableInfoContainer {
 
   private static RowKeyMeta extractRowKeyMetaData(Field field) {
     boolean fieldIsRow = AnnotationUtils.isAnnotationPresent(field, HBaseRowKey.class);
-    boolean fieldIsColumn = AnnotationUtils.isAnnotationPresent(field, HBaseField.class);
     if (!fieldIsRow) {
       return null;
     }
+    boolean fieldIsColumn = AnnotationUtils.isAnnotationPresent(field, HBaseField.class);
     if (fieldIsColumn) {
       throw new InvalidTableModelClassException(
           "The field of model class cannot be defined by @HBaseField and @HBaseRowKey at the same time.");
     }
-    GeneratedValue rowKeyGenerator = AnnotationUtils.getAnnotation(field, GeneratedValue.class);
-    if (null != rowKeyGenerator) {
-      GenerationType strategy = rowKeyGenerator.strategy();
-      if (strategy == null) {
-        strategy = GenerationType.NOTHING;
-      }
-      return new RowKeyMeta(field.getName(), strategy.getRowKeyGenerator());
+    RowKeyGenerationStrategy rowGenerationStrategy = RowKeyGenerationStrategy.NOTHING;
+    GeneratedValue generatedValue = AnnotationUtils.getAnnotation(field, GeneratedValue.class);
+    if (null != generatedValue) {
+      rowGenerationStrategy = generatedValue.strategy();
     }
-    return new RowKeyMeta(field.getName(), GenerationType.NOTHING.getRowKeyGenerator());
+    if (rowGenerationStrategy.isNotDefined()) {
+      return new RowKeyMeta(field.getName(), null);
+    } else {
+      return new RowKeyMeta(field.getName(), rowGenerationStrategy.getRowKeyGenerator());
+    }
   }
 
   private static class ColumnMeta {

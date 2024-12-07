@@ -19,29 +19,47 @@
 package com.hydraql.generator;
 
 import com.hydraql.common.util.StringUtil;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import java.util.Objects;
 
 /**
  * @author leojie@apache.org 2024/8/10 23:38
  */
 public class RowKeyReverseGenerator implements RowKeyGenerator {
   @Override
-  public String apply(String originalRow) {
-    if (StringUtil.isBlank(originalRow)) {
-      return originalRow;
+  public Object apply(Object originalRow) {
+    String row = Objects.toString(originalRow, null);
+    if (StringUtil.isBlank(row)) {
+      return row;
     }
-    return StringUtil.reverse(originalRow);
+    return StringUtil.reverse(row);
   }
 
   @Override
-  public String recover(String generatedRow) {
-    if (StringUtil.isBlank(generatedRow)) {
-      return generatedRow;
+  public byte[] applyToBytes(Object originalRow) {
+    Object value = apply(originalRow);
+    if (value == null) {
+      return null;
     }
-    return StringUtil.reverse(generatedRow);
+    return Bytes.toBytes(value.toString());
   }
 
   @Override
-  public boolean isDefault() {
-    return false;
+  public Object recover(Object generatedRow) {
+    String row = Objects.toString(generatedRow, null);
+    if (row == null) {
+      return null;
+    }
+    return StringUtil.reverse(row);
+  }
+
+  @Override
+  public byte[] recoverToBytes(byte[] generatedRow) {
+    String row = Bytes.toString(generatedRow);
+    if (row == null) {
+      return null;
+    }
+    return Bytes.toBytes(StringUtil.reverse(row));
   }
 }

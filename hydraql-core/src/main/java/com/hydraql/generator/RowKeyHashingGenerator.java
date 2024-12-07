@@ -18,40 +18,68 @@
 
 package com.hydraql.generator;
 
-import com.hydraql.common.util.DigestUtil;
 import com.hydraql.common.util.StringUtil;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.util.MD5Hash;
+
+import java.util.Objects;
 
 /**
  * @author leojie@apache.org 2024/8/10 23:40
  */
 public class RowKeyHashingGenerator implements RowKeyGenerator {
-  private static final int DEFAULT_STEP = 4;
+  private static final int DEFAULT_STEP = 8;
   private static final String DELIMITER = "|";
-  private static final int HASHING_PREFIX_LENGTH = DEFAULT_STEP + DELIMITER.length();
 
   @Override
-  public String apply(String originalRow) {
-    if (StringUtil.isBlank(originalRow)) {
+  public Object apply(Object originalRow) {
+    String row = Objects.toString(originalRow, null);
+    if (StringUtil.isBlank(row)) {
+      return row;
+    }
+    String md5AsHex = MD5Hash.getMD5AsHex(Bytes.toBytes(row));
+    return md5AsHex.substring(0, DEFAULT_STEP) + DELIMITER + originalRow;
+  }
+
+  @Override
+  public byte[] applyToBytes(Object originalRow) {
+    Object value = apply(originalRow);
+    if (value == null) {
+      return null;
+    }
+    return Bytes.toBytes(value.toString());
+  }
+
+  @Override
+  public Object recover(Object generatedRow) {
+    String row = Objects.toString(generatedRow, null);
+    if (StringUtil.isBlank(row)) {
+      return generatedRow;
+    }
+    return recover(row);
+  }
+
+  private Object recover(String row) {
+    int index = row.indexOf(DELIMITER);
+    if (index == -1) {
+      return row;
+    }
+    String realPrefix = row.substring(0, index);
+    String originalRow = row.substring(index + 1);
+    String md5AsHex = MD5Hash.getMD5AsHex(Bytes.toBytes(originalRow));
+    String computePrefix = md5AsHex.substring(0, DEFAULT_STEP);
+    if (computePrefix.equals(realPrefix)) {
       return originalRow;
     }
-    String md5Key = DigestUtil.md5Hex(originalRow);
-    long hashCode = Math.abs(md5Key.hashCode());
-    return String.valueOf(hashCode).substring(0, DEFAULT_STEP) + DELIMITER + originalRow;
+    return row;
   }
 
   @Override
-  public String recover(String generatedRow) {
-    if (StringUtil.isBlank(generatedRow)) {
-      return generatedRow;
+  public byte[] recoverToBytes(byte[] generatedRow) {
+    String row = Bytes.toString(generatedRow);
+    if (row == null) {
+      return null;
     }
-    if (generatedRow.length() <= HASHING_PREFIX_LENGTH) {
-      return generatedRow;
-    }
-    return generatedRow.substring(HASHING_PREFIX_LENGTH);
-  }
-
-  @Override
-  public boolean isDefault() {
-    return false;
+    return Bytes.toBytes(recover(row).toString());
   }
 }

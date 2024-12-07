@@ -18,9 +18,9 @@
 
 package com.hydraql.session;
 
-import com.hydraql.AbstractHqlTable;
+import com.hydraql.HqlTable;
 import com.hydraql.exceptions.HydraQlException;
-import com.hydraql.executor.BaseExecutor;
+import com.hydraql.executor.HqlExecutor;
 
 import java.io.IOException;
 
@@ -28,13 +28,13 @@ import java.io.IOException;
  * @author leojie@apache.org 2024/9/7 22:20
  */
 public class DefaultHqlSessionFactory implements HqlSessionFactory {
-  private final AbstractHqlTable table;
+  private final HqlTable table;
 
-  private DefaultHqlSessionFactory(AbstractHqlTable table) {
+  private DefaultHqlSessionFactory(HqlTable table) {
     this.table = table;
   }
 
-  public static DefaultHqlSessionFactory newInstance(AbstractHqlTable table) {
+  public static DefaultHqlSessionFactory newInstance(HqlTable table) {
     return new DefaultHqlSessionFactory(table);
   }
 
@@ -49,7 +49,7 @@ public class DefaultHqlSessionFactory implements HqlSessionFactory {
       connection = DefaultHqlConnectionFactory.create().newConnection(table);
       // bind hydraql connection for hydraql table
       table.bindConnection(connection);
-      final BaseExecutor executor = table.newExecutor();
+      final HqlExecutor executor = table.newExecutor();
       return createSession(executor);
     } catch (Exception e) {
       closeConnection(connection);
@@ -57,7 +57,7 @@ public class DefaultHqlSessionFactory implements HqlSessionFactory {
     }
   }
 
-  private HqlSession createSession(BaseExecutor executor) {
+  private HqlSession createSession(HqlExecutor executor) {
     return new DefaultHqlSession(executor);
   }
 

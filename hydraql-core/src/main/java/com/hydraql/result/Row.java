@@ -16,29 +16,45 @@
  * limitations under the License.
  */
 
-package com.hydraql.generator;
+package com.hydraql.result;
+
+import org.apache.hadoop.hbase.util.Bytes;
+
+import java.io.Serializable;
 
 /**
- * @author leojie@apache.org 2024/8/11 20:14
+ * @author leojie@apache.org 2024/12/7 18:54
  */
-public class RowKeyNothingGenerator implements RowKeyGenerator {
-  @Override
-  public Object apply(Object originalRow) {
-    return originalRow;
+class Row implements Serializable {
+  private static final long serialVersionUID = 4741043194136389238L;
+
+  private final byte[] row;
+
+  private Row(byte[] row) {
+    this.row = row;
+  }
+
+  public static Row of(byte[] row) {
+    return new Row(row);
+  }
+
+  public byte[] getRow() {
+    return row.clone();
   }
 
   @Override
-  public byte[] applyToBytes(Object originalRow) {
-    throw new UnsupportedOperationException();
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    return Bytes.equals(this.row, ((Row) o).row);
   }
 
   @Override
-  public Object recover(Object generatedRow) {
-    return generatedRow;
-  }
-
-  @Override
-  public byte[] recoverToBytes(byte[] generatedRow) {
-    throw new UnsupportedOperationException();
+  public int hashCode() {
+    return Bytes.hashCode(this.row);
   }
 }

@@ -21,14 +21,16 @@ package com.hydraql.session;
 import com.hydraql.result.GetResult;
 import com.hydraql.result.MultiGetResult;
 import com.hydraql.result.ScanResult;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Scan;
+import com.hydraql.wrapper.BaseScanWrapper;
+import com.hydraql.wrapper.DeleteWrapper;
+import com.hydraql.wrapper.GetWrapper;
+import com.hydraql.wrapper.MultiDeleteWrapper;
+import com.hydraql.wrapper.MultiGetWrapper;
+import com.hydraql.wrapper.MultiPutWrapper;
+import com.hydraql.wrapper.PutWrapper;
 
 import java.io.Closeable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The primary Java interface for working with HydraQl. Through this interface you can execute
@@ -36,29 +38,29 @@ import java.util.Map;
  * @author leojie@apache.org 2024/8/18 19:29
  */
 public interface HqlSession extends Closeable {
-  <E> E get(Get get, Class<E> entityClass);
+  <E> E get(GetWrapper get, Class<E> entityClass);
 
-  GetResult get(Get get);
+  GetResult get(GetWrapper get);
 
-  <E> Map<byte[], E> get(List<Get> gets, Class<E> entityClass);
+  <E> MultiGetResult<E> multiGet(MultiGetWrapper gets, Class<E> entityClass);
 
-  MultiGetResult get(List<Get> gets);
+  MultiGetResult<GetResult> multiGet(MultiGetWrapper gets);
 
-  <E> List<E> scan(Scan scan, Class<E> entityClass);
+  <E> List<E> scan(BaseScanWrapper scan, Class<E> entityClass);
 
-  ScanResult scan(Scan scan);
+  ScanResult scan(BaseScanWrapper scan);
 
-  void put(Put put);
+  void put(PutWrapper put);
 
-  void put(List<Put> puts);
+  void multiPut(MultiPutWrapper put);
 
-  <E> void put(E entity, Class<E> entityClass);
+  <E> void put(E entity);
 
-  <E> void put(List<E> entities, Class<E> entityClass);
+  <E> void multiPut(List<E> entities);
 
-  void delete(Delete delete);
+  void delete(DeleteWrapper delete);
 
-  void delete(List<Delete> deletes);
+  void delete(MultiDeleteWrapper deletes);
 
   void close();
 }

@@ -18,32 +18,36 @@
 
 package com.hydraql.result;
 
+import com.hydraql.convertor.ValueConvertor;
+
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author leojie@apache.org 2024/11/17 17:44
  */
-public class MultiGetResult {
-  private final Map<byte[], GetResult> results;
+public class MultiGetResult<E> extends HashMap<Row, E> {
+  private static final long serialVersionUID = -4507545878111543637L;
 
   public MultiGetResult() {
-    this.results = new HashMap<>();
   }
 
-  public void appendValue(GetResult result) {
-    results.put(result.getRow(), result);
+  public void appendResult(byte[] row, E result) {
+    this.put(Row.of(row), result);
   }
 
-  public Map<byte[], GetResult> getResults() {
-    return results;
+  public E getResult(byte[] row) {
+    return this.get(Row.of(row));
   }
 
-  public GetResult getResult(byte[] row) {
-    return results.get(row);
+  public E getResult(String row) {
+    return getResult(ValueConvertor.toBytes(row));
   }
 
-  public boolean isEmpty() {
-    return results.isEmpty();
+  public E getResult(Integer row) {
+    return getResult(ValueConvertor.toBytes(row));
+  }
+
+  public E getResult(Long row) {
+    return getResult(ValueConvertor.toBytes(row));
   }
 }
