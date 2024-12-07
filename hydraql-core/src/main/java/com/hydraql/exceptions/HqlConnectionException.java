@@ -21,18 +21,18 @@ package com.hydraql.exceptions;
 /**
  * @author leojie 2021/2/9 10:50 下午
  */
-public class HydraQLConnectionException extends HydraQLBaseException {
-  private static final long serialVersionUID = -6323264432916489904L;
+public class HqlConnectionException extends HqlBaseException {
+  private static final long serialVersionUID = 995246924806939587L;
 
-  public HydraQLConnectionException(String message) {
+  public HqlConnectionException(String message) {
     super(message);
   }
 
-  public HydraQLConnectionException(Throwable cause) {
+  public HqlConnectionException(Throwable cause) {
     super(cause);
   }
 
-  public HydraQLConnectionException(String message, Throwable cause) {
+  public HqlConnectionException(String message, Throwable cause) {
     super(message, cause);
   }
 }

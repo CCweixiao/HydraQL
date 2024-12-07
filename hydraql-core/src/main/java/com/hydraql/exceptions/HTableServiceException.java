@@ -21,7 +21,7 @@ package com.hydraql.exceptions;
 /**
  * @author leojie@apache.org 2024/4/7 20:49
  */
-public class HTableServiceException extends HydraQLBaseException {
+public class HTableServiceException extends HqlBaseException {
   private static final long serialVersionUID = -267537227887868439L;
 
   public HTableServiceException(String message) {

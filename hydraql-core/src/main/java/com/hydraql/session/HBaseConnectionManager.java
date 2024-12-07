@@ -21,7 +21,7 @@ package com.hydraql.session;
 import com.hydraql.common.constants.HydraQlClientConfigKeys;
 import com.hydraql.common.util.StringUtil;
 import com.hydraql.enums.AuthType;
-import com.hydraql.exceptions.HydraQLConnectionException;
+import com.hydraql.exceptions.HqlConnectionException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -32,18 +32,19 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedAction;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author leojie 2021/2/9 11:15 下午
  */
 public class HBaseConnectionManager {
   private static final Logger LOG = LoggerFactory.getLogger(HBaseConnectionManager.class);
-  private final ConcurrentMap<String, Connection> connections;
-  private final ReentrantLock connLock = new ReentrantLock();
+  private final Map<String, Connection> connections;
+  private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
   private static final AtomicBoolean kerberosEnvInit = new AtomicBoolean(false);
   private static final int KERBEROS_RE_LOGIN_MAX_RETRY = 5;
   private static final long KERBEROS_RE_LOGIN_INTERVAL = 30 * 60 * 1000L;
@@ -51,7 +52,7 @@ public class HBaseConnectionManager {
   private static volatile HBaseConnectionManager instance = null;
 
   private HBaseConnectionManager() {
-    connections = new ConcurrentHashMap<>();
+    connections = new HashMap<>();
   }
 
   public static HBaseConnectionManager getInstance() {
@@ -65,75 +66,83 @@ public class HBaseConnectionManager {
     return instance;
   }
 
-  public Connection getConnection(Configuration configuration) {
-    if (configuration == null) {
-      throw new HydraQLConnectionException("The configuration of cluster must not be null.");
+  public Connection getConnection(Configuration conf) {
+    if (conf == null) {
+      throw new HqlConnectionException("The configuration of cluster must not be null.");
     }
-    String connKey = HBaseConnectionUtil.generateUniqueConnectionKey(configuration);
+    String connKey = HBaseConnectionUtil.generateUniqueConnectionKey(conf);
     LOG.debug("Start to get connection for unique key: {}.", connKey);
-    Connection conn = connections.get(connKey);
-    if (conn != null) {
-      return conn;
-    }
-
+    rwLock.readLock().lock();
     try {
-      connLock.lock();
-      conn = connections.get(connKey);
+      Connection conn = connections.get(connKey);
       if (conn != null) {
         return conn;
       }
+    } finally {
+      rwLock.readLock().unlock();
+    }
 
-      if (isKerberosAuthType(configuration) && kerberosEnvInit.compareAndSet(false, true)) {
-        doKerberosLogin(configuration);
+    rwLock.writeLock().lock();
+    try {
+      Connection conn = connections.get(connKey);
+      if (conn != null) {
+        return conn;
       }
-
-      Connection connection;
-      if (HBaseConnectionUtil.isProxyUserEnabled(configuration)) {
-        String proxyUser = HBaseConnectionUtil.proxyUser(configuration);
-        UserGroupInformation ugi =
-            UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser());
-        connection = ugi.doAs((PrivilegedAction<Connection>) () -> {
-          try {
-            return ConnectionFactory.createConnection(configuration);
-          } catch (IOException e) {
-            LOG.error("Created hbase client connection error, the reason is ", e);
-            throw new HydraQLConnectionException(e);
-          }
-        });
-        LOG.debug("Created connection {} with proxy user {} successfully", connKey, proxyUser);
-      } else {
-        connection = ConnectionFactory.createConnection(configuration);
-        LOG.debug("Created connection {} successfully.", connKey);
-      }
-      connections.put(connKey, connection);
-      return connection;
+      return createConnection(conf, connKey);
     } catch (IOException e) {
       LOG.error("Created hbase client connection error, the reason is ", e);
-      throw new HydraQLConnectionException(e);
+      throw new HqlConnectionException(e);
     } finally {
-      connLock.unlock();
+      rwLock.writeLock().unlock();
     }
+  }
+
+  private Connection createConnection(Configuration conf, String connKey) throws IOException {
+    if (isKerberosAuthType(conf) && kerberosEnvInit.compareAndSet(false, true)) {
+      doKerberosLogin(conf);
+    }
+
+    Connection connection;
+    if (HBaseConnectionUtil.isProxyUserEnabled(conf)) {
+      String proxyUser = HBaseConnectionUtil.proxyUser(conf);
+      UserGroupInformation ugi =
+              UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser());
+      connection = ugi.doAs((PrivilegedAction<Connection>) () -> {
+        try {
+          return ConnectionFactory.createConnection(conf);
+        } catch (IOException e) {
+          LOG.error("Created hbase client connection error, the reason is ", e);
+          throw new HqlConnectionException(e);
+        }
+      });
+      LOG.debug("Created connection {} with proxy user {} successfully", connKey, proxyUser);
+    } else {
+      connection = ConnectionFactory.createConnection(conf);
+      LOG.debug("Created connection {} successfully.", connKey);
+    }
+    connections.put(connKey, connection);
+    return connection;
   }
 
   private void doKerberosLogin(Configuration configuration) {
     String principal = configuration.get(HydraQlClientConfigKeys.KERBEROS_PRINCIPAL);
     if (StringUtil.isBlank(principal)) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The kerberos principal is not empty.");
+      throw new HqlConnectionException("The kerberos principal is not empty.");
     }
     String keytab = configuration.get(HydraQlClientConfigKeys.KERBEROS_KEYTAB_FILE);
     if (StringUtil.isBlank(keytab)) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The keytab file path is not empty.");
+      throw new HqlConnectionException("The keytab file path is not empty.");
     }
     File file = new File(keytab);
     if (!file.exists()) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The keytab file is not exists.");
+      throw new HqlConnectionException("The keytab file is not exists.");
     }
     if (!file.isFile()) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The keytab file is not a file.");
+      throw new HqlConnectionException("The keytab file is not a file.");
     }
     try {
       configuration.set(HydraQlClientConfigKeys.HADOOP_SECURITY_AUTH,
@@ -144,7 +153,7 @@ public class HBaseConnectionManager {
       doKerberosReLogin();
     } catch (IOException e) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException(e);
+      throw new HqlConnectionException(e);
     }
   }
 
@@ -200,25 +209,28 @@ public class HBaseConnectionManager {
     return false;
   }
 
-  private boolean isKerberosAuthType(Configuration configuration) {
-    String authType = configuration.get(HydraQlClientConfigKeys.HBASE_SECURITY_AUTH, "");
+  private boolean isKerberosAuthType(Configuration conf) {
+    String authType = conf.get(HydraQlClientConfigKeys.HBASE_SECURITY_AUTH, "");
     return AuthType.isKerberos(authType);
   }
 
-  public void destroy() {
+  public void destroy(Configuration conf) {
+    if (conf == null) {
+      return;
+    }
+    String connKey = HBaseConnectionUtil.generateUniqueConnectionKey(conf);
+    LOG.debug("Start to release connection for unique key: {}.", connKey);
+
+    rwLock.writeLock().lock();
     try {
-      connLock.lock();
-      for (Connection connection : connections.values()) {
-        if (null == connection) {
-          continue;
-        }
-        connection.close();
+      Connection remove = connections.remove(connKey);
+      if (remove != null) {
+        remove.close();
       }
-      connections.clear();
     } catch (IOException e) {
       LOG.warn("An exception occurred while destroy resources.", e);
     } finally {
-      connLock.unlock();
+      rwLock.writeLock().unlock();
     }
   }
 }

@@ -20,7 +20,7 @@ package com.hydraql.adapter.connection;
 
 import com.hydraql.adapter.context.HTableContext;
 import com.hydraql.common.constants.HydraQlClientConfigKeys;
-import com.hydraql.exceptions.HydraQLConnectionException;
+import com.hydraql.exceptions.HqlConnectionException;
 import com.hydraql.enums.AuthType;
 import com.hydraql.common.util.StringUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -73,7 +73,7 @@ public class HBaseConnectionManager {
 
   public Connection getConnection(Configuration configuration) {
     if (configuration == null) {
-      throw new HydraQLConnectionException("The configuration of cluster must not be null.");
+      throw new HqlConnectionException("The configuration of cluster must not be null.");
     }
     String connKey = HBaseConnectionUtil.generateUniqueConnectionKey(configuration);
     LOG.debug("Start to get connection for unique key: {}.", connKey);
@@ -103,7 +103,7 @@ public class HBaseConnectionManager {
             return ConnectionFactory.createConnection(configuration);
           } catch (IOException e) {
             LOG.error("Created hbase client connection error, the reason is ", e);
-            throw new HydraQLConnectionException(e);
+            throw new HqlConnectionException(e);
           }
         });
         LOG.debug("Created connection {} with proxy user {} successfully", connKey, proxyUser);
@@ -115,7 +115,7 @@ public class HBaseConnectionManager {
       return connection;
     } catch (IOException e) {
       LOG.error("Created hbase client connection error, the reason is ", e);
-      throw new HydraQLConnectionException(e);
+      throw new HqlConnectionException(e);
     } finally {
       connLock.unlock();
     }
@@ -147,7 +147,7 @@ public class HBaseConnectionManager {
   public BufferedMutator getBufferedMutator(HTableContext tableContext, Configuration configuration,
       Connection connection) {
     if (connection == null || connection.isClosed()) {
-      throw new HydraQLConnectionException("The connection must not be null or closed.");
+      throw new HqlConnectionException("The connection must not be null or closed.");
     }
     String tableName = tableContext.getTableName().getNameAsString();
     String uniqueKey = HBaseConnectionUtil.generateUniqueConnectionKey(configuration, tableName);
@@ -173,7 +173,7 @@ public class HBaseConnectionManager {
       return mutator;
     } catch (IOException e) {
       LOG.error("Created buffered mutator for table: {} error, the reason is: ", tableName, e);
-      throw new HydraQLConnectionException(e);
+      throw new HqlConnectionException(e);
     } finally {
       bufferMutatorLock.unlock();
     }
@@ -183,21 +183,21 @@ public class HBaseConnectionManager {
     String principal = configuration.get(HydraQlClientConfigKeys.KERBEROS_PRINCIPAL);
     if (StringUtil.isBlank(principal)) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The kerberos principal is not empty.");
+      throw new HqlConnectionException("The kerberos principal is not empty.");
     }
     String keytab = configuration.get(HydraQlClientConfigKeys.KERBEROS_KEYTAB_FILE);
     if (StringUtil.isBlank(keytab)) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The keytab file path is not empty.");
+      throw new HqlConnectionException("The keytab file path is not empty.");
     }
     File file = new File(keytab);
     if (!file.exists()) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The keytab file is not exists.");
+      throw new HqlConnectionException("The keytab file is not exists.");
     }
     if (!file.isFile()) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException("The keytab file is not a file.");
+      throw new HqlConnectionException("The keytab file is not a file.");
     }
     try {
       configuration.set(HydraQlClientConfigKeys.HADOOP_SECURITY_AUTH,
@@ -208,7 +208,7 @@ public class HBaseConnectionManager {
       doKerberosReLogin();
     } catch (IOException e) {
       kerberosEnvInit.set(false);
-      throw new HydraQLConnectionException(e);
+      throw new HqlConnectionException(e);
     }
   }
 

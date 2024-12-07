@@ -21,7 +21,7 @@ package com.hydraql.exceptions;
 /**
  * @author leojie 2023/9/27 14:06
  */
-public class HydraQLTypeMissmatchException extends HydraQLBaseException {
+public class HydraQLTypeMissmatchException extends HqlBaseException {
   private static final long serialVersionUID = 1L;
 
   public HydraQLTypeMissmatchException(String message) {

@@ -21,7 +21,7 @@ package com.hydraql.exceptions;
 /**
  * @author leojie@apache.org 2024/4/7 20:49
  */
-public class HydraQLAdminOpException extends HydraQLBaseException {
+public class HydraQLAdminOpException extends HqlBaseException {
   private static final long serialVersionUID = -5014694505768401570L;
 
   public HydraQLAdminOpException(String message) {

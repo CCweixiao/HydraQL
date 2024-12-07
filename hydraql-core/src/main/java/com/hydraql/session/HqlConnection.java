@@ -59,10 +59,6 @@ public class HqlConnection {
 
   private void openHydraQlConnection() throws IOException {
     Connection connection = HBaseConnectionManager.getInstance().getConnection(configuration);
-    if (null == connection || connection.isClosed()) {
-      throw new IOException("Failed to initialize the hbase connection.");
-    }
-
     this.table = connection.getTable(TableName.valueOf(tableName));
     BufferedMutator bufferedMutator = createBufferedMutator(connection);
     this.wrapperBufferedMutator = new WrapperBufferedMutatorImpl(this, bufferedMutator);
@@ -76,10 +72,6 @@ public class HqlConnection {
     }
 
     Connection connection = HBaseConnectionManager.getInstance().getConnection(hedgedConfiguration);
-    if (null == connection || connection.isClosed()) {
-      throw new IOException("Failed to initialize the hbase hedged read connection.");
-    }
-
     this.hedgedTable = connection.getTable(TableName.valueOf(tableName));
     BufferedMutator bufferedMutator = createBufferedMutator(connection);
     this.hedgedReadWrapperBufferedMutator = new WrapperBufferedMutatorImpl(this, bufferedMutator);
@@ -107,6 +99,11 @@ public class HqlConnection {
     if (null != this.hedgedReadWrapperBufferedMutator) {
       this.hedgedReadWrapperBufferedMutator.close();
     }
+  }
+
+  public void destroy() {
+    HBaseConnectionManager.getInstance().destroy(configuration);
+    HBaseConnectionManager.getInstance().destroy(hedgedConfiguration);
   }
 
   public String getTableName() {

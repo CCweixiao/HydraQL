@@ -21,18 +21,18 @@ package com.hydraql.exceptions;
 /**
  * @author leo.jie (leojie1314@gmail.com)
  */
-public class HydraQLBaseException extends RuntimeException {
-  private static final long serialVersionUID = 3373294238087847626L;
+public class HqlBaseException extends RuntimeException {
+  private static final long serialVersionUID = 1180890314280832112L;
 
-  public HydraQLBaseException(String message) {
+  public HqlBaseException(String message) {
     super(message);
   }
 
-  public HydraQLBaseException(Throwable cause) {
+  public HqlBaseException(Throwable cause) {
     super(cause);
   }
 
-  public HydraQLBaseException(String message, Throwable cause) {
+  public HqlBaseException(String message, Throwable cause) {
     super(message, cause);
   }
 }
