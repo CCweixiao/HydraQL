@@ -53,11 +53,11 @@ public class HqlConnection {
     this.tableName = table.getTableName();
     this.configuration = table.getConfiguration();
     this.hedgedConfiguration = table.getConfiguration().getHedgedReadConfiguration();
-    this.openHydraQlConnection();
-    this.openHedgedHydraQlConnection();
+    this.openHqlConnection();
+    this.openHedgedHqlConnection();
   }
 
-  private void openHydraQlConnection() throws IOException {
+  private void openHqlConnection() throws IOException {
     Connection connection = HBaseConnectionManager.getInstance().getConnection(configuration);
     this.table = connection.getTable(TableName.valueOf(tableName));
     BufferedMutator bufferedMutator = createBufferedMutator(connection);
@@ -65,7 +65,7 @@ public class HqlConnection {
     LOG.info("Opened HydraQL connection.");
   }
 
-  private void openHedgedHydraQlConnection() throws IOException {
+  private void openHedgedHqlConnection() throws IOException {
     if (null == this.hedgedConfiguration) {
       LOG.info("The hedged read configuration is null, and will not to create hbase connection.");
       return;

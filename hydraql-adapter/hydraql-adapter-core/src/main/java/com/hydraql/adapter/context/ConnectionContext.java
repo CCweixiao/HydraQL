@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * @author leojie 2024/4/7 19:20
  */
+@Deprecated
 public interface ConnectionContext {
   Configuration getConfiguration();
 

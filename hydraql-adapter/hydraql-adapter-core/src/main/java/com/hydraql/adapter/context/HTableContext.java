@@ -25,6 +25,7 @@ import org.apache.hadoop.hbase.client.BufferedMutator;
 /**
  * @author leojie 2024/4/7 15:22
  */
+@Deprecated
 public class HTableContext {
   private final TableName tableName;
   private BatchSaveOptions batchSaveOptions;

@@ -29,12 +29,11 @@ import java.util.List;
  * @author leojie@apache.org 2024/4/7 22:18
  */
 public class WrapperBufferedMutatorImpl implements WrapperBufferedMutator {
-  private final HqlConnection hydraQlConnection;
+  private final HqlConnection hqlConnection;
   private BufferedMutator bufferedMutator;
 
-  public WrapperBufferedMutatorImpl(HqlConnection hydraQlConnection,
-      BufferedMutator bufferedMutator) {
-    this.hydraQlConnection = hydraQlConnection;
+  public WrapperBufferedMutatorImpl(HqlConnection hqlConnection, BufferedMutator bufferedMutator) {
+    this.hqlConnection = hqlConnection;
     this.bufferedMutator = bufferedMutator;
   }
 
@@ -61,7 +60,7 @@ public class WrapperBufferedMutatorImpl implements WrapperBufferedMutator {
 
   @Override
   public boolean autoFlush() {
-    return hydraQlConnection.getBufferedMutatorOptions().isAutoFlush();
+    return hqlConnection.getBufferedMutatorOptions().isAutoFlush();
   }
 
   @Override

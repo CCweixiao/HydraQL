@@ -23,6 +23,7 @@ import org.apache.hadoop.hbase.client.BufferedMutator;
 /**
  * @author leojie 2024/4/7 14:09
  */
+@Deprecated
 public class BatchSaveOptions {
   private static final int UNSET = -1;
   private final int maxKeyValueSize;

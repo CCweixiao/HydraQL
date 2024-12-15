@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * @author leojie@apache.org 2024/12/7 18:54
  */
-class Row implements Serializable {
+public class Row implements Serializable {
   private static final long serialVersionUID = 4741043194136389238L;
 
   private final byte[] row;

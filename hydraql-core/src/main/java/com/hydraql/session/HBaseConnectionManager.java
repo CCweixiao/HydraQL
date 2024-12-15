@@ -106,7 +106,7 @@ public class HBaseConnectionManager {
     if (HBaseConnectionUtil.isProxyUserEnabled(conf)) {
       String proxyUser = HBaseConnectionUtil.proxyUser(conf);
       UserGroupInformation ugi =
-              UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser());
+          UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser());
       connection = ugi.doAs((PrivilegedAction<Connection>) () -> {
         try {
           return ConnectionFactory.createConnection(conf);
