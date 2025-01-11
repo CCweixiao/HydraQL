@@ -43,3 +43,6 @@ nbdist/
 !*/build/*.xml
 
 hydraql-shell/src/main/java/com/hydraql/shell/HBaseShellConstants.java
+
+*/*/dependency-reduced-pom.xml
+*/dependency-reduced-pom.xml

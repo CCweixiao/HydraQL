@@ -6,7 +6,7 @@
 
     <groupId>com.hydraql</groupId>
     <artifactId>hydraql</artifactId>
-    <version>${revision}</version>
+    <version>1.0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hydraql</name>
@@ -64,7 +64,6 @@
     </modules>
 
     <properties>
-        <revision>1.0.5</revision>
         <compiler.version>1.8</compiler.version>
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -239,6 +238,7 @@
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
                         <artifactId>hbase-server</artifactId>
+                        <version>${hydraql.hbase.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.jruby.jcodings</groupId>
@@ -249,7 +249,6 @@
                                 <artifactId>joni</artifactId>
                             </exclusion>
                         </exclusions>
-                        <version>${hydraql.hbase.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
@@ -277,6 +276,7 @@
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
                         <artifactId>hbase-server</artifactId>
+                        <version>${hydraql.hbase.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.jruby.jcodings</groupId>
@@ -287,7 +287,6 @@
                                 <artifactId>joni</artifactId>
                             </exclusion>
                         </exclusions>
-                        <version>${hydraql.hbase.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
@@ -315,6 +314,7 @@
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
                         <artifactId>hbase-server</artifactId>
+                        <version>${hydraql.hbase.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.jruby.jcodings</groupId>
@@ -325,8 +325,6 @@
                                 <artifactId>joni</artifactId>
                             </exclusion>
                         </exclusions>
-                        <scope>provided</scope>
-                        <version>${hydraql.hbase.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
@@ -354,6 +352,7 @@
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
                         <artifactId>hbase-server</artifactId>
+                        <version>${hydraql.hbase.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.jruby.jcodings</groupId>
@@ -364,8 +363,6 @@
                                 <artifactId>joni</artifactId>
                             </exclusion>
                         </exclusions>
-                        <scope>provided</scope>
-                        <version>${hydraql.hbase.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
@@ -393,6 +390,7 @@
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
                         <artifactId>hbase-server</artifactId>
+                        <version>${hydraql.hbase.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.jruby.jcodings</groupId>
@@ -403,8 +401,6 @@
                                 <artifactId>joni</artifactId>
                             </exclusion>
                         </exclusions>
-                        <scope>provided</scope>
-                        <version>${hydraql.hbase.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.apache.hbase</groupId>
